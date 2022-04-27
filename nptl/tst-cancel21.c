@@ -217,14 +217,14 @@ static int
 do_test (void)
 {
   stack_t ss;
-  ss.ss_sp = malloc (2 * SIGSTKSZ);
+  ss.ss_sp = malloc (4 * SIGSTKSZ);
   if (ss.ss_sp == NULL)
     {
       puts ("failed to allocate alternate stack");
       return 1;
     }
   ss.ss_flags = 0;
-  ss.ss_size = 2 * SIGSTKSZ;
+  ss.ss_size = 4 * SIGSTKSZ;
   if (sigaltstack (&ss, NULL) < 0)
     {
       printf ("sigaltstack failed %m\n");
