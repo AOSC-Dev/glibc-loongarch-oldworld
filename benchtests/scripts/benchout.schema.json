@@ -23,6 +23,14 @@
                 "max": {"type": "number"},
                 "min": {"type": "number"},
                 "mean": {"type": "number"},
+                "latency": {"type": "number"},
+                "min-throughput": {"type": "number"},
+                "max-throughput": {"type": "number"},
+                "reciprocal-throughput": {"type": "number"},
+                "min-outlier": {"type": "number"},
+                "max-outlier": {"type": "number"},
+                "wall-sec": {"type": "number"},
+                "stdev": {"type": "number"},
                 "timings": {
                   "type": "array",
                   "items": {"type": "number"}
