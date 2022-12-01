@@ -362,7 +362,7 @@ typedef struct
 #define EM_BPF		247	/* Linux BPF -- in-kernel virtual machine */
 #define	EM_LOONGARCH	258	/* Loongson Loongarch */
 
-#define EM_NUM		248
+#define EM_NUM		259
 
 /* Old spellings/synonyms.  */
 
