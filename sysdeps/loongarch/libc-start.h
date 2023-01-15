@@ -1,5 +1,5 @@
-	/* X86 definitions for libc main startup.
-   Copyright (C) 2018 Free Software Foundation, Inc.
+/* LoongArch definitions for libc main startup.
+   Copyright (C) 2023 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -17,8 +17,8 @@
    <http://www.gnu.org/licenses/>.  */
 
 #ifndef SHARED
-# define ARCH_SETUP_IREL()
-# define ARCH_APPLY_IREL() apply_irel ()
+# define ARCH_SETUP_IREL()  apply_irel ()
+# define ARCH_APPLY_IREL()
 # ifndef ARCH_SETUP_TLS
 #  define ARCH_SETUP_TLS() __libc_setup_tls ()
 # endif
