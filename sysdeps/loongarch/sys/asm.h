@@ -31,11 +31,20 @@
 	.text;				\
 	.globl	symbol;			\
 	.align	3;			\
-	cfi_startproc ;			\
 	.type	symbol, @function;	\
-symbol:
+symbol: \
+	cfi_startproc;			\
 
 # define ENTRY(symbol) LEAF(symbol)
+
+#define	LEAF_NO_ALIGN(symbol)			\
+	.text;				\
+	.globl	symbol;			\
+	.type	symbol, @function;	\
+symbol: \
+	cfi_startproc;
+
+# define ENTRY_NO_ALIGN(symbol) LEAF_NO_ALIGN(symbol)
 
 /* Mark end of function.  */
 #undef END
