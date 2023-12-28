@@ -1,0 +1,45 @@
+From de362af0fce20c3168f0704cc56260836905245c Mon Sep 17 00:00:00 2001
+From: chenglulu <chenglulu@loongson.cn>
+Date: Tue, 9 Feb 2021 10:53:53 +0800
+Subject: [PATCH] abandon liblp32
+
+Change-Id: I57202b891ec60dcea00bf5cfb599981ab1bfebb7
+---
+ sysdeps/unix/sysv/linux/loongarch/configure    | 6 +++---
+ sysdeps/unix/sysv/linux/loongarch/configure.ac | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/sysdeps/unix/sysv/linux/loongarch/configure b/sysdeps/unix/sysv/linux/loongarch/configure
+index 2e86871a9f..a402323a4d 100644
+--- a/sysdeps/unix/sysv/linux/loongarch/configure
++++ b/sysdeps/unix/sysv/linux/loongarch/configure
+@@ -170,10 +170,10 @@ lp32)
+   test -n "$libc_cv_slibdir" ||
+ case "$prefix" in
+ /usr | /usr/)
+-  libc_cv_slibdir='/liblp32'
+-  libc_cv_rtlddir='/liblp32'
++  libc_cv_slibdir='/lib32'
++  libc_cv_rtlddir='/lib32'
+   if test "$libdir" = '${exec_prefix}/lib'; then
+-    libdir='${exec_prefix}/liblp32';
++    libdir='${exec_prefix}/lib32';
+     # Locale data can be shared between 32-bit and 64-bit libraries.
+     libc_cv_complocaledir='${exec_prefix}/lib/locale'
+   fi
+diff --git a/sysdeps/unix/sysv/linux/loongarch/configure.ac b/sysdeps/unix/sysv/linux/loongarch/configure.ac
+index aaf721e688..fef4f4d2ae 100644
+--- a/sysdeps/unix/sysv/linux/loongarch/configure.ac
++++ b/sysdeps/unix/sysv/linux/loongarch/configure.ac
+@@ -17,7 +17,7 @@ LIBC_CONFIG_VAR([default-abi], [$libc_cv_loongarch_int_abi])
+ 
+ case $libc_cv_loongarch_int_abi in
+ lp32)
+-  LIBC_SLIBDIR_RTLDDIR([liblp32], [liblp32])
++  LIBC_SLIBDIR_RTLDDIR([lib32], [lib32])
+   ;;
+ lp64)
+   LIBC_SLIBDIR_RTLDDIR([lib64], [lib])
+-- 
+2.20.1
+

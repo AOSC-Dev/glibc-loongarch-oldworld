@@ -1,0 +1,68 @@
+diff --git a/sysdeps/loongarch/__longjmp.S b/sysdeps/loongarch/__longjmp.S
+index eacc12ad..788421f7 100644
+--- a/sysdeps/loongarch/__longjmp.S
++++ b/sysdeps/loongarch/__longjmp.S
+@@ -21,7 +21,6 @@
+ 
+ ENTRY (__longjmp)
+   REG_L ra, a0, 0*SZREG
+-  REG_L tp, a0, 1*SZREG
+   REG_L sp, a0, 2*SZREG
+   REG_L x, a0, 3*SZREG
+   REG_L fp, a0, 4*SZREG
+diff --git a/sysdeps/loongarch/setjmp.S b/sysdeps/loongarch/setjmp.S
+index a4bece11..21c0d9eb 100644
+--- a/sysdeps/loongarch/setjmp.S
++++ b/sysdeps/loongarch/setjmp.S
+@@ -28,7 +28,6 @@ ENTRY (setjmp)
+ END (setjmp)
+ ENTRY (__sigsetjmp)
+   REG_S ra, a0, 0*SZREG
+-  REG_S tp, a0, 1*SZREG
+   REG_S sp, a0, 2*SZREG
+   REG_S x, a0, 3*SZREG
+   REG_S fp, a0, 4*SZREG
+diff --git a/sysdeps/unix/sysv/linux/loongarch/getcontext.S b/sysdeps/unix/sysv/linux/loongarch/getcontext.S
+index 7cb42e05..675a9bd1 100644
+--- a/sysdeps/unix/sysv/linux/loongarch/getcontext.S
++++ b/sysdeps/unix/sysv/linux/loongarch/getcontext.S
+@@ -23,7 +23,6 @@
+ 	.text
+ LEAF (__getcontext)
+ 	SAVE_INT_REG (ra,   1, a0)
+-	SAVE_INT_REG (tp,   2, a0)
+ 	SAVE_INT_REG (sp,   3, a0)
+ 	SAVE_INT_REG (zero,  4, a0)	/* return 0 by overwriting a0.  */
+ 	SAVE_INT_REG (x,  21, a0)
+diff --git a/sysdeps/unix/sysv/linux/loongarch/setcontext.S b/sysdeps/unix/sysv/linux/loongarch/setcontext.S
+index 5dfe7335..bbe2f5b0 100644
+--- a/sysdeps/unix/sysv/linux/loongarch/setcontext.S
++++ b/sysdeps/unix/sysv/linux/loongarch/setcontext.S
+@@ -64,7 +64,6 @@ LEAF (__setcontext)
+ 	/* Note the contents of argument registers will be random
+ 	   unless makecontext() has been called.  */
+ 	RESTORE_INT_REG     (ra,   1, t0)
+-	RESTORE_INT_REG     (tp,   2, t0)
+ 	RESTORE_INT_REG     (sp,   3, t0)
+ 	RESTORE_INT_REG     (a0,   4, t0)
+ 	RESTORE_INT_REG     (a1,   5, t0)
+diff --git a/sysdeps/unix/sysv/linux/loongarch/swapcontext.S b/sysdeps/unix/sysv/linux/loongarch/swapcontext.S
+index ebcb89fa..58bd16b2 100644
+--- a/sysdeps/unix/sysv/linux/loongarch/swapcontext.S
++++ b/sysdeps/unix/sysv/linux/loongarch/swapcontext.S
+@@ -27,7 +27,6 @@ LEAF (__swapcontext)
+ 	ori 	t0, a1, 0	
+ 
+ 	SAVE_INT_REG (ra,   1, a0)
+-	SAVE_INT_REG (tp,   2, a0)
+ 	SAVE_INT_REG (a2,   3, a0)      /* Store sp .*/
+ 	SAVE_INT_REG (zero,  4, a0)	/* return 0 by overwriting a0.  */
+ 	SAVE_INT_REG (x,  21, a0)
+@@ -87,7 +86,6 @@ LEAF (__swapcontext)
+ 	/* Note the contents of argument registers will be random
+ 	   unless makecontext() has been called.  */
+ 	RESTORE_INT_REG (ra,   1, t0)
+-	RESTORE_INT_REG (tp,   2, t0)
+ 	RESTORE_INT_REG (sp,   3, t0)
+ 	RESTORE_INT_REG (a0,   4, t0)
+ 	RESTORE_INT_REG (a1,   5, t0)

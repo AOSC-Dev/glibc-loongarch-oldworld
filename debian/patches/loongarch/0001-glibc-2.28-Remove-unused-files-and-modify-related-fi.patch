@@ -1,0 +1,810 @@
+From c4101b344d4995459312e60d53a96824b90d58ea Mon Sep 17 00:00:00 2001
+From: caiyinyu <caiyinyu@loongson.cn>
+Date: Sat, 3 Jul 2021 15:39:42 +0800
+Subject: [PATCH] glibc-2.28: Remove unused files and modify related files
+
+    modified:
+        sysdeps/loongarch:
+                dl-machine.h
+
+        sysdeps/loongarch/lp64
+                libm-test-ulps-name
+
+    deleted:
+        sysdeps/loongarch/lp64/rvd:
+                Implies
+                s_ceil.c
+                s_floor.c
+                s_llrint.c
+                s_llround.c
+                s_lrint.c
+                s_lround.c
+                s_nearbyint.c
+                s_rint.c
+                s_round.c
+                s_roundeven.c
+                s_trunc.c
+
+        sysdeps/loongarch/lp64/rvf:
+                Implies
+                s_llrintf.c
+                s_llroundf.c
+                s_lrintf.c
+                s_lroundf.c
+
+Change-Id: Ie6c5b63a3921b6a4c6d5885a588c0038f25057b0
+---
+ sysdeps/loongarch/dl-machine.h             |  2 +-
+ sysdeps/loongarch/lp64/libm-test-ulps-name |  2 +-
+ sysdeps/loongarch/lp64/rvd/Implies         |  3 --
+ sysdeps/loongarch/lp64/rvd/s_ceil.c        | 52 ---------------------
+ sysdeps/loongarch/lp64/rvd/s_floor.c       | 52 ---------------------
+ sysdeps/loongarch/lp64/rvd/s_llrint.c      | 30 ------------
+ sysdeps/loongarch/lp64/rvd/s_llround.c     | 30 ------------
+ sysdeps/loongarch/lp64/rvd/s_lrint.c       | 30 ------------
+ sysdeps/loongarch/lp64/rvd/s_lround.c      | 30 ------------
+ sysdeps/loongarch/lp64/rvd/s_nearbyint.c   | 52 ---------------------
+ sysdeps/loongarch/lp64/rvd/s_rint.c        | 52 ---------------------
+ sysdeps/loongarch/lp64/rvd/s_round.c       | 52 ---------------------
+ sysdeps/loongarch/lp64/rvd/s_roundeven.c   | 53 ----------------------
+ sysdeps/loongarch/lp64/rvd/s_trunc.c       | 52 ---------------------
+ sysdeps/loongarch/lp64/rvf/Implies         |  1 -
+ sysdeps/loongarch/lp64/rvf/s_llrintf.c     | 30 ------------
+ sysdeps/loongarch/lp64/rvf/s_llroundf.c    | 30 ------------
+ sysdeps/loongarch/lp64/rvf/s_lrintf.c      | 31 -------------
+ sysdeps/loongarch/lp64/rvf/s_lroundf.c     | 31 -------------
+ 19 files changed, 2 insertions(+), 613 deletions(-)
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/Implies
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_ceil.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_floor.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_llrint.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_llround.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_lrint.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_lround.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_nearbyint.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_rint.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_round.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_roundeven.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvd/s_trunc.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvf/Implies
+ delete mode 100644 sysdeps/loongarch/lp64/rvf/s_llrintf.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvf/s_llroundf.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvf/s_lrintf.c
+ delete mode 100644 sysdeps/loongarch/lp64/rvf/s_lroundf.c
+
+diff --git a/sysdeps/loongarch/dl-machine.h b/sysdeps/loongarch/dl-machine.h
+index c686cd7169..2a5e3767dc 100644
+--- a/sysdeps/loongarch/dl-machine.h
++++ b/sysdeps/loongarch/dl-machine.h
+@@ -19,7 +19,7 @@
+ #ifndef dl_machine_h
+ #define dl_machine_h
+ 
+-#define ELF_MACHINE_NAME "RISC-V"
++#define ELF_MACHINE_NAME "LoongArch"
+ 
+ #include <entry.h>
+ #include <elf/elf.h>
+diff --git a/sysdeps/loongarch/lp64/libm-test-ulps-name b/sysdeps/loongarch/lp64/libm-test-ulps-name
+index 827fcdca19..ce02281eab 100644
+--- a/sysdeps/loongarch/lp64/libm-test-ulps-name
++++ b/sysdeps/loongarch/lp64/libm-test-ulps-name
+@@ -1 +1 @@
+-RISC-V
++LoongArch 64-bit
+diff --git a/sysdeps/loongarch/lp64/rvd/Implies b/sysdeps/loongarch/lp64/rvd/Implies
+deleted file mode 100644
+index 42fb132d12..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/Implies
++++ /dev/null
+@@ -1,3 +0,0 @@
+-riscv/rv64/rvf
+-riscv/rvd
+-riscv/rvf
+diff --git a/sysdeps/loongarch/lp64/rvd/s_ceil.c b/sysdeps/loongarch/lp64/rvd/s_ceil.c
+deleted file mode 100644
+index b2e5943595..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_ceil.c
++++ /dev/null
+@@ -1,52 +0,0 @@
+-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
+-
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <math_private.h>
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-double
+-__ceil (double x)
+-{
+-  int flags = riscv_getflags ();
+-  bool nan = isnan (x);
+-  double mag = fabs (x);
+-
+-  if (nan)
+-    return x + x;
+-
+-  if (mag < (1ULL << __DBL_MANT_DIG__))
+-    {
+-      int64_t i;
+-      double new_x;
+-
+-      asm volatile ("fcvt.l.d %0, %1, rup" : "=r" (i) : "f" (x));
+-      asm volatile ("fcvt.d.l %0, %1, rup" : "=f" (new_x) : "r" (i));
+-
+-      /* ceil(-0) == -0, and in general we'll always have the same
+-	 sign as our input.  */
+-      x = copysign (new_x, x);
+-
+-      riscv_setflags (flags);
+-    }
+-
+-  return x;
+-}
+-
+-libm_alias_double (__ceil, ceil)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_floor.c b/sysdeps/loongarch/lp64/rvd/s_floor.c
+deleted file mode 100644
+index 8138239666..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_floor.c
++++ /dev/null
+@@ -1,52 +0,0 @@
+-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
+-
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <math_private.h>
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-double
+-__floor (double x)
+-{
+-  int flags = riscv_getflags ();
+-  bool nan = isnan (x);
+-  double mag = fabs (x);
+-
+-  if (nan)
+-    return x + x;
+-
+-  if (mag < (1ULL << __DBL_MANT_DIG__))
+-    {
+-      int64_t i;
+-      double new_x;
+-
+-      asm volatile ("fcvt.l.d %0, %1, rdn" : "=r" (i) : "f" (x));
+-      asm volatile ("fcvt.d.l %0, %1, rdn" : "=f" (new_x) : "r" (i));
+-
+-      /* floor(-0) == -0, and in general we'll always have the same
+-	 sign as our input.  */
+-      x = copysign (new_x, x);
+-
+-      riscv_setflags (flags);
+-    }
+-
+-  return x;
+-}
+-
+-libm_alias_double (__floor, floor)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_llrint.c b/sysdeps/loongarch/lp64/rvd/s_llrint.c
+deleted file mode 100644
+index 8f37090d74..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_llrint.c
++++ /dev/null
+@@ -1,30 +0,0 @@
+-/* llrint().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-long long int
+-__llrint (double x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.d %0, %1" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_double (__llrint, llrint)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_llround.c b/sysdeps/loongarch/lp64/rvd/s_llround.c
+deleted file mode 100644
+index b7e448876b..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_llround.c
++++ /dev/null
+@@ -1,30 +0,0 @@
+-/* llround().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-long long int
+-__llround (double x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.d %0, %1, rmm" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_double (__llround, llround)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_lrint.c b/sysdeps/loongarch/lp64/rvd/s_lrint.c
+deleted file mode 100644
+index 48f61be966..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_lrint.c
++++ /dev/null
+@@ -1,30 +0,0 @@
+-/* lrint().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-long int
+-__lrint (double x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.d %0, %1" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_double (__lrint, lrint)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_lround.c b/sysdeps/loongarch/lp64/rvd/s_lround.c
+deleted file mode 100644
+index 392233cd04..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_lround.c
++++ /dev/null
+@@ -1,30 +0,0 @@
+-/* llround().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-long int
+-__lround (double x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.d %0, %1, rmm" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_double (__lround, lround)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_nearbyint.c b/sysdeps/loongarch/lp64/rvd/s_nearbyint.c
+deleted file mode 100644
+index e17f038429..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_nearbyint.c
++++ /dev/null
+@@ -1,52 +0,0 @@
+-/* nearbyint().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <math_private.h>
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-double
+-__nearbyint (double x)
+-{
+-  int flags = riscv_getflags ();
+-  bool nan = isnan (x);
+-  double mag = fabs (x);
+-
+-  if (nan)
+-    return x + x;
+-
+-  if (mag < (1ULL << __DBL_MANT_DIG__))
+-    {
+-      int64_t i;
+-      double new_x;
+-
+-      asm volatile ("fcvt.l.d %0, %1" : "=r" (i) : "f" (x));
+-      asm volatile ("fcvt.d.l %0, %1" : "=f" (new_x) : "r" (i));
+-
+-      /* nearbyint(-0) == -0, and in general we'll always have the same
+-	 sign as our input.  */
+-      x = copysign (new_x, x);
+-
+-      riscv_setflags (flags);
+-    }
+-
+-  return x;
+-}
+-
+-libm_alias_double (__nearbyint, nearbyint)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_rint.c b/sysdeps/loongarch/lp64/rvd/s_rint.c
+deleted file mode 100644
+index ef2380ea7f..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_rint.c
++++ /dev/null
+@@ -1,52 +0,0 @@
+-/* rint().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <math_private.h>
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-double
+-__rint (double x)
+-{
+-  bool nan;
+-  double mag;
+-
+-  nan = isnan (x);
+-  mag = fabs (x);
+-
+-  if (nan)
+-    return x + x;
+-
+-  if (mag < (1ULL << __DBL_MANT_DIG__))
+-    {
+-      int64_t i;
+-      double new_x;
+-
+-      asm ("fcvt.l.d %0, %1" : "=r" (i) : "f" (x));
+-      asm ("fcvt.d.l %0, %1" : "=f" (new_x) : "r" (i));
+-
+-      /* rint(-0) == -0, and in general we'll always have the same
+-	 sign as our input.  */
+-      x = copysign (new_x, x);
+-    }
+-
+-  return x;
+-}
+-
+-libm_alias_double (__rint, rint)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_round.c b/sysdeps/loongarch/lp64/rvd/s_round.c
+deleted file mode 100644
+index 22cff63e09..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_round.c
++++ /dev/null
+@@ -1,52 +0,0 @@
+-/* round().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <math_private.h>
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-double
+-__round (double x)
+-{
+-  int flags = riscv_getflags ();
+-  bool nan = isnan (x);
+-  double mag = fabs (x);
+-
+-  if (nan)
+-    return x + x;
+-
+-  if (mag < (1ULL << __DBL_MANT_DIG__))
+-    {
+-      int64_t i;
+-      double new_x;
+-
+-      asm volatile ("fcvt.l.d %0, %1, rmm" : "=r" (i) : "f" (x));
+-      asm volatile ("fcvt.d.l %0, %1, rmm" : "=f" (new_x) : "r" (i));
+-
+-      /* round(-0) == -0, and in general we'll always have the same
+-	 sign as our input.  */
+-      x = copysign (new_x, x);
+-
+-      riscv_setflags (flags);
+-    }
+-
+-  return x;
+-}
+-
+-libm_alias_double (__round, round)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_roundeven.c b/sysdeps/loongarch/lp64/rvd/s_roundeven.c
+deleted file mode 100644
+index 26a0b2ded3..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_roundeven.c
++++ /dev/null
+@@ -1,53 +0,0 @@
+-/* Round to nearest integer value, rounding halfway cases to even.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library; if not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <math_private.h>
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-double
+-__roundeven (double x)
+-{
+-  int flags = riscv_getflags ();
+-  bool nan = isnan (x);
+-  double mag = fabs (x);
+-
+-  if (nan)
+-    return x + x;
+-
+-  if (mag < (1ULL << __DBL_MANT_DIG__))
+-    {
+-      int64_t i;
+-      double new_x;
+-
+-      asm volatile ("fcvt.l.d %0, %1, rne" : "=r" (i) : "f" (x));
+-      asm volatile ("fcvt.d.l %0, %1, rne" : "=f" (new_x) : "r" (i));
+-
+-      /* roundeven(-0) == -0, and in general we'll always have the same
+-	 sign as our input.  */
+-      x = copysign (new_x, x);
+-
+-      riscv_setflags (flags);
+-    }
+-
+-  return x;
+-}
+-
+-hidden_def (__roundeven)
+-libm_alias_double (__roundeven, roundeven)
+diff --git a/sysdeps/loongarch/lp64/rvd/s_trunc.c b/sysdeps/loongarch/lp64/rvd/s_trunc.c
+deleted file mode 100644
+index a0f78e6cd1..0000000000
+--- a/sysdeps/loongarch/lp64/rvd/s_trunc.c
++++ /dev/null
+@@ -1,52 +0,0 @@
+-/* trunc().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <math_private.h>
+-#include <libm-alias-double.h>
+-#include <stdint.h>
+-
+-double
+-__trunc (double x)
+-{
+-  int flags = riscv_getflags ();
+-  bool nan = isnan (x);
+-  double mag = fabs (x);
+-
+-  if (nan)
+-    return x + x;
+-
+-  if (mag < (1ULL << __DBL_MANT_DIG__))
+-    {
+-      int64_t i;
+-      double new_x;
+-
+-      asm volatile ("fcvt.l.d %0, %1, rtz" : "=r" (i) : "f" (x));
+-      asm volatile ("fcvt.d.l %0, %1, rtz" : "=f" (new_x) : "r" (i));
+-
+-      /* trunc(-0) == -0, and in general we'll always have the same
+-	 sign as our input.  */
+-      x = copysign (new_x, x);
+-
+-      riscv_setflags (flags);
+-    }
+-
+-  return x;
+-}
+-
+-libm_alias_double (__trunc, trunc)
+diff --git a/sysdeps/loongarch/lp64/rvf/Implies b/sysdeps/loongarch/lp64/rvf/Implies
+deleted file mode 100644
+index 66c401443b..0000000000
+--- a/sysdeps/loongarch/lp64/rvf/Implies
++++ /dev/null
+@@ -1 +0,0 @@
+-riscv/rvf
+diff --git a/sysdeps/loongarch/lp64/rvf/s_llrintf.c b/sysdeps/loongarch/lp64/rvf/s_llrintf.c
+deleted file mode 100644
+index ddfda6cfe2..0000000000
+--- a/sysdeps/loongarch/lp64/rvf/s_llrintf.c
++++ /dev/null
+@@ -1,30 +0,0 @@
+-/* Round argument to nearest integral value according to current direction.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <libm-alias-float.h>
+-#include <stdint.h>
+-
+-long long int
+-__llrintf (float x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.s %0, %1" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_float (__llrint, llrint)
+diff --git a/sysdeps/loongarch/lp64/rvf/s_llroundf.c b/sysdeps/loongarch/lp64/rvf/s_llroundf.c
+deleted file mode 100644
+index 7132f81d2f..0000000000
+--- a/sysdeps/loongarch/lp64/rvf/s_llroundf.c
++++ /dev/null
+@@ -1,30 +0,0 @@
+-/* Round float value to long long int.  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <libm-alias-float.h>
+-#include <stdint.h>
+-
+-long long int
+-__llroundf (float x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.s %0, %1, rmm" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_float (__llround, llround)
+diff --git a/sysdeps/loongarch/lp64/rvf/s_lrintf.c b/sysdeps/loongarch/lp64/rvf/s_lrintf.c
+deleted file mode 100644
+index d8b2fe88bf..0000000000
+--- a/sysdeps/loongarch/lp64/rvf/s_lrintf.c
++++ /dev/null
+@@ -1,31 +0,0 @@
+-/* lrintf().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <libm-alias-float.h>
+-#include <stdint.h>
+-
+-long int
+-__lrintf (float x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.s %0, %1" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_float (__lrint, lrint)
+diff --git a/sysdeps/loongarch/lp64/rvf/s_lroundf.c b/sysdeps/loongarch/lp64/rvf/s_lroundf.c
+deleted file mode 100644
+index 010ce6904d..0000000000
+--- a/sysdeps/loongarch/lp64/rvf/s_lroundf.c
++++ /dev/null
+@@ -1,31 +0,0 @@
+-/* lroundf().  RISC-V version.
+-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library.  If not, see
+-   <http://www.gnu.org/licenses/>.  */
+-
+-#include <math.h>
+-#include <libm-alias-float.h>
+-#include <stdint.h>
+-
+-long int
+-__lroundf (float x)
+-{
+-  int64_t res;
+-  asm ("fcvt.l.s %0, %1, rmm" : "=r" (res) : "f" (x));
+-  return res;
+-}
+-
+-libm_alias_float (__lround, lround)
+-- 
+2.20.1
+

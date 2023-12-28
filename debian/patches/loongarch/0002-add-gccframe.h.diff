@@ -1,0 +1,40 @@
+From ebf3dfd9bd18e9c3266bb06b02823fe9861da6cb Mon Sep 17 00:00:00 2001
+From: chenglulu <chenglulu@loongson.cn>
+Date: Mon, 18 Jan 2021 16:53:59 +0800
+Subject: [PATCH 2/2] add gccframe.h
+
+---
+ sysdeps/loongarch/gccframe.h | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 sysdeps/loongarch/gccframe.h
+
+diff --git a/sysdeps/loongarch/gccframe.h b/sysdeps/loongarch/gccframe.h
+new file mode 100644
+index 0000000000..5f500c500d
+--- /dev/null
++++ b/sysdeps/loongarch/gccframe.h
+@@ -0,0 +1,21 @@
++/* Definition of object in frame unwind info.  RISC-V version.
++   Copyright (C) 2001-2018 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library.  If not, see
++   <http://www.gnu.org/licenses/>.  */
++
++#define FIRST_PSEUDO_REGISTER 74
++
++#include <sysdeps/generic/gccframe.h>
+-- 
+2.27.0
+

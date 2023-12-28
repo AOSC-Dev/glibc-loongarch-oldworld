@@ -1,0 +1,184 @@
+From 7cdb33f0bb10cf2a66a1a779c2a913e0e6b601a9 Mon Sep 17 00:00:00 2001
+From: sutong <sutong@loongson.cn>
+Date: Mon, 14 Dec 2020 17:48:01 +0800
+Subject: [PATCH 2/2] add args -mcmodel=large for libc_nonshared.a
+
+Change-Id: Id747ccaa371a8d98699a749bbe50db2f1750ed52
+---
+ sysdeps/loongarch/Makefile               | 16 ++++++++++++++++
+ sysdeps/loongarch/at_quick_exit.c        |  1 +
+ sysdeps/loongarch/atexit.c               |  1 +
+ sysdeps/loongarch/elf-init.c             |  1 +
+ sysdeps/loongarch/fstat.c                |  1 +
+ sysdeps/loongarch/fstat64.c              |  1 +
+ sysdeps/loongarch/fstatat.c              |  1 +
+ sysdeps/loongarch/fstatat64.c            |  1 +
+ sysdeps/loongarch/lstat.c                |  1 +
+ sysdeps/loongarch/lstat64.c              |  1 +
+ sysdeps/loongarch/mknod.c                |  1 +
+ sysdeps/loongarch/mknodat.c              |  1 +
+ sysdeps/loongarch/pthread_atfork.c       |  1 +
+ sysdeps/loongarch/stack_chk_fail_local.c |  1 +
+ sysdeps/loongarch/stat.c                 |  1 +
+ sysdeps/loongarch/stat64.c               |  1 +
+ sysdeps/loongarch/warning-nop.c          |  1 +
+ 17 files changed, 32 insertions(+)
+ create mode 100644 sysdeps/loongarch/at_quick_exit.c
+ create mode 100644 sysdeps/loongarch/atexit.c
+ create mode 100644 sysdeps/loongarch/elf-init.c
+ create mode 100644 sysdeps/loongarch/fstat.c
+ create mode 100644 sysdeps/loongarch/fstat64.c
+ create mode 100644 sysdeps/loongarch/fstatat.c
+ create mode 100644 sysdeps/loongarch/fstatat64.c
+ create mode 100644 sysdeps/loongarch/lstat.c
+ create mode 100644 sysdeps/loongarch/lstat64.c
+ create mode 100644 sysdeps/loongarch/mknod.c
+ create mode 100644 sysdeps/loongarch/mknodat.c
+ create mode 100644 sysdeps/loongarch/pthread_atfork.c
+ create mode 100644 sysdeps/loongarch/stack_chk_fail_local.c
+ create mode 100644 sysdeps/loongarch/stat.c
+ create mode 100644 sysdeps/loongarch/stat64.c
+ create mode 100644 sysdeps/loongarch/warning-nop.c
+
+diff --git a/sysdeps/loongarch/Makefile b/sysdeps/loongarch/Makefile
+index 7e407e9d6f..b33673a9b2 100644
+--- a/sysdeps/loongarch/Makefile
++++ b/sysdeps/loongarch/Makefile
+@@ -5,6 +5,22 @@ endif
+ # RISC-V's assembler also needs to know about PIC as it changes the definition
+ # of some assembler macros.
+ ASFLAGS-.os += $(pic-ccflag)
++CFLAGS-elf-init.oS += -mcmodel=large
++CFLAGS-atexit.oS += -mcmodel=large
++CFLAGS-at_quick_exit.oS += -mcmodel=large
++CFLAGS-stat.oS += -mcmodel=large
++CFLAGS-fstat.oS += -mcmodel=large
++CFLAGS-lstat.oS += -mcmodel=large
++CFLAGS-stat64.oS += -mcmodel=large
++CFLAGS-fstat64.oS += -mcmodel=large
++CFLAGS-lstat64.oS += -mcmodel=large
++CFLAGS-fstatat.oS += -mcmodel=large
++CFLAGS-fstatat64.oS += -mcmodel=large
++CFLAGS-mknod.oS += -mcmodel=large
++CFLAGS-mknodat.oS += -mcmodel=large
++CFLAGS-pthread_atfork.oS += -mcmodel=large
++CFLAGS-warning-nop.oS += -mcmodel=large
++CFLAGS-stack_chk_fail_local.oS += -mcmodel=large
+ 
+ abi-variants := lp32 lp64
+ 
+diff --git a/sysdeps/loongarch/at_quick_exit.c b/sysdeps/loongarch/at_quick_exit.c
+new file mode 100644
+index 0000000000..8d4b44a7eb
+--- /dev/null
++++ b/sysdeps/loongarch/at_quick_exit.c
+@@ -0,0 +1 @@
++#include <stdlib/at_quick_exit.c>
+diff --git a/sysdeps/loongarch/atexit.c b/sysdeps/loongarch/atexit.c
+new file mode 100644
+index 0000000000..fc055a4851
+--- /dev/null
++++ b/sysdeps/loongarch/atexit.c
+@@ -0,0 +1 @@
++#include <stdlib/atexit.c>
+diff --git a/sysdeps/loongarch/elf-init.c b/sysdeps/loongarch/elf-init.c
+new file mode 100644
+index 0000000000..5f261a9d16
+--- /dev/null
++++ b/sysdeps/loongarch/elf-init.c
+@@ -0,0 +1 @@
++#include <sysdeps/init_array/elf-init.c>
+diff --git a/sysdeps/loongarch/fstat.c b/sysdeps/loongarch/fstat.c
+new file mode 100644
+index 0000000000..c4504eebe7
+--- /dev/null
++++ b/sysdeps/loongarch/fstat.c
+@@ -0,0 +1 @@
++#include <io/fstat.c>
+diff --git a/sysdeps/loongarch/fstat64.c b/sysdeps/loongarch/fstat64.c
+new file mode 100644
+index 0000000000..143ca2b051
+--- /dev/null
++++ b/sysdeps/loongarch/fstat64.c
+@@ -0,0 +1 @@
++#include <io/fstat64.c>
+diff --git a/sysdeps/loongarch/fstatat.c b/sysdeps/loongarch/fstatat.c
+new file mode 100644
+index 0000000000..0b0a334241
+--- /dev/null
++++ b/sysdeps/loongarch/fstatat.c
+@@ -0,0 +1 @@
++#include <io/fstatat.c>
+diff --git a/sysdeps/loongarch/fstatat64.c b/sysdeps/loongarch/fstatat64.c
+new file mode 100644
+index 0000000000..e82b927477
+--- /dev/null
++++ b/sysdeps/loongarch/fstatat64.c
+@@ -0,0 +1 @@
++#include <io/fstatat64.c>
+diff --git a/sysdeps/loongarch/lstat.c b/sysdeps/loongarch/lstat.c
+new file mode 100644
+index 0000000000..f47a56aff8
+--- /dev/null
++++ b/sysdeps/loongarch/lstat.c
+@@ -0,0 +1 @@
++#include <io/lstat.c>
+diff --git a/sysdeps/loongarch/lstat64.c b/sysdeps/loongarch/lstat64.c
+new file mode 100644
+index 0000000000..d681165600
+--- /dev/null
++++ b/sysdeps/loongarch/lstat64.c
+@@ -0,0 +1 @@
++#include <io/lstat64.c>
+diff --git a/sysdeps/loongarch/mknod.c b/sysdeps/loongarch/mknod.c
+new file mode 100644
+index 0000000000..1ed3681ffe
+--- /dev/null
++++ b/sysdeps/loongarch/mknod.c
+@@ -0,0 +1 @@
++#include <io/mknod.c>
+diff --git a/sysdeps/loongarch/mknodat.c b/sysdeps/loongarch/mknodat.c
+new file mode 100644
+index 0000000000..82bc6ee637
+--- /dev/null
++++ b/sysdeps/loongarch/mknodat.c
+@@ -0,0 +1 @@
++#include <io/mknodat.c>
+diff --git a/sysdeps/loongarch/pthread_atfork.c b/sysdeps/loongarch/pthread_atfork.c
+new file mode 100644
+index 0000000000..0f01d80512
+--- /dev/null
++++ b/sysdeps/loongarch/pthread_atfork.c
+@@ -0,0 +1 @@
++#include <nptl/pthread_atfork.c>
+diff --git a/sysdeps/loongarch/stack_chk_fail_local.c b/sysdeps/loongarch/stack_chk_fail_local.c
+new file mode 100644
+index 0000000000..305871fbc0
+--- /dev/null
++++ b/sysdeps/loongarch/stack_chk_fail_local.c
+@@ -0,0 +1 @@
++#include <debug/stack_chk_fail_local.c>
+diff --git a/sysdeps/loongarch/stat.c b/sysdeps/loongarch/stat.c
+new file mode 100644
+index 0000000000..36461b870e
+--- /dev/null
++++ b/sysdeps/loongarch/stat.c
+@@ -0,0 +1 @@
++#include <io/stat.c>
+diff --git a/sysdeps/loongarch/stat64.c b/sysdeps/loongarch/stat64.c
+new file mode 100644
+index 0000000000..0897282e6a
+--- /dev/null
++++ b/sysdeps/loongarch/stat64.c
+@@ -0,0 +1 @@
++#include <io/stat64.c>
+diff --git a/sysdeps/loongarch/warning-nop.c b/sysdeps/loongarch/warning-nop.c
+new file mode 100644
+index 0000000000..b76aae79f9
+--- /dev/null
++++ b/sysdeps/loongarch/warning-nop.c
+@@ -0,0 +1 @@
++#include <debug/warning-nop.c>
+-- 
+2.20.1
+

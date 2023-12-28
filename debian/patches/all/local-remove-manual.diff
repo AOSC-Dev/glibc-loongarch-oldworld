@@ -1,0 +1,36 @@
+The GNU Libc Reference manual has to be removed for licensing reasons.
+But some files have a dependency on manual/errno.texi; the easiest
+solution is to drop those dependencies and make sure that MAKEINFO=:
+so that no target depends on manual/*.texi files.
+
+---
+ sysdeps/gnu/Makefile       |    2 
+ sysdeps/mach/hurd/Makefile |    2 
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: b/sysdeps/gnu/Makefile
+===================================================================
+--- a/sysdeps/gnu/Makefile	2012-02-17 18:24:59.000000000 -0800
++++ b/sysdeps/gnu/Makefile	2012-10-16 09:25:03.000000000 -0700
+@@ -19,7 +19,7 @@
+ # Generate the list of strings for errno codes from the section of the
+ # manual which documents the codes.
+ 
+-$(..)sysdeps/gnu/errlist.c: $(..)sysdeps/gnu/errlist.awk \
++$(..)sysdeps/gnu/errlist-disabled.c: $(..)sysdeps/gnu/errlist.awk \
+ 			    $(..)manual/errno.texi
+ 	$(AWK) -f $^ > $@-tmp
+ # Make it unwritable so noone will edit it by mistake.
+Index: b/sysdeps/mach/hurd/Makefile
+===================================================================
+--- a/sysdeps/mach/hurd/Makefile	2012-10-16 09:25:03.000000000 -0700
++++ b/sysdeps/mach/hurd/Makefile	2012-10-16 09:25:03.000000000 -0700
+@@ -85,7 +85,7 @@
+ 	    -e 's, \.\./, $(..),g' > $@t
+ 	mv -f $@t $@
+ 
+-$(hurd)/bits/errno.h: $(common-objpfx)stamp-errnos ;
++$(hurd)/bits/errno-disabled.h: $(common-objpfx)stamp-errnos ;
+ $(common-objpfx)stamp-errnos: $(hurd)/errnos.awk $(errno.texinfo) \
+ 			      $(mach-errnos-deps) $(common-objpfx)errnos.d
+ 	$(AWK) -f $^ > $(hurd)/bits/errno.h-tmp

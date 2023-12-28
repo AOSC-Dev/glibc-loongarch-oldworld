@@ -1,0 +1,138 @@
+From 922880282e738f537367ad311f7e0035fe122864 Mon Sep 17 00:00:00 2001
+From: caiyinyu <caiyinyu@loongson.cn>
+Date: Fri, 26 Feb 2021 15:57:35 +0800
+Subject: [PATCH] add loongarch process_elf_file in readelflib.c
+
+Change-Id: I1976629451d209027d8591d9b5830a96102c5dc8
+---
+ elf/elf.h                                     |  4 +
+ sysdeps/generic/ldconfig.h                    |  2 +
+ .../unix/sysv/linux/loongarch/readelflib.c    | 88 +++++++++++++++++++
+ 3 files changed, 94 insertions(+)
+ create mode 100644 sysdeps/unix/sysv/linux/loongarch/readelflib.c
+
+diff --git a/elf/elf.h b/elf/elf.h
+index 91798addba..0e85df7d59 100644
+--- a/elf/elf.h
++++ b/elf/elf.h
+@@ -3938,6 +3938,10 @@ enum
+ #define EF_LARCH_ABI_LP64        0x0003
+ #define EF_LARCH_ABI_LPX32       0x0002
+ #define EF_LARCH_ABI_LP32        0x0001
++#define EF_LARCH_RVC                0x0004
++#define EF_LARCH_FLOAT_ABI_SOFT     0x0008
++#define EF_LARCH_FLOAT_ABI_DOUBLE   0x0010
++#define EF_LARCH_FLOAT_ABI          0x001c
+ 
+ /* Loongarch specific dynamic relocations. */
+ #define R_LARCH_NONE		0
+diff --git a/sysdeps/generic/ldconfig.h b/sysdeps/generic/ldconfig.h
+index 59e20dc3ef..2f865913c8 100644
+--- a/sysdeps/generic/ldconfig.h
++++ b/sysdeps/generic/ldconfig.h
+@@ -44,6 +44,8 @@
+ #define FLAG_MIPS64_LIBN64_NAN2008	0x0e00
+ #define FLAG_RISCV_FLOAT_ABI_SOFT	0x0f00
+ #define FLAG_RISCV_FLOAT_ABI_DOUBLE	0x1000
++#define FLAG_LARCH_FLOAT_ABI_SOFT      0x2000
++#define FLAG_LARCH_FLOAT_ABI_DOUBLE    0x3000
+ 
+ /* Name of auxiliary cache.  */
+ #define _PATH_LDCONFIG_AUX_CACHE "/var/cache/ldconfig/aux-cache"
+diff --git a/sysdeps/unix/sysv/linux/loongarch/readelflib.c b/sysdeps/unix/sysv/linux/loongarch/readelflib.c
+new file mode 100644
+index 0000000000..f26bea01aa
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/loongarch/readelflib.c
+@@ -0,0 +1,88 @@
++/* Support for reading ELF files.
++   Copyright (C) 1999-2018 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, see
++   <http://www.gnu.org/licenses/>.  */
++
++
++int process_elf32_file (const char *file_name, const char *lib, int *flag,
++			unsigned int *osversion, char **soname,
++			void *file_contents, size_t file_length);
++int process_elf64_file (const char *file_name, const char *lib, int *flag,
++			unsigned int *osversion, char **soname,
++			void *file_contents, size_t file_length);
++
++#define SUPPORTED_ELF_FLAGS (EF_LARCH_FLOAT_ABI | EF_LARCH_RVC)
++
++/* Returns 0 if everything is ok, != 0 in case of error.  */
++int
++process_elf_file (const char *file_name, const char *lib, int *flag,
++		  unsigned int *osversion, char **soname, void *file_contents,
++		  size_t file_length)
++{
++  ElfW(Ehdr) *elf_header = (ElfW(Ehdr) *) file_contents;
++  Elf32_Ehdr *elf32_header = (Elf32_Ehdr *) elf_header;
++  Elf64_Ehdr *elf64_header = (Elf64_Ehdr *) elf_header;
++  int ret;
++  long flags;
++
++  /* LoongArch libraries are always libc.so.6+.  */
++  *flag = FLAG_ELF_LIBC6;
++
++  if (elf_header->e_ident [EI_CLASS] == ELFCLASS32)
++    {
++      ret = process_elf32_file (file_name, lib, flag, osversion, soname,
++				file_contents, file_length);
++      flags = elf32_header->e_flags;
++    }
++  else
++    {
++      ret = process_elf64_file (file_name, lib, flag, osversion, soname,
++				file_contents, file_length);
++      flags = elf64_header->e_flags;
++    }
++
++  /* LoongArch linkers encode the floating point ABI as part of the ELF headers.  */
++  switch (flags & EF_LARCH_FLOAT_ABI)
++    {
++      case EF_LARCH_FLOAT_ABI_SOFT:
++        *flag |= FLAG_LARCH_FLOAT_ABI_SOFT;
++	break;
++      case EF_LARCH_FLOAT_ABI_DOUBLE:
++        *flag |= FLAG_LARCH_FLOAT_ABI_DOUBLE;
++	break;
++      default:
++        return 1;
++    }
++
++  /* If there are any other ELF flags set then glibc doesn't support this
++     library.  */
++  if (flags & ~SUPPORTED_ELF_FLAGS)
++    return 1;
++
++  return ret;
++}
++
++#undef __ELF_NATIVE_CLASS
++#undef process_elf_file
++#define process_elf_file process_elf32_file
++#define __ELF_NATIVE_CLASS 32
++#include "elf/readelflib.c"
++
++#undef __ELF_NATIVE_CLASS
++#undef process_elf_file
++#define process_elf_file process_elf64_file
++#define __ELF_NATIVE_CLASS 64
++#include "elf/readelflib.c"
+-- 
+2.20.1
+

@@ -65,12 +65,18 @@ void support_write_file_string (const char *path, const char *contents);
    the result).  */
 char *support_quote_blob (const void *blob, size_t length);
 
+/* Quote the contents of the string, in such a way that the result
+   string can be included in a C literal (in single/double quotes,
+   without putting the quotes into the result).  */
+char *support_quote_string (const char *);
+
 /* Error-checking wrapper functions which terminate the process on
    error.  */
 
 void *xmalloc (size_t) __attribute__ ((malloc));
 void *xcalloc (size_t n, size_t s) __attribute__ ((malloc));
 void *xrealloc (void *p, size_t n);
+void *xposix_memalign (size_t alignment, size_t n);
 char *xasprintf (const char *format, ...)
   __attribute__ ((format (printf, 1, 2), malloc));
 char *xstrdup (const char *);

@@ -142,7 +142,7 @@ case $os in
 	-sun*os*)
 		# Prevent following clause from handling this invalid input.
 		;;
-	-dec* | -mips* | -sequent* | -encore* | -pc532* | -sgi* | -sony* | \
+	-dec* | -mips* | -loongarch* | -sequent* | -encore* | -pc532* | -sgi* | -sony* | \
 	-att* | -7300* | -3300* | -delta* | -motorola* | -sun[234]* | \
 	-unicom* | -ibm* | -next | -hp | -isi* | -apollo | -altos* | \
 	-convergent* | -ncr* | -news | -32* | -3600* | -3100* | -hitachi* |\
@@ -288,6 +288,7 @@ case $basic_machine in
 	| mipsisa64sr71k | mipsisa64sr71kel \
 	| mipsr5900 | mipsr5900el \
 	| mipstx39 | mipstx39el \
+	| loongarch | loongarch64 \
 	| mn10200 | mn10300 \
 	| moxie \
 	| mt \
@@ -415,6 +416,7 @@ case $basic_machine in
 	| mipsisa64sr71k-* | mipsisa64sr71kel-* \
 	| mipsr5900-* | mipsr5900el-* \
 	| mipstx39-* | mipstx39el-* \
+	| loongarch-* | loongarch64-* \
 	| mmix-* \
 	| mt-* \
 	| msp430-* \
@@ -1338,6 +1340,9 @@ case $basic_machine in
 		;;
 	pmac | pmac-mpw)
 		basic_machine=powerpc-apple
+		;;
+        loongarch)
+		basic_machine=loongarch-loongson
 		;;
 	*-unknown)
 		# Make sure to match an already-canonicalized machine name.

@@ -1,0 +1,30 @@
+From f1e0733c9dc4ecb97f90ba58436dcd0fee64db52 Mon Sep 17 00:00:00 2001
+From: liuzhensong <liuzhensong@loongson.cn>
+Date: Thu, 22 Apr 2021 17:05:10 +0800
+Subject: [PATCH 1/4] glibc-2.28: LoongArch Fix gdb debug core  
+ sysdeps/unix/sysv/linux/loongarch/sys/procfs.h   modify struct
+ elf_prpsinfo.pr_uid/pr_gid to unsigned int from long int
+
+Change-Id: Id89a811e873464b2b723edd06837418dff761092
+---
+ sysdeps/unix/sysv/linux/loongarch/sys/procfs.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sysdeps/unix/sysv/linux/loongarch/sys/procfs.h b/sysdeps/unix/sysv/linux/loongarch/sys/procfs.h
+index 8573d783bc..51d7da6952 100644
+--- a/sysdeps/unix/sysv/linux/loongarch/sys/procfs.h
++++ b/sysdeps/unix/sysv/linux/loongarch/sys/procfs.h
+@@ -90,8 +90,8 @@ struct elf_prpsinfo
+     char pr_zomb;			/* Zombie.  */
+     char pr_nice;			/* Nice val.  */
+     unsigned long int pr_flag;		/* Flags.  */
+-    long int pr_uid;
+-    long int pr_gid;
++    unsigned int pr_uid;
++    unsigned int pr_gid;
+     int pr_pid, pr_ppid, pr_pgrp, pr_sid;
+     /* Lots missing */
+     char pr_fname[16];			/* Filename of executable.  */
+-- 
+2.20.1
+

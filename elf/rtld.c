@@ -1320,7 +1320,7 @@ ERROR: '%s': cannot process note segment.\n", _dl_argv[0]);
   setup_vdso (main_map, &first_preload);
 
 #ifdef DL_SYSDEP_OSCHECK
-  DL_SYSDEP_OSCHECK (_dl_fatal_printf);
+  //DL_SYSDEP_OSCHECK (_dl_fatal_printf);
 #endif
 
   /* Initialize the data structures for the search paths for shared

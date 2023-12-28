@@ -214,7 +214,7 @@ LIBC_START_MAIN (int (*main) (int, char **, char ** MAIN_AUXVEC_DECL),
     {
       /* This needs to run to initiliaze _dl_osversion before TLS
 	 setup might check it.  */
-      DL_SYSDEP_OSCHECK (__libc_fatal);
+      //DL_SYSDEP_OSCHECK (__libc_fatal);
     }
 # endif
 

@@ -1,0 +1,30 @@
+From cabfc2a2e0db4565368822c70aebfd00de84b1d5 Mon Sep 17 00:00:00 2001
+From: sutong <sutong@loongson.cn>
+Date: Mon, 14 Dec 2020 17:42:33 +0800
+Subject: [PATCH 1/2]  Remove compilation paramenter --disable-werror,fix a bug
+
+Change-Id: I46cf3292195e45cff6eb954331ea238f9d16ebee
+---
+ sysdeps/loongarch/dl-machine.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/sysdeps/loongarch/dl-machine.h b/sysdeps/loongarch/dl-machine.h
+index 29ff4a74c3..3c8cfaa99e 100644
+--- a/sysdeps/loongarch/dl-machine.h
++++ b/sysdeps/loongarch/dl-machine.h
+@@ -330,9 +330,9 @@ elf_machine_lazy_rel (struct link_map *map, ElfW(Addr) l_addr,
+     {
+       ElfW(Addr) *value = (void *) (l_addr + reloc->r_addend);
+       if (__glibc_likely (!skip_ifunc))
+-	value = ((ElfW(Addr) (*) (void)) value) ();
+-      *reloc_addr = value;
+-    }
++	value = (ElfW(Addr) *)((ElfW(Addr) (*) (void)) value) ();
++      *reloc_addr = (ElfW(Addr))value;
++}
+   else
+     _dl_reloc_bad_type (map, r_type, 1);
+ }
+-- 
+2.20.1
+
