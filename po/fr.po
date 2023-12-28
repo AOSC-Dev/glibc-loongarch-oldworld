@@ -5982,7 +5982,7 @@ msgstr "Trop de fichiers ouverts dans le système"
 #. TRANS modes on an ordinary file.
 #: sysdeps/gnu/errlist.c:286
 msgid "Inappropriate ioctl for device"
-msgstr "Ioctl() inappropré pour un périphérique"
+msgstr "Ioctl() inapproprié pour un périphérique"
 
 #. TRANS An attempt to execute a file that is currently open for writing, or
 #. TRANS write to a file that is currently being executed.  Often using a
