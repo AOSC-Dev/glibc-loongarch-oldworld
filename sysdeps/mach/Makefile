@@ -35,7 +35,7 @@ endif
 # because it's different in Darwin and the conditional crap is
 # too much trouble.  This should suffice for getting the mach/Makefile
 # rules invoked when they need to be.
-mach-before-compile := $(mach-objpfx)mach-shortcuts.h \
+mach-before-compile := $(mach-objpfx)mach-shortcuts.h $(mach-objpfx)mach/mach_interface.h \
 		       $(patsubst %,$(mach-objpfx)mach/mach_%.h,\
 				  port host)
 
