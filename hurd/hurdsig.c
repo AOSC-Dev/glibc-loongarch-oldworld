@@ -767,7 +767,7 @@ post_signal (struct hurd_sigstate *ss,
       {				/* PE cannot be null.  */
 	do
 	  {
-	    if (HURD_PREEMPT_SIGNAL_P (pe, signo, detail->code))
+	    if (HURD_PREEMPT_SIGNAL_P (pe, signo, detail->exc_subcode))
 	      {
 		if (pe->preemptor)
 		  {
