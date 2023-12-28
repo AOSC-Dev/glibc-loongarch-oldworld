@@ -25,6 +25,7 @@
 #include <elf/elf.h>
 #include <sys/asm.h>
 #include <dl-tls.h>
+#include <cpu-features.c>
 
 #ifndef _RTLD_PROLOGUE
 # define _RTLD_PROLOGUE(entry)						\
@@ -55,6 +56,23 @@
 
 #define ELF_MACHINE_NO_REL 1
 #define ELF_MACHINE_NO_RELA 0
+
+#define DL_PLATFORM_INIT dl_platform_init ()
+
+static inline void __attribute__ ((unused))
+dl_platform_init (void)
+{
+  if (GLRO(dl_platform) != NULL && *GLRO(dl_platform) == '\0')
+    /* Avoid an empty string which would disturb us.  */
+    GLRO(dl_platform) = NULL;
+
+#ifdef SHARED
+  /* init_cpu_features has been called early from __libc_start_main in
+     static executable.  */
+  init_cpu_features (&GLRO(dl_larch_cpu_features));
+#endif
+}
+
 
 /* Return nonzero iff ELF header is compatible with the running host.  */
 static inline int __attribute_used__
