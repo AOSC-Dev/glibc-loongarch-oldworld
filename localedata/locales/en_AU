@@ -113,6 +113,7 @@ d_fmt       "%d//%m//%y"
 t_fmt       "%T"
 am_pm       "AM";"PM"
 t_fmt_ampm  "%I:%M:%S %p"
+date_fmt    "%a %e %b %H:%M:%S %Z %Y"
 week 7;19971130;1
 END LC_TIME
 
