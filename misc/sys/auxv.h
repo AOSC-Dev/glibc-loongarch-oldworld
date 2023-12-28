@@ -20,6 +20,7 @@
 #define _SYS_AUXV_H 1
 
 #include <elf.h>
+#include <bits/auxv.h>
 #include <sys/cdefs.h>
 #include <bits/hwcap.h>
 

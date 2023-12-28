@@ -27,10 +27,15 @@ __getauxval (unsigned long int type)
   ElfW(auxv_t) *p;
 #endif
 
+#ifdef AT_HWCAP
   if (type == AT_HWCAP)
     return GLRO(dl_hwcap);
-  else if (type == AT_HWCAP2)
+#endif
+
+#ifdef AT_HWCAP2
+  if (type == AT_HWCAP2)
     return GLRO(dl_hwcap2);
+#endif
 
 #ifdef HAVE_AUX_VECTOR
   for (p = GLRO(dl_auxv); p->a_type != AT_NULL; p++)

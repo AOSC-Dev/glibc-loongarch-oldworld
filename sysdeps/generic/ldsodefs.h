@@ -29,6 +29,7 @@
 #include <stdint.h>
 
 #include <elf.h>
+#include <bits/auxv.h>
 #include <dlfcn.h>
 #include <fpu_control.h>
 #include <sys/mman.h>
