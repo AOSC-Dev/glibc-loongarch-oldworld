@@ -123,7 +123,6 @@ _hurd_exec_paths (task_t task, file_t file,
 
   ss = _hurd_self_sigstate ();
 
-  assert (! __spin_lock_locked (&ss->critical_section_lock));
   __spin_lock (&ss->critical_section_lock);
 
   __spin_lock (&ss->lock);

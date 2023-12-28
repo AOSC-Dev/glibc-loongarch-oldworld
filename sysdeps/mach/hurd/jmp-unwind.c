@@ -49,9 +49,8 @@ _longjmp_unwind (jmp_buf env, int val)
 
   /* All access to SS->active_resources must take place inside a critical
      section where signal handlers cannot run.  */
-  __spin_lock (&ss->lock);
-  assert (! __spin_lock_locked (&ss->critical_section_lock));
   __spin_lock (&ss->critical_section_lock);
+  __spin_lock (&ss->lock);
 
   /* Remove local signal preemptors being unwound past.  */
   while (ss->preemptors &&
