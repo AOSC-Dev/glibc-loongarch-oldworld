@@ -1,5 +1,5 @@
-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
-
+/* Stack environment definitions for RISC-V.
+   Copyright (C) 2011-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 
 #include <elf.h>
 
-/* On LoongArch the stack grows down.  */
+/* On RISC-V the stack grows down.  */
 #define _STACK_GROWS_DOWN	1
 
 /* Default to a non-executable stack.  */

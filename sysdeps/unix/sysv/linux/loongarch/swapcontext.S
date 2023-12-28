@@ -27,6 +27,7 @@ LEAF (__swapcontext)
 	ori 	t0, a1, 0	
 
 	SAVE_INT_REG (ra,   1, a0)
+	SAVE_INT_REG (tp,   2, a0)
 	SAVE_INT_REG (a2,   3, a0)      /* Store sp .*/
 	SAVE_INT_REG (zero,  4, a0)	/* return 0 by overwriting a0.  */
 	SAVE_INT_REG (x,  21, a0)
@@ -57,12 +58,12 @@ LEAF (__swapcontext)
 #endif /* __loongarch_soft_float */
 
 /* rt_sigprocmask (SIG_SETMASK, &ucp->uc_sigmask, &oucp->uc_sigmask, _NSIG8) */
-	li.d	a3, _NSIG8
+	dli	a3, _NSIG8
 	addi.d	a2, a0, UCONTEXT_SIGMASK
 	addi.d  a1, t0, UCONTEXT_SIGMASK
-	li.d	a0, SIG_SETMASK
+	dli	a0, SIG_SETMASK
 
-	li.d	a7, SYS_ify (rt_sigprocmask)
+	dli	a7, SYS_ify (rt_sigprocmask)
 	syscall 0
 
 	blt	a0, zero, 99f
@@ -86,6 +87,7 @@ LEAF (__swapcontext)
 	/* Note the contents of argument registers will be random
 	   unless makecontext() has been called.  */
 	RESTORE_INT_REG (ra,   1, t0)
+	RESTORE_INT_REG (tp,   2, t0)
 	RESTORE_INT_REG (sp,   3, t0)
 	RESTORE_INT_REG (a0,   4, t0)
 	RESTORE_INT_REG (a1,   5, t0)

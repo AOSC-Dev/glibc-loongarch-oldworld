@@ -1,5 +1,5 @@
-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
-
+/* Machine-specific pthread type layouts.  RISC-V version.
+   Copyright (C) 2011-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@
 #define __ONCE_ALIGNMENT
 
 /* There is a lot of padding in this structure.  While it's not strictly
-   necessary on LoongArch, we're going to leave it in to be on the safe side in
+   necessary on RISC-V, we're going to leave it in to be on the safe side in
    case it's needed in the future.  Most other architectures have the padding,
    so this gives us the same extensibility as everyone else has.  */
 struct __pthread_rwlock_arch_t

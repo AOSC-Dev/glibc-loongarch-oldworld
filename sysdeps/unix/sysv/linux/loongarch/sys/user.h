@@ -24,8 +24,6 @@ struct user_regs_struct
 {
   uint64_t gpr[32];
   uint64_t pc;
-  uint64_t badvaddr;
-  uint64_t reserved[11];
 };
 
 #endif	/* _SYS_USER_H */

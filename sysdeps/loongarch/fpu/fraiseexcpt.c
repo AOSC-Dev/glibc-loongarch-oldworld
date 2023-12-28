@@ -18,64 +18,28 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
+#include <fenv_libc.h>
 #include <fpu_control.h>
-#include <float.h>
 
 int
 __feraiseexcept (int excepts)
 {
+  fpu_control_t cw;
 
-  const float fp_zero = 0.0, fp_one = 1.0, fp_max = FLT_MAX,
-	fp_min = FLT_MIN, fp_1e32 = 1.0e32f, fp_two = 2.0,
-	fp_three = 3.0;
+  /* Get current state.  */
+  _FPU_GETCW (cw);
 
-  /* Raise exceptions represented by EXPECTS.  But we must raise only
-     one signal at a time.  It is important that if the overflow/underflow
-     exception and the inexact exception are given at the same time,
-     the overflow/underflow exception follows the inexact exception.*/
+  /* Set flag bits (which are accumulative), and *also* set the
+     cause bits. The setting of the cause bits is what actually causes
+     the hardware to generate the exception, if the corresponding enable
+     bit is set as well.  */
 
-  /* First: invalid exception.  */
-  if (FE_INVALID & excepts)
-    __asm__ __volatile__ (
-			  "fdiv.s $f0,%0,%0\n\t"
-			  :
-			  : "f" (fp_zero)
-			  :"$f0");
+  excepts &= FE_ALL_EXCEPT;
+  cw |= excepts | (excepts << CAUSE_SHIFT);
 
-  /* Next: division by zero.  */
-  if (FE_DIVBYZERO & excepts)
-    __asm__ __volatile__ (
-			  "fdiv.s $f0,%0,%1\n\t"
-			  :
-			  : "f" (fp_one), "f" (fp_zero)
-			  :"$f0");
+  /* Set new state.  */
+  _FPU_SETCW (cw);
 
-  /* Next: overflow.  */
-  if (FE_OVERFLOW & excepts)
-    /* There's no way to raise overflow without also raising inexact.  */
-    __asm__ __volatile__ (
-			  "fadd.s $f0,%0,%1\n\t"
-			  :
-			  : "f" (fp_max), "f" (fp_1e32)
-			  : "$f0");
-
-  /* Next: underflow.  */
-  if (FE_UNDERFLOW & excepts)
-    __asm__ __volatile__ (
-			  "fdiv.s $f0,%0,%1\n\t"
-			  :
-			  : "f" (fp_min), "f" (fp_three)
-			  : "$f0");
-
-  /* Last: inexact.  */
-  if (FE_INEXACT & excepts)
-    __asm__ __volatile__ (
-			  "fdiv.s $f0, %0, %1\n\t"
-			  :
-			  : "f" (fp_two), "f" (fp_three)
-			  : "$f0");
-
-  /* Success.  */
   return 0;
 }
 

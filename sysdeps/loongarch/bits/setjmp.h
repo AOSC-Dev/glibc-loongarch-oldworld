@@ -1,5 +1,5 @@
-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
-
+/* Define the machine-dependent type `jmp_buf'.  RISC-V version.
+   Copyright (C) 2011-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,9 +23,11 @@ typedef struct __jmp_buf_internal_tag
   {
     /* Program counter.  */
     long int __pc;
+    /* TLS */
+    long int __tp;
     /* Stack pointer.  */
     long int __sp;
-    /* Reserved */
+    /* Global pointer*/
     long int __x;
     /* Frame pointer. */
     long int __fp;

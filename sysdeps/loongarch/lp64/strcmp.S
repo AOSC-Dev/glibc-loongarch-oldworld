@@ -1,6 +1,6 @@
 /* Copyright 2016 Loongson Technology Corporation Limited  */
 
-/* Author: songyuekun songyuekun@loongson.cn */
+/* Author: Huang Pei huangpei@loongson.cn */
 
 /*
  * ISA: MIPS64R2
@@ -64,7 +64,7 @@
 #define src2_off    a3
 #define tmp4        a7
 
-/* rd <- if rc then ra else rb
+/* rd <- if rc then ra else rb 
     will destroy tmp3
 */
 #define CONDITIONSEL(rd,rc,ra,rb)\
@@ -112,7 +112,7 @@ strcmp_end:
 	andi		data2, data2, 0xff
 	sub.d		result, data1, data2
 	jr ra
-strcmp_mutual_align:
+strcmp_mutual_align:	
     bstrins.d   src1, zero, 2, 0
     bstrins.d   src2, zero, 2, 0
 	slli.d		tmp1, src1_off,  0x3
@@ -129,7 +129,7 @@ strcmp_mutual_align:
 
 strcmp_misaligned8:
 
-/* check
+/* check 
     if ((src1 != 0) && ((src2 == 0 ) || (src1 < src2)))
     then exchange(src1,src2)
 

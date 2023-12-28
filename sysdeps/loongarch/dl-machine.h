@@ -1,5 +1,5 @@
-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
-
+/* Machine-dependent ELF dynamic relocation inline functions.  RISC-V version.
+   Copyright (C) 2011-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 #ifndef dl_machine_h
 #define dl_machine_h
 
-#define ELF_MACHINE_NAME "LoongArch"
+#define ELF_MACHINE_NAME "RISC-V"
 
 #include <entry.h>
 #include <elf/elf.h>
@@ -60,7 +60,7 @@
 static inline int __attribute_used__
 elf_machine_matches_host (const ElfW(Ehdr) *ehdr)
 {
-  /* We can only run LoongArch binaries.  */
+  /* We can only run RISC-V binaries.  */
   if (ehdr->e_machine != EM_LOONGARCH)
     return 0;
 
@@ -330,9 +330,9 @@ elf_machine_lazy_rel (struct link_map *map, ElfW(Addr) l_addr,
     {
       ElfW(Addr) *value = (void *) (l_addr + reloc->r_addend);
       if (__glibc_likely (!skip_ifunc))
-	value = (ElfW(Addr) *)((ElfW(Addr) (*) (void)) value) ();
-      *reloc_addr = (ElfW(Addr))value;
-}
+	value = ((ElfW(Addr) (*) (void)) value) ();
+      *reloc_addr = value;
+    }
   else
     _dl_reloc_bad_type (map, r_type, 1);
 }

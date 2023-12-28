@@ -1,4 +1,5 @@
-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
+/* jump buffer constants for RISC-V
+   Copyright (C) 2017-2018 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -33,9 +34,9 @@
        printf ("#define SAVED_MASK_OFFSET %d\n", offsetof (struct __jmp_buf_tag, __saved_mask));
    } */
 
-# define JMP_BUF_SIZE 304
+# define JMP_BUF_SIZE 312
 # define JMP_BUF_ALIGN 8
-# define SIGJMP_BUF_SIZE 304
+# define SIGJMP_BUF_SIZE 312
 # define SIGJMP_BUF_ALIGN 8
-# define MASK_WAS_SAVED_OFFSET 168
-# define SAVED_MASK_OFFSET 176
+# define MASK_WAS_SAVED_OFFSET 176
+# define SAVED_MASK_OFFSET 184

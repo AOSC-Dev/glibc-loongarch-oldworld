@@ -33,12 +33,12 @@ LEAF (__setcontext)
 	addi.d	sp, sp, -16
 	st.d	a0, sp, 0	/* Save ucp to stack. */
 /* rt_sigprocmask (SIG_SETMASK, &ucp->uc_sigmask, NULL, _NSIG8) */
-	li.d	a3, _NSIG8
-	li.d	a2, 0
+	dli	a3, _NSIG8
+	dli	a2, 0
 	addi.d  a1, a0, UCONTEXT_SIGMASK
-	li.d	a0, SIG_SETMASK
+	dli	a0, SIG_SETMASK
 
-	li.d	a7, SYS_ify (rt_sigprocmask)
+	dli	a7, SYS_ify (rt_sigprocmask)
 	syscall 0
 
 	blt	a0, $r0, 99f
@@ -64,6 +64,7 @@ LEAF (__setcontext)
 	/* Note the contents of argument registers will be random
 	   unless makecontext() has been called.  */
 	RESTORE_INT_REG     (ra,   1, t0)
+	RESTORE_INT_REG     (tp,   2, t0)
 	RESTORE_INT_REG     (sp,   3, t0)
 	RESTORE_INT_REG     (a0,   4, t0)
 	RESTORE_INT_REG     (a1,   5, t0)

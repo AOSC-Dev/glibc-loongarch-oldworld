@@ -1,6 +1,6 @@
 /* Copyright 2016 Loongson Technology Corporation Limited  */
 
-/* Author: Songyuekun songyuekun@loongson.cn */
+/* Author: Huang Pei huangpei@loongson.cn */
 
 /*
  * ISA: MIPS64R2
@@ -40,21 +40,18 @@ algorithm:
 
 /* size_t strlen (const char *s1); */
 
-	.text;
-    .globl	strlen;
-	.align		5;
-	cfi_startproc ;
-	.type	strlen, @function;
-strlen:
+LEAF(STRLEN)
 
-    //LEAF(strlen)
-    #preld       0, a0, 0
+	.align		4
+
+
+    preld       0, a0, 0
 
 	nor		t4, zero, zero
 	lu12i.w		a2, 0x01010
 	andi		t5, a0, 0x7
 
-	li.w		t7, 0x7
+	li		t7, 0x7
 	slli.d		t6, t5, 0x3
 	andn		t7, a0, t7
 	ld.d		a1, t7, 0
@@ -67,63 +64,53 @@ strlen:
 
 	ori		a2, a2, 0x101
 	nor		t1, a1, zero
-	li.w		a4, 8
+	li		a4, 8
 
-    #preld       0, a0, 32
+    preld       0, a0, 32
 	bstrins.d	a2, a2, 63, 32
 	sub.d		a5, a4, t5
 	move		t5, a0
 
 	sub.d		t0, a1, a2
-	slli.d		t4, a2, 7
-	nor		a3, zero, t4
+	slli.d		a3, a2, 7
+	nor		a3, zero, a3
 	nor		t1, a1, a3
 
 	and		t0, t0, t1
-    #preld       0, a0, 64
+    preld       0, a0, 64
 	bnez		t0, strlen_count1	/* instead of use bnel with daddu a0, a0, a5 in branch slot */
 	L_ADDU		a0, a0, a5
+
 strlen_loop:
 	ld.d		a1, a0, 0
 	sub.d		t0, a1, a2
-    and         t1, t0, t4
-	bnez		t1, strlen_count_pre
-	ld.d		a1, a0, 8
-	sub.d		t0, a1, a2
-	and		    t1, t0, t4
-	L_ADDIU		a0, a0, 16
-	beqz		t1, strlen_loop
+	nor		t1, a1, a3
+	and		t0, t0, t1
+
+	L_ADDIU		a0, a0, 8
+	beqz		t0, strlen_loop
 strlen_count:
     addi.d      a0, a0, -8
-strlen_count_pre:
-    nor         t1, a1, a3
-    and         t0, t0, t1
-    beqz        t0, strlen_noascii_start
 strlen_count1:
+/*	if has d	ctz */
+/*	dctz		t1, t0 */
+/*
+	addi.d		t1, t0, -1
+	nor		t2, t0, zero
+
+	and		t1, t2, t1
+	li		t3, 64
+	clz.d		t1, t1
+
+	sub.w		t1, t3, t1
+*/	
+
 	ctz.d		t1, t0
+
 	L_SUBU		v0, a0, t5
 	srli.w		t1, t1, 3
 	L_ADDU		v0, v0, t1
-	jr		ra
-strlen_noascii_start:
-    addi.d      a0, a0, 8
-strlen_loop_noascii:
-	ld.d		a1, a0, 0
-	sub.d		t0, a1, a2
-	nor		t1, a1, a3
-	and		t0, t0, t1
-	bnez		t0, strlen_count1
-	ld.d		a1, a0, 8
-	sub.d		t0, a1, a2
-	nor		t1, a1, a3
-	and		t0, t0, t1
-	L_ADDIU		a0, a0, 16
-	beqz		t0, strlen_loop_noascii
-    addi.d      a0, a0, -8
-	ctz.d		t1, t0
-	L_SUBU		v0, a0, t5
-	srli.w		t1, t1, 3
-	L_ADDU		v0, v0, t1
+
 	jr		ra
 END(STRLEN)
 

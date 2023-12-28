@@ -1,6 +1,6 @@
 /* Copyright 2016 Loongson Technology Corporation Limited  */
 
-/* Author: songyuekun songyuekun@loongson.cn */
+/* Author: Huang Pei huangpei@loongson.cn */
 
 /*
  * ISA: MIPS64R2
@@ -35,6 +35,9 @@
 #define L_SUBU   sub.d
 
 #define STRCHR	strchr
+#ifndef L(x)
+#define L(x) x
+#endif
 #define MOVN(rd,rs,rt) \
 	maskeqz t6, rs, rt;\
 	masknez rd, rd, rt;\
@@ -50,7 +53,7 @@
 LEAF(STRCHR)
 	.align		6
 
-	li.w		t4, 0x7
+	li		t4, 0x7
 	lu12i.w		a2, 0x01010
 	bstrins.d	a1, a1, 15, 8
 	andi		t0, a0, 0x7
@@ -58,25 +61,26 @@ LEAF(STRCHR)
 	ori		a2, a2, 0x101
 	andn		t4, a0, t4
 	slli.w		t1, t0, 3
-
+/*
+	ldr		t4, 0(a0)
+*/
 	ld.d		t4, t4, 0
-
-
+	
+	
 	nor		t8, zero, zero
 	bstrins.d	a1, a1, 31, 16
 	srl.d		t4, t4, t1
 
+    preld       0, a0, 32
 	bstrins.d	a1, a1, 63, 32
 	bstrins.d	a2, a2, 63, 32
 	srl.d		a7, t8, t1
 
-	li.w		t1, 8
 	nor		t8, a7, zero
 	slli.d		a3, a2, 7
 	or		t5, t8, t4
 	and		t3, a7, a1
 
-	sub.w		t1, t1, t0
 	nor		a3, a3, zero
 	xor		t2, t5, t3
 	sub.d		a7, t5, a2
@@ -84,15 +88,22 @@ LEAF(STRCHR)
 
 	sub.d		a5, t2, a2
 	nor		a4, t2, a3
+	and		a7, a7, a6
+	li		t1, 8
 
-    and         a6, a7, a6
-    and         a5, a5, a4
-    or          a7, a6, a5
+	and		a5, a5, a4
+	move		a6, a7
+	/*
+	movn		a7, a5, a5
+	*/
+	MOVN2(a7,a5)
 	bnez		a7, L(_mc8_a)
 
+	sub.w		t1, t1, t0
 	L_ADDU		a0, a0, t1
 L(_aloop):
 	ld.d		t4, a0, 0
+	L_ADDIU		a0, a0, 8
 
 	xor		t2, t4, a1
 	sub.d		a7, t4, a2
@@ -100,34 +111,38 @@ L(_aloop):
 	sub.d		a5, t2, a2
 
 	nor		a4, t2, a3
-    and         a6, a7, a6
-    and         a5, a5, a4
-    or          a7, a6, a5
-	bnez		a7, L(_mc8_a)
+	and		a7, a7, a6
+	and		a5, a5, a4
+	move		a6, a7
 
-	ld.d		t4, a0, 8
-	L_ADDIU		a0, a0, 16
-	xor		t2, t4, a1
-	sub.d		a7, t4, a2
-	nor		a6, t4, a3
-	sub.d		a5, t2, a2
-
-	nor		a4, t2, a3
-    and         a6, a7, a6
-    and         a5, a5, a4
-    or          a7, a6, a5
+	
+	#movn		a7, a5, a5
+	MOVN2(a7,a5)
 	beqz		a7, L(_aloop)
-
+	#nop
 	L_ADDIU		a0, a0, -8
 L(_mc8_a):
+	li		a4, 64
+	addi.d		t0, a5, -1
+	addi.d		t2, a6, -1
 
-    ctz.d       t0, a5
-    ctz.d       t2, a6
+	nor		t1, a5, zero
+	nor		t3, a6, zero
+	and		t0, t0, t1
+	and		t2, t2, t3
+
+	clz.d		t0, t0
+	clz.d		t2, t2
+	sub.w		t0, a4, t0
+	sub.w		t2, a4, t2
 
 	srli.w		t0, t0, 3
 	srli.w		t2, t2, 3
 	sltu		t1, t2, t0
 	L_ADDU		v0, a0, t0
+
+	#movn		t4, zero, t1
+	#MOVN(v0,zero,t1)
     masknez     v0, v0, t1
 	jr		ra
 END(STRCHR)

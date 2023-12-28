@@ -1,5 +1,5 @@
-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
-
+/* llround().  RISC-V version.
+   Copyright (C) 2017-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,6 +16,15 @@
    License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
-#define FIRST_PSEUDO_REGISTER 74
+#include <libm-alias-double.h>
+#include <stdint.h>
 
-#include <sysdeps/generic/gccframe.h>
+long int
+__lround (double x)
+{
+  int64_t res;
+  asm ("fcvt.l.d %0, %1, rmm" : "=r" (res) : "f" (x));
+  return res;
+}
+
+libm_alias_double (__lround, lround)

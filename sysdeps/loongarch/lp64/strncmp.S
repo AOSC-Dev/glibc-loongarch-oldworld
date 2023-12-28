@@ -1,6 +1,6 @@
 /* Copyright 2016 Loongson Technology Corporation Limited  */
 
-/* Author: songyuekun songyuekun@loongson.cn */
+/* Author: Huang Pei huangpei@loongson.cn */
 
 /*
  * ISA: MIPS64R2
@@ -106,10 +106,10 @@ strncmp_start_realigned:
     bge         limit_wd, zero, strncmp_not_limit
     /* if reach limit */
     andi        limit, limit, 0x7
-    li.w          tmp1, 0x8
+    li          tmp1, 0x8
     sub.d       limit, tmp1, limit
     slli.d      limit, limit, 0x3
-    li.d        tmp1, -1
+    dli         tmp1, -1
     srl.d       tmp1, tmp1, limit
     and         data1, data1, tmp1
     and         data2, data2, tmp1
@@ -128,7 +128,7 @@ strncmp_not_limit:
 
 
 
-strncmp_mutual_align:
+strncmp_mutual_align:	
     bstrins.d   src1, zero, 2, 0
     bstrins.d   src2, zero, 2, 0
 	slli.d		tmp1, src1_off,  0x3
@@ -154,27 +154,18 @@ strncmp_mutual_align:
 
 strncmp_misaligned8:
 
-    li.w          tmp1, 0x10
+    li          tmp1, 0x10
     bge         limit, tmp1, strncmp_try_words
 strncmp_byte_loop:
     ld.bu       data1, src1, 0
     ld.bu       data2, src2, 0
-    addi.d      limit, limit, -1
-    xor         tmp1, data1, data2
-    masknez     tmp1, data1, tmp1
-    maskeqz     tmp1, limit, tmp1
-    beqz        tmp1, strncmp_done
-
-    ld.bu       data1, src1, 1
-    ld.bu       data2, src2, 1
-    addi.d      src1, src1, 2
-    addi.d      src2, src2, 2
+    addi.d      src1, src1, 1
+    addi.d      src2, src2, 1
     addi.d      limit, limit, -1
     xor         tmp1, data1, data2
     masknez     tmp1, data1, tmp1
     maskeqz     tmp1, limit, tmp1
     bnez        tmp1, strncmp_byte_loop
-
 
 strncmp_done:
     sub.d       result, data1, data2
@@ -188,7 +179,7 @@ strncmp_try_words:
     andi        src1_off, src1_off, 0x7
     sub.d       limit, limit, src1_off
     srli.d      limit_wd, limit, 0x3
-
+    
 
 strncmp_page_end_loop:
     ld.bu       data1, src1, 0
@@ -201,7 +192,7 @@ strncmp_page_end_loop:
     andi        tmp1, src1, 0x7
     bnez        tmp1, strncmp_page_end_loop
 strncmp_do_misaligned:
-    li.w          src1_off, 0x8
+    li          src1_off, 0x8
     addi.d      limit_wd, limit_wd, -1
     blt         limit_wd, zero, strncmp_done_loop
 
@@ -250,7 +241,7 @@ strncmp_done_loop:
 strncmp_ret0:
     move result, zero
     jr ra
-/* check
+/* check 
     if ((src1 != 0) && ((src2 == 0 ) || (src1 < src2)))
     then exchange(src1,src2)
 

@@ -23,6 +23,7 @@
 	.text
 LEAF (__getcontext)
 	SAVE_INT_REG (ra,   1, a0)
+	SAVE_INT_REG (tp,   2, a0)
 	SAVE_INT_REG (sp,   3, a0)
 	SAVE_INT_REG (zero,  4, a0)	/* return 0 by overwriting a0.  */
 	SAVE_INT_REG (x,  21, a0)
@@ -54,16 +55,16 @@ LEAF (__getcontext)
 #endif /* __loongarch_soft_float */
 
 /* rt_sigprocmask (SIG_BLOCK, NULL, &ucp->uc_sigmask, _NSIG8) */
-	li.d	a3, _NSIG8
+	dli	a3, _NSIG8
 	addi.d     a2, a0, UCONTEXT_SIGMASK
 	ori	a1, zero,0
-	li.d	a0, SIG_BLOCK
+	dli	a0, SIG_BLOCK
 
-	li.d	a7, SYS_ify (rt_sigprocmask)
+	dli	a7, SYS_ify (rt_sigprocmask)
 	syscall 0
 	blt	a0, zero, 99f
 
-	jirl    $r0, $r1, 0
+	jirl    $r0, $r1, 0	
 
 99:	b	__syscall_error
 

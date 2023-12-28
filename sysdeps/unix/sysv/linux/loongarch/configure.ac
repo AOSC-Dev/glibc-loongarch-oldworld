@@ -17,10 +17,10 @@ LIBC_CONFIG_VAR([default-abi], [$libc_cv_loongarch_int_abi])
 
 case $libc_cv_loongarch_int_abi in
 lp32)
-  LIBC_SLIBDIR_RTLDDIR([lib32], [lib32])
+  LIBC_SLIBDIR_RTLDDIR([liblp32], [liblp32])
   ;;
 lp64)
-  LIBC_SLIBDIR_RTLDDIR([lib64], [lib])
+  LIBC_SLIBDIR_RTLDDIR([liblp64], [liblp64])
   ;;
 esac
 

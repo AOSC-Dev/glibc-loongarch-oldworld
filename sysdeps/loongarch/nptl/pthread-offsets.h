@@ -1,4 +1,5 @@
-/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
+/* RISC-V pthread offsets
+   Copyright (C) 2017-2018 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
