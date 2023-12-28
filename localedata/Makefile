@@ -407,7 +407,7 @@ $(INSTALL-SUPPORTED-LOCALES): install-locales-dir
 	echo -n `echo $$locale | sed 's/\([^\@]*\)\(\@.*\)*/\2/'`; \
 	echo -n '...'; \
 	input=`echo $$locale | sed 's/\([^.]*\)[^@]*\(.*\)/\1\2/'`; \
-	$(LOCALEDEF) $$flags --alias-file=../intl/locale.alias \
+	$(LOCALEDEF) $$flags --alias-file=../intl/locale.alias --no-archive \
 		     -i locales/$$input -f charmaps/$$charset \
 		     $(addprefix --prefix=,$(install_root)) $$locale \
 	&& echo ' done'; \
