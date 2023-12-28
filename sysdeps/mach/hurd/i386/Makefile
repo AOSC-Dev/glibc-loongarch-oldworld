@@ -102,3 +102,7 @@ ifeq ($(subdir),elf)
 # callbacks whose parameters don't permit to get the context parameters.
 check-execstack-xfail += ld.so libc.so libpthread.so
 endif
+
+ifeq ($(subdir),stdlib)
+gen-as-const-headers += ucontext_i.sym
+endif
