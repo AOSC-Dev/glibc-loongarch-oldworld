@@ -18,7 +18,7 @@
 # Generate the list of strings for errno codes from the section of the
 # manual which documents the codes.
 
-$(..)sysdeps/gnu/errlist.c: $(..)sysdeps/gnu/errlist.awk \
+$(..)sysdeps/gnu/errlist-disabled.c: $(..)sysdeps/gnu/errlist.awk \
 			    $(..)manual/errno.texi
 	$(AWK) -f $^ > $@-tmp
 # Make it unwritable so noone will edit it by mistake.
