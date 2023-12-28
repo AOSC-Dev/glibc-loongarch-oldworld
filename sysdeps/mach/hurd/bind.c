@@ -48,7 +48,7 @@ __bind  (int fd, __CONST_SOCKADDR_ARG addrarg, socklen_t len)
 	return -1;
 
       /* Create a new, unlinked node in the target directory.  */
-      err = __dir_mkfile (dir, O_CREAT, 0666 & ~_hurd_umask, &node);
+      err = __dir_mkfile (dir, O_CREAT, 0666, &node);
 
       if (! err)
 	{
@@ -76,11 +76,16 @@ __bind  (int fd, __CONST_SOCKADDR_ARG addrarg, socklen_t len)
 		err = EGRATUITOUS;
 	      if (! err)
 		{
-		  /* Link the node, now a socket with proper mode, into the
-		     target directory.  */
-		  err = __dir_link (dir, node, n, 1);
-		  if (err == EEXIST)
-		    err = EADDRINUSE;
+		  /* Fix the access mode before showing the file.  */
+		  err = __file_chmod (node, 0666 & ~_hurd_umask);
+		  if (! err)
+		    {
+		      /* Link the node, now a socket with proper mode, into the
+		         target directory.  */
+		      err = __dir_link (dir, node, n, 1);
+		      if (err == EEXIST)
+			err = EADDRINUSE;
+		    }
 		  if (err)
 		    __mach_port_deallocate (__mach_task_self (), aport);
 		}
