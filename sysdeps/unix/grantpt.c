@@ -219,9 +219,13 @@ grantpt (int fd)
   else
     {
       int w;
-
+retry:
       if (__waitpid (pid, &w, 0) == -1)
+	{
+	if (errno == EINTR)
+	    goto retry;	
 	goto cleanup;
+	}; 
       if (!WIFEXITED (w))
 	__set_errno (ENOEXEC);
       else
