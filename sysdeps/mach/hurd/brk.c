@@ -143,8 +143,12 @@ init_brk (void)
   /* If _hurd_brk is already set, don't change it.  The assumption is that
      it was set in a previous run before something like Emacs's unexec was
      called and dumped all the data up to the break at that point.  */
-  if (_hurd_brk == 0)
+  if (_hurd_brk == 0) {
     _hurd_brk = (vm_address_t) &_end;
+    if (_hurd_brk < 0x8000000)
+      /* XXX: PIE case, get out of library area */
+      _hurd_brk = 0x8000000;
+  }
 
   pagend = round_page (_hurd_brk);
 
