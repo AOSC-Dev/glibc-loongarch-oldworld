@@ -111,7 +111,9 @@ enum __error_t_codes
   EILSEQ                         = 0x4000006a,	/* Invalid or incomplete multibyte or wide character */
   EBACKGROUND                    = 0x40000064,	/* Inappropriate operation for background process */
   EDIED                          = 0x40000065,	/* Translator died */
+#if 0
   ED                             = 0x40000066,	/* ? */
+#endif
   EGREGIOUS                      = 0x40000067,	/* You really blew it this time */
   EIEIO                          = 0x40000068,	/* Computer bought the farm */
   EGRATUITOUS                    = 0x40000069,	/* Gratuitous error */
@@ -308,7 +310,9 @@ enum __error_t_codes
 #define EILSEQ                         0x4000006a
 #define EBACKGROUND                    0x40000064
 #define EDIED                          0x40000065
+#if 0
 #define ED                             0x40000066
+#endif
 #define EGREGIOUS                      0x40000067
 #define EIEIO                          0x40000068
 #define EGRATUITOUS                    0x40000069
