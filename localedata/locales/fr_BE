@@ -120,6 +120,7 @@ d_fmt   "%d//%m//%y"
 t_fmt   "%T"
 am_pm   "";""
 t_fmt_ampm ""
+date_fmt "%A %-e %B %Y, %H:%M:%S (UTC%z)"
 
 week    7;19971130;4
 first_weekday 2
@@ -140,7 +141,7 @@ copy "i18n"
 END LC_MEASUREMENT
 
 LC_NAME
-name_fmt    "%d%t%g%t%m%t%f"
+copy "fr_FR"
 END LC_NAME
 
 LC_ADDRESS
@@ -150,6 +151,8 @@ country_ab2 "BE"
 country_ab3 "BEL"
 country_num 056
 country_car "B"
+country_post "BE"
+country_isbn "979-10"
 lang_name "fran<U00E7>ais"
 lang_ab      "fr"
 lang_term    "fra"
