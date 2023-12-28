@@ -8,7 +8,7 @@
 SIG_BLOCK
 SIG_SETMASK
 
-_NSIG8				(_NSIG / 8)
+_NSIG8				(_NW_NSIG / 8)
 
 -- Offsets of the fields in the ucontext_t structure.
 #define ucontext(member)	offsetof (ucontext_t, member)
