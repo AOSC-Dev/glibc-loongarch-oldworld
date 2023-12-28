@@ -145,6 +145,9 @@ No definition for %s category found"), "LC_IDENTIFICATION");
 			#cat);						      \
       identification->cat = "";						      \
     }
+#define TEST_ELEM_OPT(cat)						      \
+  if (identification->cat == NULL)					      \
+    identification->cat = "";						      \
 
   TEST_ELEM (title);
   TEST_ELEM (source);
@@ -155,9 +158,9 @@ No definition for %s category found"), "LC_IDENTIFICATION");
   TEST_ELEM (fax);
   TEST_ELEM (language);
   TEST_ELEM (territory);
-  TEST_ELEM (audience);
-  TEST_ELEM (application);
-  TEST_ELEM (abbreviation);
+  TEST_ELEM_OPT (audience);
+  TEST_ELEM_OPT (application);
+  TEST_ELEM_OPT (abbreviation);
   TEST_ELEM (revision);
   TEST_ELEM (date);
 
