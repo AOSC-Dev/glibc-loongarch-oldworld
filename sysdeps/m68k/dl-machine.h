@@ -319,6 +319,8 @@ elf_machine_lazy_rel (struct link_map *map,
   Elf32_Addr *const reloc_addr = (void *) (l_addr + reloc->r_offset);
   if (ELF32_R_TYPE (reloc->r_info) == R_68K_JMP_SLOT)
     *reloc_addr += l_addr;
+  else if (ELF32_R_TYPE (reloc->r_info) == R_68K_NONE)
+    return;
   else
     _dl_reloc_bad_type (map, ELF32_R_TYPE (reloc->r_info), 1);
 }
