@@ -415,3 +415,4 @@ END(MEMCPY_NAME)
 libc_hidden_builtin_def (MEMCPY_NAME)
 #endif
 #endif
+
