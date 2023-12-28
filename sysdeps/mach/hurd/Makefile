@@ -206,4 +206,6 @@ ifeq ($(subdir),nis)
 CFLAGS-ypclnt.c += -DUSE_BINDINGDIR=1
 endif
 
+LDLIBS-pthread.so += $(objdir)/hurd/libhurduser.so
+
 endif	# in-Makerules
