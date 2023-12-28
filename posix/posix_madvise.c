@@ -27,4 +27,4 @@ posix_madvise (void *addr, size_t len, int advice)
 {
   return ENOSYS;
 }
-stub_warning (posix_madvise)
+/* stub_warning (posix_madvise) */

@@ -32,4 +32,4 @@ __madvise (void *addr, size_t len, int advice)
 libc_hidden_def (__madvise)
 weak_alias (__madvise, madvise)
 
-stub_warning (madvise)
+/* stub_warning (madvise) */
