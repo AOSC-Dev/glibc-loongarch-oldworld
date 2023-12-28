@@ -138,6 +138,7 @@ en_DK.UTF-8/UTF-8 \
 en_DK/ISO-8859-1 \
 en_GB.UTF-8/UTF-8 \
 en_GB/ISO-8859-1 \
+en_GB.ISO-8859-15/ISO-8859-15 \
 en_HK.UTF-8/UTF-8 \
 en_HK/ISO-8859-1 \
 en_IE.UTF-8/UTF-8 \
@@ -155,6 +156,7 @@ en_SG.UTF-8/UTF-8 \
 en_SG/ISO-8859-1 \
 en_US.UTF-8/UTF-8 \
 en_US/ISO-8859-1 \
+en_US.ISO-8859-15/ISO-8859-15 \
 en_ZA.UTF-8/UTF-8 \
 en_ZA/ISO-8859-1 \
 en_ZM/UTF-8 \
@@ -284,6 +286,7 @@ ka_GE/GEORGIAN-PS \
 kab_DZ/UTF-8 \
 kk_KZ.UTF-8/UTF-8 \
 kk_KZ/PT154 \
+kk_KZ.RK1048/RK1048 \
 kl_GL.UTF-8/UTF-8 \
 kl_GL/ISO-8859-1 \
 km_KH/UTF-8 \
@@ -380,6 +383,7 @@ ro_RO/ISO-8859-2 \
 ru_RU.UTF-8/UTF-8 \
 ru_RU.KOI8-R/KOI8-R \
 ru_RU/ISO-8859-5 \
+ru_RU.CP1251/CP1251 \
 ru_UA.UTF-8/UTF-8 \
 ru_UA/KOI8-U \
 rw_RW/UTF-8 \
@@ -421,6 +425,7 @@ sv_FI/ISO-8859-1 \
 sv_FI@euro/ISO-8859-15 \
 sv_SE.UTF-8/UTF-8 \
 sv_SE/ISO-8859-1 \
+sv_SE.ISO-8859-15/ISO-8859-15 \
 sw_KE/UTF-8 \
 sw_TZ/UTF-8 \
 szl_PL/UTF-8 \
