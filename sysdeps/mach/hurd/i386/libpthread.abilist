@@ -142,6 +142,8 @@ GLIBC_2.12 sem_timedwait F
 GLIBC_2.12 sem_trywait F
 GLIBC_2.12 sem_unlink F
 GLIBC_2.12 sem_wait F
+GLIBC_2.13_DEBIAN_38 pthread_hurd_cond_wait_np F
+GLIBC_2.13_DEBIAN_39 pthread_hurd_cond_timedwait_np F
 GLIBC_2.2.6 _IO_flockfile F
 GLIBC_2.2.6 _IO_ftrylockfile F
 GLIBC_2.2.6 _IO_funlockfile F
