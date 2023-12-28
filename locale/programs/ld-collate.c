@@ -3492,8 +3492,20 @@ error while adding equivalent collating symbol"));
 	    }
 	  else if (arg != NULL)
 	    {
+	      void *ptr = NULL;
 	      symstr = arg->val.str.startmb;
 	      symlen = arg->val.str.lenmb;
+	      if (state != 5
+		  && find_entry (&charmap->char_table, symstr, symlen, &ptr) != 0
+		  && (repertoire == NULL ||
+		      find_entry (&repertoire->char_table, symstr, symlen, &ptr) != 0)
+		  && find_entry (&collate->elem_table, symstr, symlen, &ptr) != 0
+	          && find_entry (&collate->sym_table, symstr, symlen, &ptr) != 0)
+		{
+		  if (verbose)
+		    lr_error (ldfile, _("%s: symbol `%.*s' not known"),
+			      "LC_COLLATE", (int) symlen, symstr);
+		}
 	    }
 	  else
 	    {
