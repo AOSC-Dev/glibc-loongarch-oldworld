@@ -146,7 +146,7 @@ inst_slibdir = $(install_root)$(slibdir)
 ifndef rtlddir
 rtlddir = $(slibdir)
 endif
-inst_rtlddir = $(install_root)$(rtlddir)
+inst_rtlddir = $(install_root)$(slibdir)
 
 # Prefix to put on files installed in $(libdir).  For libraries `libNAME.a',
 # the prefix is spliced between `lib' and the name, so the linker switch
