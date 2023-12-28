@@ -29,7 +29,7 @@
 static inline clock_t
 clock_from_time_value (const time_value_t *t)
 {
-  return t->seconds * 1000000 + t->microseconds;
+  return t->seconds * 100 + t->microseconds / 10000;
 }
 
 /* Store the CPU time used by this process and all its

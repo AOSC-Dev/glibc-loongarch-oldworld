@@ -18,12 +18,11 @@
 
 #include <time.h>
 
-/* Return frequency of `times'.
-   Since Mach reports CPU times in microseconds, we always use 1 million.  */
+/* Return frequency of `times'.  */
 int
 __getclktck (void)
 {
-  return 1000000;
+  return 100;
 }
 
 /* Before glibc 2.2, the Hurd actually did this differently, so we
