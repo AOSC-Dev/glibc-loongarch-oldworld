@@ -655,8 +655,10 @@ __fork (void)
       err = __USEPORT (PROC, __proc_getpids (port, &_hurd_pid, &_hurd_ppid,
 					     &_hurd_orphaned));
 
-      /* Forking clears the trace flag.  */
+      /* Forking clears the trace flag and pending masks.  */
       __sigemptyset (&_hurdsig_traced);
+      __sigemptyset (&_hurd_global_sigstate->pending);
+      __sigemptyset (&ss->pending);
 
       /* Release malloc locks.  */
       _hurd_malloc_fork_child ();
