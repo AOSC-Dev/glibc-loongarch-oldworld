@@ -499,7 +499,7 @@ _nss_files_gethostbyname4_r (const char *name, struct gaih_addrtuple **pat,
   else
     {
       *errnop = errno;
-      *herrnop = NO_DATA;
+      *herrnop = HOST_NOT_FOUND;
     }
 
   return status;
