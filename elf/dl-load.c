@@ -1823,6 +1823,12 @@ open_verify (const char *name, int fd,
 	      goto close_and_out;
 	    }
 #endif
+	  else if (! __builtin_expect (elf_machine_matches_host (ehdr), 1))
+	    {
+	      /* Another non-fatal error, let's skip right past the
+	         the libraries obviously built for other machines.  */
+	      goto close_and_out;
+	    }
 	  else if (ehdr->e_ident[EI_DATA] != byteorder)
 	    {
 	      if (BYTE_ORDER == BIG_ENDIAN)
