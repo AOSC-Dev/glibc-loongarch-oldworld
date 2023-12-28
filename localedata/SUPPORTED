@@ -211,6 +211,9 @@ et_EE.ISO-8859-15/ISO-8859-15 \
 eu_ES.UTF-8/UTF-8 \
 eu_ES/ISO-8859-1 \
 eu_ES@euro/ISO-8859-15 \
+eu_FR.UTF-8/UTF-8 \
+eu_FR/ISO-8859-1 \
+eu_FR@euro/ISO-8859-15 \
 fa_IR/UTF-8 \
 ff_SN/UTF-8 \
 fi_FI.UTF-8/UTF-8 \
