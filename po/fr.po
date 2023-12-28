@@ -6404,7 +6404,7 @@ msgstr " ?"
 #. TRANS You did @strong{what}?
 #: sysdeps/gnu/errlist.c:969
 msgid "You really blew it this time"
-msgstr "Vous avez vraiment tout gâcher cette fois-ci"
+msgstr "Vous avez vraiment tout gâché cette fois-ci"
 
 #. TRANS Go home and have a glass of warm, dairy-fresh milk.
 #: sysdeps/gnu/errlist.c:978
