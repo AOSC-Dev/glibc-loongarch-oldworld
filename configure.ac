@@ -528,7 +528,7 @@ LIBC_PRECONFIGURE([$srcdir], [for sysdeps])
 ###
 if test -z "$enable_hacker_mode" && test x"$libc_config_ok" != xyes; then
   case "$machine-$host_os" in
-  *-linux* | *-gnu*)
+  *-linux* | *-gnu* | *-kfreebsd*)
     ;;
   *)
     AC_MSG_ERROR([
@@ -732,6 +732,8 @@ gnu*)
   base_os=mach/hurd ;;
 linux*)
   base_os=unix/sysv ;;
+k*bsd*)
+  base_os=unix/bsd/bsd4.4 ;;
 esac
 
 # For sunos4.1.1, try sunos4.1.1, then sunos4.1, then sunos4, then sunos.
