@@ -78,7 +78,8 @@ do { if ((l)->l_info[DT_MIPS (RLD_MAP_REL)]) \
 	 ptr += (l)->l_info[DT_MIPS (RLD_MAP_REL)]->d_un.d_val; \
 	 *(ElfW(Addr) *)ptr = (ElfW(Addr)) (r); \
        } \
-     else if ((l)->l_info[DT_MIPS (RLD_MAP)]) \
+     else if ((l)->l_info[DT_MIPS (RLD_MAP)] && \
+	 (l)->l_info[DT_MIPS (RLD_MAP)]->d_un.d_ptr) \
        *(ElfW(Addr) *)((l)->l_info[DT_MIPS (RLD_MAP)]->d_un.d_ptr) = \
        (ElfW(Addr)) (r); \
    } while (0)
