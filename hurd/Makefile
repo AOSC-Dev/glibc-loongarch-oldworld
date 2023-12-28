@@ -32,8 +32,8 @@ user-interfaces		:= $(addprefix hurd/,\
 				       auth auth_request auth_reply startup \
 				       process process_request \
 				       msg msg_reply msg_request \
-				       exec exec_startup crash interrupt \
-				       fs fsys io io_reply io_request \
+				       exec exec_experimental exec_startup crash interrupt \
+				       fs fs_experimental fsys io io_reply io_request \
 				       term tioctl socket ifsock \
 				       login password pfinet \
 				       )

@@ -30,6 +30,7 @@
 #include <hurd/id.h>
 #include <hurd/lookup.h>
 #include <hurd/resource.h>
+#include <hurd/fs_experimental.h>
 #include <assert.h>
 #include <argz.h>
 #include "spawn_int.h"
@@ -655,6 +656,18 @@ __spawni (pid_t *pid, const char *file,
 	  (file, task,
 	   __sigismember (&_hurdsig_traced, SIGKILL) ? EXEC_SIGTRAP : 0,
 	   relpath, abspath, args, argslen, env, envlen,
+	   dtable, MACH_MSG_TYPE_COPY_SEND, dtablesize,
+	   ports, MACH_MSG_TYPE_COPY_SEND, _hurd_nports,
+	   ints, INIT_INT_MAX,
+	   NULL, 0, NULL, 0);
+
+	/* Fallback for backwards compatibility.  This can just be removed
+	   when __file_exec goes away.  */
+	if (err == MIG_BAD_ID)
+	  err = __file_exec_file_name
+	  (file, task,
+	   __sigismember (&_hurdsig_traced, SIGKILL) ? EXEC_SIGTRAP : 0,
+	   relpath, args, argslen, env, envlen,
 	   dtable, MACH_MSG_TYPE_COPY_SEND, dtablesize,
 	   ports, MACH_MSG_TYPE_COPY_SEND, _hurd_nports,
 	   ints, INIT_INT_MAX,

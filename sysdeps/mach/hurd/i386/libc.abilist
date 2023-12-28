@@ -1979,6 +1979,7 @@ GLIBC_2.2.6 xprt_register F
 GLIBC_2.2.6 xprt_unregister F
 GLIBC_2.21 __mach_host_self_ D 0x4
 GLIBC_2.21 __pthread_get_cleanup_stack F
+GLIBC_2.21 _hurd_exec_file_name F
 GLIBC_2.21 _hurd_sigstate_delete F
 GLIBC_2.21 _hurd_sigstate_lock F
 GLIBC_2.21 _hurd_sigstate_pending F

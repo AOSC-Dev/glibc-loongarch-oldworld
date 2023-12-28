@@ -123,6 +123,10 @@ libc {
     # functions used in macros & inline functions
     __errno_location;
   }
+  GLIBC_2.21 {
+    # "quasi-internal" functions
+    _hurd_exec_file_name;
+  }
   GLIBC_2.26 {
     # "quasi-internal" functions
     _hurd_exec_paths;
