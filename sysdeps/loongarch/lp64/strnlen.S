@@ -24,6 +24,7 @@ algorithm:
 
 */
 
+#include <sysdep.h>
 #include <sys/asm.h>
 #include <sys/regdef.h>
 
