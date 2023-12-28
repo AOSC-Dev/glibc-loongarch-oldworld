@@ -63,27 +63,11 @@ copy "en_GB"
 END LC_CTYPE
 
 LC_MONETARY
-int_curr_symbol      "DKK "
-currency_symbol      "kr."
-mon_decimal_point    ","
-mon_thousands_sep    "."
-mon_grouping         3;3
-positive_sign        ""
-negative_sign        "-"
-int_frac_digits      2
-frac_digits          2
-p_cs_precedes        1
-p_sep_by_space       0
-n_cs_precedes        1
-n_sep_by_space       0
-p_sign_posn          1
-n_sign_posn          1
+copy "da_DK"
 END LC_MONETARY
 
 LC_NUMERIC
-decimal_point        ","
-thousands_sep        "."
-grouping             3;3
+copy "da_DK"
 END LC_NUMERIC
 
 LC_TIME
@@ -152,7 +136,7 @@ copy "da_DK"
 END LC_MEASUREMENT
 
 LC_NAME
-name_fmt    "%d%t%g%t%m%t%f"
+copy "da_DK"
 END LC_NAME
 
 LC_ADDRESS
