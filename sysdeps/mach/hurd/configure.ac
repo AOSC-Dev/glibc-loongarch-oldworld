@@ -30,3 +30,5 @@ fi
 dnl ifunc does not work yet for static binaries
 dnl http://www.gnu.org/software/hurd/open_issues/ifunc.html
 libc_cv_ld_gnu_indirect_function=no
+
+use_ldconfig=yes

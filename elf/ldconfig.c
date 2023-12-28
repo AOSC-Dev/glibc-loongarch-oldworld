@@ -59,6 +59,10 @@
 
 #define PACKAGE _libc_intl_domainname
 
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 static const struct
 {
   const char *name;
