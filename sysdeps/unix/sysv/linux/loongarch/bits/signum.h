@@ -55,4 +55,6 @@
 #undef	__SIGRTMAX
 #define __SIGRTMAX	127
 
+#define _NW_NSIG        64
+
 #endif	/* <signal.h> included.  */
