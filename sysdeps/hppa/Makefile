@@ -23,6 +23,7 @@ LDFLAGS-c_pic.os += -Wl,--unique=.text*
 
 ifeq ($(subdir),elf)
 CFLAGS-rtld.c += -mdisable-fpregs
+CFLAGS-dl-reloc.c += --param inline-unit-growth=100
 sysdep-dl-routines += dl-symaddr dl-fptr
 # dl-fptr.c needs a complete rewrite to fix ISO C aliasing violations.
 CFLAGS-dl-fptr.c = -Wno-error
