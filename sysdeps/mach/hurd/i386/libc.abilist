@@ -1984,6 +1984,7 @@ GLIBC_2.21 _hurd_sigstate_lock F
 GLIBC_2.21 _hurd_sigstate_pending F
 GLIBC_2.21 _hurd_sigstate_set_global_rcv F
 GLIBC_2.21 _hurd_sigstate_unlock F
+GLIBC_2.21 mach_print F
 GLIBC_2.21 pthread_attr_destroy F
 GLIBC_2.21 pthread_attr_getdetachstate F
 GLIBC_2.21 pthread_attr_getinheritsched F
