@@ -795,10 +795,14 @@ static void
 show_locale_vars (void)
 {
   const char *lcall = getenv ("LC_ALL") ?: "";
+  const char *language = getenv ("LANGUAGE") ?: "";
   const char *lang = getenv ("LANG") ?: "";
 
   /* LANG has to be the first value.  */
   print_assignment ("LANG", lang, false);
+
+  if (getenv ("POSIXLY_CORRECT") == NULL)
+    printf ("LANGUAGE=%s\n", language);
 
   /* Now all categories in an unspecified order.  */
   for (size_t cat_no = 0; cat_no < NCATEGORIES; ++cat_no)
