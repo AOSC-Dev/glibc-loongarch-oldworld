@@ -177,13 +177,13 @@ static struct {
 static inline void
 stb_mb(unsigned char val, unsigned long addr)
 {
-  __asm__("stb %1,%0; mb" : "=m"(*(vucp)addr) : "r"(val));
+  __asm__(".arch ev6; stb %1,%0; mb" : "=m"(*(vucp)addr) : "r"(val));
 }
 
 static inline void
 stw_mb(unsigned short val, unsigned long addr)
 {
-  __asm__("stw %1,%0; mb" : "=m"(*(vusp)addr) : "r"(val));
+  __asm__(".arch ev6; stw %1,%0; mb" : "=m"(*(vusp)addr) : "r"(val));
 }
 
 static inline void
@@ -355,7 +355,7 @@ inline_bwx_inb (unsigned long int port)
   unsigned long int addr = dense_port_to_cpu_addr (port);
   unsigned char r;
 
-  __asm__ ("ldbu %0,%1" : "=r"(r) : "m"(*(vucp)addr));
+  __asm__ (".arch ev6; ldbu %0,%1" : "=r"(r) : "m"(*(vucp)addr));
   return r;
 }
 
@@ -365,7 +365,7 @@ inline_bwx_inw (unsigned long int port)
   unsigned long int addr = dense_port_to_cpu_addr (port);
   unsigned short r;
 
-  __asm__ ("ldwu %0,%1" : "=r"(r) : "m"(*(vusp)addr));
+  __asm__ (".arch ev6; ldwu %0,%1" : "=r"(r) : "m"(*(vusp)addr));
   return r;
 }
 
