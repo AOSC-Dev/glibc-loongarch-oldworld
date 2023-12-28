@@ -53,6 +53,16 @@ tf1 (void *arg)
 	      puts ("pthread_create returned EINTR");
 	      exit (1);
 	    }
+	  if (e == EAGAIN)
+	    {
+	      /* The kernel might not have processed the last few
+	         pthread_join()s yet.  Tolerate that, but record the
+	         event in test output so attentive people reading
+	         logs can notice if pthread_join() stops working
+	         altogether.  */
+	      write (STDOUT_FILENO, "!", 1);
+	      continue;
+	    }
 
 	  char buf[100];
 	  printf ("tf1: pthread_create failed: %s\n",
