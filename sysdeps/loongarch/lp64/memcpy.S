@@ -7,32 +7,51 @@
 #include <sys/asm.h>
 #endif
 
-/* Allow the routine to be named something else if desired.  */
 #ifndef MEMCPY_NAME
 #define MEMCPY_NAME memcpy
 #endif
 
-#define LD_64(reg, n) \
-	ld.d	t0, reg, n;    \
-	ld.d	t1, reg, n+8;  \
-	ld.d	t2, reg, n+16; \
-	ld.d	t3, reg, n+24; \
-	ld.d	t4, reg, n+32; \
-	ld.d	t5, reg, n+40; \
-	ld.d	t6, reg, n+48; \
-	ld.d	t7, reg, n+56; 
+#ifndef MEMMOVE_NAME
+#define MEMMOVE_NAME memmove
+#endif
 
+#define LD_64(reg, n)          \
+    ld.d        t0, reg, n;    \
+    ld.d        t1, reg, n+8;  \
+    ld.d        t2, reg, n+16; \
+    ld.d        t3, reg, n+24; \
+    ld.d        t4, reg, n+32; \
+    ld.d        t5, reg, n+40; \
+    ld.d        t6, reg, n+48; \
+    ld.d        t7, reg, n+56;
 
-#define ST_64(reg, n) \
-	st.d	t0, reg, n;    \
-	st.d	t1, reg, n+8;  \
-	st.d	t2, reg, n+16; \
-	st.d	t3, reg, n+24; \
-	st.d	t4, reg, n+32; \
-	st.d	t5, reg, n+40; \
-	st.d	t6, reg, n+48; \
-	st.d	t7, reg, n+56; 
-	
+#define ST_64(reg, n)          \
+    st.d        t0, reg, n;    \
+    st.d        t1, reg, n+8;  \
+    st.d        t2, reg, n+16; \
+    st.d        t3, reg, n+24; \
+    st.d        t4, reg, n+32; \
+    st.d        t5, reg, n+40; \
+    st.d        t6, reg, n+48; \
+    st.d        t7, reg, n+56;
+
+#ifdef ANDROID_CHANGES
+LEAF(MEMMOVE_NAME, 0)
+#else
+LEAF(MEMMOVE_NAME)
+#endif
+
+    .align      6
+    sub.d       t0, a0, a1
+    bltu        t0, a2, L(copy_back)
+
+END(MEMMOVE_NAME)
+
+#ifndef ANDROID_CHANGES
+#ifdef _LIBC
+libc_hidden_builtin_def (MEMMOVE_NAME)
+#endif
+#endif
 
 #ifdef ANDROID_CHANGES
 LEAF(MEMCPY_NAME, 0)
@@ -40,379 +59,760 @@ LEAF(MEMCPY_NAME, 0)
 LEAF(MEMCPY_NAME)
 #endif
 
-//1st var: dest ptr: void *str1 $r4
-//2nd var: src  ptr: void *str2 $r5
-//3rd var: size_t num
-//t0~t9 registers as temp
+    srai.d      a3, a2, 4
+    beqz        a3, L(short_data)  # less than 16 bytes
 
-	add.d	a4, a1, a2
-	add.d	a3, a0, a2
-	move	t8, a0
-	srai.d	a6, a2, 4  		#num/16
-	beqz	a6, less_16bytes        #num<16
-	nop
-	srai.d	a6, a2, 8  		#num/256
-	bnez	a6, more_256bytes       #num>256
-	nop
-	srai.d	a6, a2, 7  
-	beqz	a6, less_128bytes	#num<128
-	nop
+    move        a4, a0
+    andi        a5, a0, 0x7
+    andi        a6, a1, 0x7
+    li.d        t8, 8
+    beqz        a5, L(check_align)
 
-	LD_64(a1, 0)			#128<num<256
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
-	LD_64(a4, -128)
-	ST_64(a3, -128)
-	LD_64(a4, -64)
-	ST_64(a3, -64)
+    # make dest aligned 8 bytes
+    sub.d       t2, t8, a5
+    sub.d       a2, a2, t2
 
-	jr	ra
-	nop
+    pcaddi      t1, 20
+    slli.d      t3, t2, 3
+    add.d       a1, a1, t2
+    sub.d       t1, t1, t3
+    add.d       a4, a4, t2
+    jr          t1
 
-less_128bytes:
-	srai.d	a6, a2, 6  #num/64
-	beqz	a6, less_64bytes
-	nop
+L(al7):
+    ld.b        t0, a1, -7
+    st.b        t0, a4, -7
+L(al6):
+    ld.b        t0, a1, -6
+    st.b        t0, a4, -6
+L(al5):
+    ld.b        t0, a1, -5
+    st.b        t0, a4, -5
+L(al4):
+    ld.b        t0, a1, -4
+    st.b        t0, a4, -4
+L(al3):
+    ld.b        t0, a1, -3
+    st.b        t0, a4, -3
+L(al2):
+    ld.b        t0, a1, -2
+    st.b        t0, a4, -2
+L(al1):
+    ld.b        t0, a1, -1
+    st.b        t0, a4, -1
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a4, -64)
-	ST_64(a3, -64)
-	
-	jr	ra
-	nop
+L(check_align):
+    bne         a5, a6, L(unalign)
 
-less_64bytes:
-	srai.d	a6, a2, 5 #num/32
-	beqz	a6, less_32bytes
-	nop
-	
-	ld.d	t0, a1, 0
-	ld.d	t1, a1, 8
-	ld.d	t2, a1, 16
-	ld.d	t3, a1, 24
-	ld.d	t4, a4, -32
-	ld.d	t5, a4, -24
-	ld.d	t6, a4, -16
-	ld.d	t7, a4, -8
-	st.d	t0, a0, 0
-	st.d	t1, a0, 8
-	st.d	t2, a0, 16
-	st.d	t3, a0, 24
-	st.d	t4, a3, -32
-	st.d	t5, a3, -24
-	st.d	t6, a3, -16
-	st.d	t7, a3, -8
+    srai.d      a3, a2, 4
+    beqz        a3, L(al_less_16bytes)
 
-	jr	ra
-	nop
+    andi        a3, a2, 0x3f
+    beq         a3, a2, L(al_less_64bytes)
 
-less_32bytes:
-	ld.d	t0, a1, 0
-	ld.d	t1, a1, 8
-	ld.d	t2, a4, -16
-	ld.d	t3, a4, -8
-	st.d	t0, a0, 0
-	st.d	t1, a0, 8
-	st.d	t2, a3, -16
-	st.d	t3, a3, -8
+    sub.d       t0, a2, a3
+    move        a2, a3
+    add.d       a5, a1, t0
 
-	jr	ra
-	nop
+L(loop_64bytes):
+    LD_64(a1, 0)
+    addi.d      a1, a1, 64
+    ST_64(a4, 0)
 
-less_16bytes:
-	srai.d	a6, a2, 3 #num/8
-	beqz	a6, less_8bytes
-	nop
-	
-	ld.d	t0, a1, 0
-	ld.d	t1, a4, -8
-	st.d	t0, a0, 0
-	st.d	t1, a3, -8
+    addi.d      a4, a4, 64
+    bne         a1, a5, L(loop_64bytes)
 
-	jr	ra
-	nop
+L(al_less_64bytes):
+    srai.d     a3, a2, 5
+    beqz       a3, L(al_less_32bytes)
 
-less_8bytes:
-	srai.d	a6, a2, 2
-	beqz	a6, less_4bytes
-	nop
+    ld.d       t0, a1, 0
+    ld.d       t1, a1, 8
+    ld.d       t2, a1, 16
+    ld.d       t3, a1, 24
 
-	ld.w	t0, a1, 0
-	ld.w	t1, a4, -4
-	st.w	t0, a0, 0
-	st.w	t1, a3, -4
+    addi.d     a1, a1, 32
+    addi.d     a2, a2, -32
 
-	jr	ra
-	nop
-	
-less_4bytes:
-	srai.d	a6, a2, 1
-	beqz	a6, less_2bytes
-	nop
-	
-	ld.h	t0, a1, 0
-	ld.h	t1, a4, -2
-	st.h	t0, a0, 0
-	st.h	t1, a3, -2
+    st.d       t0, a4, 0
+    st.d       t1, a4, 8
+    st.d       t2, a4, 16
+    st.d       t3, a4, 24
 
-	jr	ra
-	nop
+    addi.d     a4, a4, 32
 
-less_2bytes:
-	beqz	a2, less_1bytes
-	nop
+L(al_less_32bytes):
+    srai.d     a3, a2, 4
+    beqz       a3, L(al_less_16bytes)
 
-	ld.b	t0, a1, 0
-	st.b	t0, a0, 0
+    ld.d       t0, a1, 0
+    ld.d       t1, a1, 8
+    addi.d     a1, a1, 16
+    addi.d     a2, a2, -16
 
-	jr	ra
-	nop
+    st.d       t0, a4, 0
+    st.d       t1, a4, 8
+    addi.d     a4, a4, 16
 
-less_1bytes:
-	jr	ra
-	nop
+L(al_less_16bytes):
+    srai.d     a3, a2, 3
+    beqz       a3, L(al_less_8bytes)
 
-more_256bytes:
-	srli.d	a0, a0, 3
-	slli.d	a0, a0, 3
-	addi.d	a0, a0,  0x8
-	sub.d	a7, t8,  a0
-	ld.d	t0, a1, 0
-	sub.d	a1,  a1,  a7
-	st.d	t0, t8, 0
+    ld.d       t0, a1, 0
+    addi.d     a1, a1, 8
+    addi.d     a2, a2, -8
 
-	LD_64(a4, -128)
-	ST_64(a3, -128)
-	LD_64(a4, -64)
-	ST_64(a3, -64)
+    st.d       t0, a4, 0
+    addi.d     a4, a4, 8
 
-	add.d	a7, a7, a2
-	addi.d	a7, a7, -0x80     
-	srai.d	a6, a7, 22    
-	bnez	a6, loop_most
-	nop
-	srai.d	a6, a7, 12
-	beqz	a6, loop_less
-	nop
+L(al_less_8bytes):
+    srai.d      a3, a2, 2
+    beqz        a3, L(al_less_4bytes)
 
-loop_more:
-	addi.d	a5, zero, 4
-loop_in_1:
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+    ld.w        t0, a1, 0
+    addi.d      a1, a1, 4
+    addi.d      a2, a2, -4
 
-	addi.d	a0, a0, 128	#1
-	addi.d	a1, a1, 128	#1
+    st.w        t0, a4, 0
+    addi.d      a4, a4, 4
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+L(al_less_4bytes):
+    srai.d      a3, a2, 1
+    beqz        a3, L(al_less_2bytes)
 
-	addi.d	a0, a0, 128	#2
-	addi.d	a1, a1, 128	#2
+    ld.h        t0, a1, 0
+    addi.d      a1, a1, 2
+    addi.d      a2, a2, -2
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+    st.h        t0, a4, 0
+    addi.d      a4, a4, 2
 
-	addi.d	a0, a0, 128	#3
-	addi.d	a1, a1, 128	#3
+L(al_less_2bytes):
+    beqz        a2, L(al_less_1byte)
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+    ld.b        t0, a1, 0
+    st.b        t0, a4, 0
 
-	addi.d	a0, a0, 128	#4
-	addi.d	a1, a1, 128	#4
+L(al_less_1byte):
+    jr          ra
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+L(unalign):
+    andi        a5, a1, 0x7
+    bstrins.d   a1, zero, 2, 0   # make src 8 bytes aligned
 
-	addi.d	a0, a0, 128	#5
-	addi.d	a1, a1, 128	#5
+    sub.d       t8, t8, a5  # use t8 to save count of bytes for aligning
+    slli.d      a5, a5, 3
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+    ld.d        t0, a1, 0
+    addi.d      a1, a1, 8
 
-	addi.d	a0, a0, 128	#6
-	addi.d	a1, a1, 128	#6
+    slli.d      a6, t8, 3
+    srl.d       a7, t0, a5
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+    srai.d      a3, a2, 4
+    beqz        a3, L(un_less_16bytes)
 
-	addi.d	a0, a0, 128	#7
-	addi.d	a1, a1, 128	#7
+    andi        a3, a2, 0x3f
+    beq         a3, a2, L(un_less_64bytes)
 
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
+    sub.d       t0, a2, a3
+    move        a2, a3
+    add.d       a3, a1, t0
 
-	addi.d	a0, a0, 128	#8
-	addi.d	a1, a1, 128	#8
+# a5 shift right num
+# a6 shift left num
+# a7 remaining part
+L(un_long_bytes):
+    ld.d        t0, a1, 0
+    ld.d        t1, a1, 8
+    ld.d        t2, a1, 16
+    ld.d        t3, a1, 24
 
-	addi.d	a5, a5, -1
-	bnez	a5, loop_in_1
-	nop
-	addi.d	a6, a6, -1
-	bnez	a6, loop_more
-	nop
+    srl.d       t4, t0, a5
+    sll.d       t0, t0, a6
 
- 	lu12i.w t4, 1
-  	addi.d 	t4, t4, -1 
-  	and 	a7, a7, t4
-	
-	b	loop_less
-	nop
+    srl.d       t5, t1, a5
+    sll.d       t1, t1, a6
 
-loop_most:
-	srai.d	a6, a7, 12
-	lu12i.w	a3, 1
-	add.d	a2, a3, a0
-	add.d	a3, a3, a1
+    srl.d       t6, t2, a5
+    sll.d       t2, t2, a6
 
-loop_most_loop:
-	addi.d	a5, zero, 4
-loop_in_2:
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #1
-	addi.d	a1,  a1,   128   #1
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #2
-	addi.d	a1,  a1,   128   #2
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #3
-	addi.d	a1,  a1,   128   #3
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #4
-	addi.d	a1,  a1,   128   #4
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #5
-	addi.d	a1,  a1,   128   #5
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #6
-	addi.d	a1,  a1,   128   #6
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #7
-	addi.d	a1,  a1,   128   #7
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	LD_64(a1, 0)
-	preld	0, a3, 0
-	ST_64(a0, 0)
-	preld	8, a2, 0
-	LD_64(a1, 64)
-	preld	0, a3, 64
-	ST_64(a0, 64)
-	preld	8, a2, 64
-	addi.d	a0,  a0,   128   #8
-	addi.d	a1,  a1,   128   #8
-	addi.d  a2,  a2,   128
-   	addi.d  a3,  a3,   128
-	addi.d	a5, a5, -1
-	bnez	a5, loop_in_2
-	nop
-	addi.d	a6, a6, -1
-	bnez	a6, loop_most_loop
-	nop
+    srl.d       t7, t3, a5
+    sll.d       t3, t3, a6
 
- 	lu12i.w t4, 1
-  	addi.d 	t4, t4, -1 
-  	and 	a7, a7, t4
+    or          t0, a7, t0
+    or          t1, t4, t1
+    or          t2, t5, t2
+    or          t3, t6, t3
 
-loop_less:
-	LD_64(a1, 0)
-	ST_64(a0, 0)
-	LD_64(a1, 64)
-	ST_64(a0, 64)
-	addi.d	a0,  a0,   0x80
-	addi.d	a1,  a1,   0x80
-	addi.d	a7,  a7, -0x80
-	slt	a6, a7, zero
-	beqz	a6, loop_less
-	nop
-	move	v0, t8
-	jr	ra
-	nop
+    ld.d        t4, a1, 32
+    ld.d        t5, a1, 40
+    ld.d        t6, a1, 48
+    ld.d        a7, a1, 56
+
+    st.d        t0, a4, 0
+    st.d        t1, a4, 8
+    st.d        t2, a4, 16
+    st.d        t3, a4, 24
+
+    addi.d      a1, a1, 64
+
+    srl.d       t0, t4, a5
+    sll.d       t4, t4, a6
+
+    srl.d       t1, t5, a5
+    sll.d       t5, t5, a6
+
+    srl.d       t2, t6, a5
+    sll.d       t6, t6, a6
+
+    sll.d       t3, a7, a6
+    srl.d       a7, a7, a5
+
+    or          t4, t7, t4
+    or          t5, t0, t5
+    or          t6, t1, t6
+    or          t3, t2, t3
+
+    st.d        t4, a4, 32
+    st.d        t5, a4, 40
+    st.d        t6, a4, 48
+    st.d        t3, a4, 56
+
+    addi.d      a4, a4, 64
+    bne         a3, a1, L(un_long_bytes)
+
+L(un_less_64bytes):
+    srai.d	a3, a2, 5
+    beqz	a3, L(un_less_32bytes)
+
+    ld.d        t0, a1, 0
+    ld.d        t1, a1, 8
+    ld.d        t2, a1, 16
+    ld.d        t3, a1, 24
+
+    addi.d      a1, a1, 32
+    addi.d      a2, a2, -32
+
+    srl.d       t4, t0, a5
+    sll.d       t0, t0, a6
+
+    srl.d       t5, t1, a5
+    sll.d       t1, t1, a6
+
+    srl.d       t6, t2, a5
+    sll.d       t2, t2, a6
+
+    or          t0, a7, t0
+
+    srl.d       a7, t3, a5
+    sll.d       t3, t3, a6
+
+    or          t1, t4, t1
+    or          t2, t5, t2
+    or          t3, t6, t3
+
+    st.d        t0, a4, 0
+    st.d        t1, a4, 8
+    st.d        t2, a4, 16
+    st.d        t3, a4, 24
+
+    addi.d      a4, a4, 32
+
+L(un_less_32bytes):
+    srai.d      a3, a2, 4
+    beqz        a3, L(un_less_16bytes)
+
+    ld.d        t0, a1, 0
+    ld.d        t1, a1, 8
+
+    addi.d      a1, a1, 16
+    addi.d      a2, a2, -16
+
+    srl.d       t2, t0, a5
+    sll.d       t3, t0, a6
+
+    sll.d       t4, t1, a6
+    or          t3, a7, t3
+    or          t4, t2, t4
+    srl.d       a7, t1, a5
+
+    st.d        t3, a4, 0
+    st.d        t4, a4, 8
+
+    addi.d      a4, a4, 16
+
+L(un_less_16bytes):
+    srai.d      a3, a2, 3
+    beqz        a3, L(un_less_8bytes)
+
+    ld.d        t0, a1, 0
+
+    addi.d      a1, a1, 8
+    addi.d      a2, a2, -8
+
+    sll.d       t1, t0, a6
+    or          t2, a7, t1
+    srl.d       a7, t0, a5
+
+    st.d        t2, a4, 0
+    addi.d      a4, a4, 8
+
+L(un_less_8bytes):
+    beqz        a2, L(un_less_1byte)
+    bge         t8, a2, 1f # no more data in memory, un_less_8bytes data is stored in a7
+
+    # combine data in memory and a7(remaining part)
+    ld.d        t0, a1, 0
+    sll.d       t0, t0, a6
+    or          a7, a7, t0
+
+1:
+    srai.d      a3, a2, 2
+    beqz        a3, L(un_less_4bytes)
+
+    addi.d      a2, a2, -4
+    st.w        a7, a4, 0
+    addi.d      a4, a4, 4
+    srai.d      a7, a7, 32
+
+L(un_less_4bytes):
+    srai.d      a3, a2, 1
+    beqz        a3, L(un_less_2bytes)
+
+    addi.d      a2, a2, -2
+    st.h        a7, a4, 0
+    addi.d      a4, a4, 2
+    srai.d      a7, a7, 16
+
+L(un_less_2bytes):
+    beqz        a2, L(un_less_1byte)
+    st.b        a7, a4, 0
+
+L(un_less_1byte):
+    jr          ra
+
+# Bytes copying for data less than 16 bytes
+L(short_data):
+    pcaddi      t1, 36
+    slli.d      t2, a2, 3
+    add.d       a4, a0, a2
+    sub.d       t1, t1, t2
+    add.d       a1, a1, a2
+    jr          t1
+
+L(short_15_bytes):
+    ld.b       t0, a1, -15
+    st.b       t0, a4, -15
+L(short_14_bytes):
+    ld.b       t0, a1, -14
+    st.b       t0, a4, -14
+L(short_13_bytes):
+    ld.b       t0, a1, -13
+    st.b       t0, a4, -13
+L(short_12_bytes):
+    ld.b       t0, a1, -12
+    st.b       t0, a4, -12
+L(short_11_bytes):
+    ld.b       t0, a1, -11
+    st.b       t0, a4, -11
+L(short_10_bytes):
+    ld.b       t0, a1, -10
+    st.b       t0, a4, -10
+L(short_9_bytes):
+    ld.b       t0, a1, -9
+    st.b       t0, a4, -9
+L(short_8_bytes):
+    ld.b       t0, a1, -8
+    st.b       t0, a4, -8
+L(short_7_bytes):
+    ld.b       t0, a1, -7
+    st.b       t0, a4, -7
+L(short_6_bytes):
+    ld.b       t0, a1, -6
+    st.b       t0, a4, -6
+L(short_5_bytes):
+    ld.b       t0, a1, -5
+    st.b       t0, a4, -5
+L(short_4_bytes):
+    ld.b       t0, a1, -4
+    st.b       t0, a4, -4
+L(short_3_bytes):
+    ld.b       t0, a1, -3
+    st.b       t0, a4, -3
+L(short_2_bytes):
+    ld.b       t0, a1, -2
+    st.b       t0, a4, -2
+L(short_1_bytes):
+    ld.b       t0, a1, -1
+    st.b       t0, a4, -1
+    jr         ra
+
+L(copy_back):
+    srai.d      a3, a2, 4
+    beqz        a3, L(back_short_data)  # less than 16 bytes
+
+    add.d       a4, a0, a2  # store the tail of dest
+    add.d       a1, a1, a2  # store the tail of src
+
+    andi        a5, a4, 0x7
+    andi        a6, a1, 0x7
+    beqz        a5, L(back_check_align)
+
+    # make dest aligned 8 bytes
+    sub.d       a2, a2, a5
+    sub.d       a1, a1, a5
+    sub.d       a4, a4, a5
+
+    pcaddi      t1, 18
+    slli.d      t3, a5, 3
+    sub.d       t1, t1, t3
+    jr          t1
+
+    ld.b        t0, a1, 6
+    st.b        t0, a4, 6
+    ld.b        t0, a1, 5
+    st.b        t0, a4, 5
+    ld.b        t0, a1, 4
+    st.b        t0, a4, 4
+    ld.b        t0, a1, 3
+    st.b        t0, a4, 3
+    ld.b        t0, a1, 2
+    st.b        t0, a4, 2
+    ld.b        t0, a1, 1
+    st.b        t0, a4, 1
+    ld.b        t0, a1, 0
+    st.b        t0, a4, 0
+
+L(back_check_align):
+    bne         a5, a6, L(back_unalign)
+
+    srai.d      a3, a2, 4
+    beqz        a3, L(back_less_16bytes)
+
+    andi        a3, a2, 0x3f
+    beq         a3, a2, L(back_less_64bytes)
+
+    sub.d       t0, a2, a3
+    move        a2, a3
+    sub.d       a5, a1, t0
+
+L(back_loop_64bytes):
+    LD_64(a1, -64)
+    addi.d      a1, a1, -64
+    ST_64(a4, -64)
+
+    addi.d      a4, a4, -64
+    bne         a1, a5, L(back_loop_64bytes)
+
+L(back_less_64bytes):
+    srai.d     a3, a2, 5
+    beqz       a3, L(back_less_32bytes)
+
+    ld.d       t0, a1, -32
+    ld.d       t1, a1, -24
+    ld.d       t2, a1, -16
+    ld.d       t3, a1, -8
+
+    addi.d     a1, a1, -32
+    addi.d     a2, a2, -32
+
+    st.d       t0, a4, -32
+    st.d       t1, a4, -24
+    st.d       t2, a4, -16
+    st.d       t3, a4, -8
+
+    addi.d     a4, a4, -32
+
+L(back_less_32bytes):
+    srai.d     a3, a2, 4
+    beqz       a3, L(back_less_16bytes)
+
+    ld.d       t0, a1, -16
+    ld.d       t1, a1, -8
+
+    addi.d     a2, a2, -16
+    addi.d     a1, a1, -16
+
+    st.d       t0, a4, -16
+    st.d       t1, a4, -8
+    addi.d     a4, a4, -16
+
+L(back_less_16bytes):
+    srai.d      a3, a2, 3
+    beqz        a3, L(back_less_8bytes)
+
+    ld.d        t0, a1, -8
+    addi.d      a2, a2, -8
+    addi.d      a1, a1, -8
+
+    st.d        t0, a4, -8
+    addi.d      a4, a4, -8
+
+L(back_less_8bytes):
+    srai.d      a3, a2, 2
+    beqz        a3, L(back_less_4bytes)
+
+    ld.w        t0, a1, -4
+    addi.d      a2, a2, -4
+    addi.d      a1, a1, -4
+
+    st.w        t0, a4, -4
+    addi.d      a4, a4, -4
+
+L(back_less_4bytes):
+    srai.d      a3, a2, 1
+    beqz        a3, L(back_less_2bytes)
+
+    ld.h        t0, a1, -2
+    addi.d      a2, a2, -2
+    addi.d      a1, a1, -2
+
+    st.h        t0, a4, -2
+    addi.d      a4, a4, -2
+
+L(back_less_2bytes):
+    beqz        a2, L(back_less_1byte)
+
+    ld.b        t0, a1, -1
+    st.b        t0, a4, -1
+
+L(back_less_1byte):
+    jr          ra
+
+L(back_unalign):
+    andi        t8, a1, 0x7
+    bstrins.d   a1, zero, 2, 0   # make src 8 bytes aligned
+
+    sub.d       a6, zero, t8
+
+    ld.d        t0, a1, 0
+    slli.d      a6, a6, 3
+    slli.d      a5, t8, 3
+    sll.d       a7, t0, a6
+
+    srai.d      a3, a2, 4
+    beqz        a3, L(back_un_less_16bytes)
+
+    andi        a3, a2, 0x3f
+    beq         a3, a2, L(back_un_less_64bytes)
+
+    sub.d       t0, a2, a3
+    move        a2, a3
+    sub.d       a3, a1, t0
+
+L(back_un_long_bytes):
+    ld.d        t0, a1, -8
+    ld.d        t1, a1, -16
+    ld.d        t2, a1, -24
+    ld.d        t3, a1, -32
+
+    sll.d       t4, t0, a6
+    srl.d       t0, t0, a5
+
+    sll.d       t5, t1, a6
+    srl.d       t1, t1, a5
+
+    sll.d       t6, t2, a6
+    srl.d       t2, t2, a5
+
+    sll.d       t7, t3, a6
+    srl.d       t3, t3, a5
+
+    or          t0, t0, a7
+    or          t1, t1, t4
+    or          t2, t2, t5
+    or          t3, t3, t6
+
+    ld.d        t4, a1, -40
+    ld.d        t5, a1, -48
+    ld.d        t6, a1, -56
+    ld.d        a7, a1, -64
+    st.d        t0, a4, -8
+    st.d        t1, a4, -16
+    st.d        t2, a4, -24
+    st.d        t3, a4, -32
+
+    addi.d      a1, a1, -64
+
+    sll.d       t0, t4, a6
+    srl.d       t4, t4, a5
+
+    sll.d       t1, t5, a6
+    srl.d       t5, t5, a5
+
+    sll.d       t2, t6, a6
+    srl.d       t6, t6, a5
+
+    srl.d       t3, a7, a5
+    sll.d       a7, a7, a6
+
+    or          t4, t7, t4
+    or          t5, t0, t5
+    or          t6, t1, t6
+    or          t3, t2, t3
+
+    st.d        t4, a4, -40
+    st.d        t5, a4, -48
+    st.d        t6, a4, -56
+    st.d        t3, a4, -64
+
+    addi.d      a4, a4, -64
+    bne         a3, a1, L(back_un_long_bytes)
+
+L(back_un_less_64bytes):
+    srai.d	a3, a2, 5
+    beqz	a3, L(back_un_less_32bytes)
+
+    ld.d        t0, a1, -8
+    ld.d        t1, a1, -16
+    ld.d        t2, a1, -24
+    ld.d        t3, a1, -32
+
+    addi.d      a1, a1, -32
+    addi.d      a2, a2, -32
+
+    sll.d       t4, t0, a6
+    srl.d       t0, t0, a5
+
+    sll.d       t5, t1, a6
+    srl.d       t1, t1, a5
+
+    sll.d       t6, t2, a6
+    srl.d       t2, t2, a5
+
+    or          t0, a7, t0
+
+    sll.d       a7, t3, a6
+    srl.d       t3, t3, a5
+
+    or          t1, t4, t1
+    or          t2, t5, t2
+    or          t3, t6, t3
+
+    st.d        t0, a4, -8
+    st.d        t1, a4, -16
+    st.d        t2, a4, -24
+    st.d        t3, a4, -32
+
+    addi.d      a4, a4, -32
+
+L(back_un_less_32bytes):
+    srai.d      a3, a2, 4
+    beqz        a3, L(back_un_less_16bytes)
+
+    ld.d        t0, a1, -8
+    ld.d        t1, a1, -16
+
+    addi.d      a1, a1, -16
+    addi.d      a2, a2, -16
+
+    sll.d       t2, t0, a6
+    srl.d       t3, t0, a5
+
+    srl.d       t4, t1, a5
+    or          t3, a7, t3
+    or          t4, t2, t4
+    sll.d       a7, t1, a6
+
+    st.d        t3, a4, -8
+    st.d        t4, a4, -16
+
+    addi.d      a4, a4, -16
+
+L(back_un_less_16bytes):
+    srai.d      a3, a2, 3
+    beqz        a3, L(back_un_less_8bytes)
+
+    ld.d        t0, a1, -8
+
+    addi.d      a1, a1, -8
+    addi.d      a2, a2, -8
+
+    srl.d       t1, t0, a5
+    or          t2, a7, t1
+    sll.d       a7, t0, a6
+
+    st.d        t2, a4, -8
+    addi.d      a4, a4, -8
+
+L(back_un_less_8bytes):
+    beqz        a2, L(back_end)
+    bge         t8, a2, 1f # no more data in memory, un_less_8bytes data is stored in a7
+
+    # combine data in memory and a7(remaining part)
+    ld.d        t0, a1, -8
+    srl.d       t0, t0, a5
+    or          a7, a7, t0
+
+1:
+    srai.d      a3, a2, 2
+    beqz        a3, L(back_un_less_4bytes)
+
+    srai.d      t0, a7, 32
+    addi.d      a2, a2, -4
+    st.w        t0, a4, -4
+    addi.d      a4, a4, -4
+    slli.d      a7, a7, 32
+
+L(back_un_less_4bytes):
+    srai.d      a3, a2, 1
+    beqz        a3, L(back_un_less_2bytes)
+    srai.d      t0, a7, 48
+    addi.d      a2, a2, -2
+    st.h        t0, a4, -2
+    addi.d      a4, a4, -2
+    slli.d      a7, a7, 16
+L(back_un_less_2bytes):
+    beqz        a2, L(back_un_less_1byte)
+    srai.d      t0, a7, 56
+    st.b        t0, a4, -1
+L(back_un_less_1byte):
+    jr          ra
+
+L(back_short_data):
+    pcaddi     t1, 34
+    slli.d     t2, a2, 3
+    sub.d      t1, t1, t2
+    jr         t1
+
+    ld.b       t0, a1, 14
+    st.b       t0, a0, 14
+    ld.b       t0, a1, 13
+    st.b       t0, a0, 13
+    ld.b       t0, a1, 12
+    st.b       t0, a0, 12
+    ld.b       t0, a1, 11
+    st.b       t0, a0, 11
+    ld.b       t0, a1, 10
+    st.b       t0, a0, 10
+    ld.b       t0, a1, 9
+    st.b       t0, a0, 9
+    ld.b       t0, a1, 8
+    st.b       t0, a0, 8
+    ld.b       t0, a1, 7
+    st.b       t0, a0, 7
+    ld.b       t0, a1, 6
+    st.b       t0, a0, 6
+    ld.b       t0, a1, 5
+    st.b       t0, a0, 5
+    ld.b       t0, a1, 4
+    st.b       t0, a0, 4
+    ld.b       t0, a1, 3
+    st.b       t0, a0, 3
+    ld.b       t0, a1, 2
+    st.b       t0, a0, 2
+    ld.b       t0, a1, 1
+    st.b       t0, a0, 1
+    ld.b       t0, a1, 0
+    st.b       t0, a0, 0
+L(back_end):
+    jr         ra
 
 END(MEMCPY_NAME)
+
 #ifndef ANDROID_CHANGES
 #ifdef _LIBC
 libc_hidden_builtin_def (MEMCPY_NAME)
 #endif
 #endif
-

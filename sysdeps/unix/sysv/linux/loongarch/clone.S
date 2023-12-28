@@ -1,5 +1,5 @@
-/* Wrapper around clone system call.  RISC-V version.
-   Copyright (C) 1996-2018 Free Software Foundation, Inc.
+/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -50,11 +50,11 @@ ENTRY (__clone)
 	/* The syscall expects the args to be in different slots.  */
 	or	a0, a2, zero
 	or	a2, a4, zero
-	or	a3, a5, zero
-	or	a4, a6, zero
+	or	a3, a6, zero
+	or	a4, a5, zero
 
 	/* Do the system call.  */
-	dli	a7,__NR_clone
+	li.d	a7,__NR_clone
 	syscall	0
 
 	blt	a0, zero ,L (error)
@@ -64,7 +64,7 @@ ENTRY (__clone)
 	ret
 
 L (invalid):
-	dli	a0, -EINVAL
+	li.d	a0, -EINVAL
 	/* Something bad happened -- no child created.  */
 L (error):
 	b	__syscall_error
@@ -89,7 +89,7 @@ L (thread_start):
 	jirl	ra, a1, 0
 
 	/* Call exit with the function's return value.  */
-	dli	a7, __NR_exit
+	li.d	a7, __NR_exit
 	syscall	0
 
 	END (__thread_start)

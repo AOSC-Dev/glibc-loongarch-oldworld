@@ -1,5 +1,4 @@
-/* RISC-V VDSO initialization
-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -33,7 +32,7 @@ long int (*VDSO_SYMBOL (clock_getres)) (clockid_t, struct timespec *)
 static inline void
 _libc_vdso_platform_setup (void)
 {
-  PREPARE_VERSION_KNOWN (linux_version, LINUX_4_15);
+  PREPARE_VERSION_KNOWN (linux_version, LINUX_2_6);
 
   void *p = _dl_vdso_vsym ("__vdso_getcpu", &linux_version);
   PTR_MANGLE (p);

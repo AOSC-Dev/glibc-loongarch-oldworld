@@ -1,5 +1,5 @@
-/* struct ucontext definition, RISC-V version.
-   Copyright (C) 1997-2018 Free Software Foundation, Inc.
+/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,16 +29,15 @@
 typedef unsigned long int __loongarch_mc_gp_state[32];
 
 #ifdef __USE_MISC
-# define NGREG	32
+# define LARCH_NGREG	32
 
-# define REG_RA 1
-# define REG_SP 3
-# define REG_TP 21
-# define REG_S0 23
-# define REG_S1 24
-# define REG_A0 4
-# define REG_S2 25
-# define REG_NARGS 8
+# define LARCH_REG_RA 1
+# define LARCH_REG_SP 3
+# define LARCH_REG_S0 23
+# define LARCH_REG_S1 24
+# define LARCH_REG_A0 4
+# define LARCH_REG_S2 25
+# define LARCH_REG_NARGS 8
 
 typedef unsigned long int greg_t;
 

@@ -40,3 +40,4 @@ __hidden_ver1 (stpcpy, __GI_stpcpy, __redirect_stpcpy)
   __attribute__ ((visibility ("hidden")));
 # endif
 #endif
+

@@ -1,5 +1,5 @@
-/* Machine-specific declarations for dynamic linker interface.  RISC-V version.
-   Copyright (C) 2005-2018 Free Software Foundation, Inc.
+/* Copyright (C) 2020-2021 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ typedef struct La_loongarch_regs
   unsigned long int lr_sp;
 } La_loongarch_regs;
 
-/* Return values for calls from PLT on RISC-V.  */
+/* Return values for calls from PLT on LoongArch.  */
 typedef struct La_loongarch_retval
 {
   unsigned long int lrv_a0;

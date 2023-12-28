@@ -194,3 +194,4 @@ _hurd_exception2signal_legacy (struct hurd_signal_detail *detail, int *signo)
 {
   exception2signal (detail, signo, 0);
 }
+

@@ -4,3 +4,4 @@
 #endif
 
 #include "../memchr.S"
+

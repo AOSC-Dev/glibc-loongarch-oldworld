@@ -39,7 +39,7 @@ struct La_loongarch_retval;
 				       struct La_loongarch_retval *,	\
 				       const char *);
 
-/* The RISC-V ABI specifies that the dynamic section has to be read-only.  */
+/* The LoongArch ABI specifies that the dynamic section has to be read-only.  */
 
 #define DL_RO_DYN_SECTION 1
 

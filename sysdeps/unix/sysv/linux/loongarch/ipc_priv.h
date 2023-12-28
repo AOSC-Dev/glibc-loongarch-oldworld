@@ -1,5 +1,5 @@
-/* lroundf().  RISC-V version.
-   Copyright (C) 2017-2018 Free Software Foundation, Inc.
+/* Old SysV permission definition for Linux.  LoongArch version.
+   Copyright (C) 2020 Loongson Technology, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,19 +13,9 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library.  If not, see
+   License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <math.h>
-#include <libm-alias-float.h>
-#include <stdint.h>
+#include <sys/ipc.h>  /* For __key_t  */
 
-long int
-__lroundf (float x)
-{
-  int64_t res;
-  asm ("fcvt.l.s %0, %1, rmm" : "=r" (res) : "f" (x));
-  return res;
-}
-
-libm_alias_float (__lround, lround)
+#define __IPC_64      0x0
