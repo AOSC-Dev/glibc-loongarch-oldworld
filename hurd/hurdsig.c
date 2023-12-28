@@ -35,6 +35,8 @@
 
 #include <libc-diag.h>
 
+#include <shlib-compat.h>
+
 const char *_hurdsig_getenv (const char *);
 
 struct mutex _hurd_siglock;
@@ -132,7 +134,7 @@ libc_hidden_def (_hurd_thread_sigstate)
  * corresponding thread is terminated (the kernel thread port must remain valid
  * until this function is called.) */
 void
-_hurd_sigstate_delete (thread_t thread)
+__hurd_sigstate_delete (thread_t thread)
 {
   struct hurd_sigstate **ssp, *ss;
 
@@ -149,14 +151,32 @@ _hurd_sigstate_delete (thread_t thread)
   if (ss)
     free (ss);
 }
+versioned_symbol (libc, __hurd_sigstate_delete, _hurd_sigstate_delete, GLIBC_2_21);
+#if SHLIB_COMPAT (libc, GLIBC_2_13, GLIBC_2_21)
+void
+__hurd_sigstate_delete_2_13 (thread_t thread)
+{
+  __hurd_sigstate_delete (thread);
+}
+compat_symbol (libc, __hurd_sigstate_delete_2_13, _hurd_sigstate_delete, GLIBC_2_13_DEBIAN_19);
+#endif
 
 /* Make SS a global receiver, with pthread signal semantics.  */
 void
-_hurd_sigstate_set_global_rcv (struct hurd_sigstate *ss)
+__hurd_sigstate_set_global_rcv (struct hurd_sigstate *ss)
 {
   assert (ss->thread != MACH_PORT_NULL);
   ss->actions[0].sa_handler = SIG_IGN;
 }
+versioned_symbol (libc, __hurd_sigstate_set_global_rcv, _hurd_sigstate_set_global_rcv, GLIBC_2_21);
+#if SHLIB_COMPAT (libc, GLIBC_2_13, GLIBC_2_21)
+void
+__hurd_sigstate_set_global_rcv_2_13 (struct hurd_sigstate *ss)
+{
+  __hurd_sigstate_set_global_rcv (ss);
+}
+compat_symbol (libc, __hurd_sigstate_set_global_rcv_2_13, _hurd_sigstate_set_global_rcv, GLIBC_2_13_DEBIAN_19);
+#endif
 
 /* Check whether SS is a global receiver.  */
 static int
@@ -168,30 +188,56 @@ sigstate_is_global_rcv (const struct hurd_sigstate *ss)
 /* Lock/unlock a hurd_sigstate structure.  If the accessors below require
    it, the global sigstate will be locked as well.  */
 void
-_hurd_sigstate_lock (struct hurd_sigstate *ss)
+__hurd_sigstate_lock (struct hurd_sigstate *ss)
 {
   if (sigstate_is_global_rcv (ss))
     __spin_lock (&_hurd_global_sigstate->lock);
   __spin_lock (&ss->lock);
 }
 void
-_hurd_sigstate_unlock (struct hurd_sigstate *ss)
+__hurd_sigstate_unlock (struct hurd_sigstate *ss)
 {
   __spin_unlock (&ss->lock);
   if (sigstate_is_global_rcv (ss))
     __spin_unlock (&_hurd_global_sigstate->lock);
 }
+versioned_symbol (libc, __hurd_sigstate_lock, _hurd_sigstate_lock, GLIBC_2_21);
+versioned_symbol (libc, __hurd_sigstate_unlock, _hurd_sigstate_unlock, GLIBC_2_21);
+
+#if SHLIB_COMPAT (libc, GLIBC_2_13, GLIBC_2_21)
+void
+__hurd_sigstate_lock_2_13 (struct hurd_sigstate *ss)
+{
+  __hurd_sigstate_lock (ss);
+}
+void
+__hurd_sigstate_unlock_2_13 (struct hurd_sigstate *ss)
+{
+  __hurd_sigstate_unlock (ss);
+}
+compat_symbol (libc, __hurd_sigstate_lock_2_13, _hurd_sigstate_lock, GLIBC_2_13_DEBIAN_19);
+compat_symbol (libc, __hurd_sigstate_unlock_2_13, _hurd_sigstate_unlock, GLIBC_2_13_DEBIAN_19);
+#endif
 
 /* Retreive a thread's full set of pending signals, including the global
    ones if appropriate.  SS must be locked.  */
 sigset_t
-_hurd_sigstate_pending (const struct hurd_sigstate *ss)
+__hurd_sigstate_pending (const struct hurd_sigstate *ss)
 {
   sigset_t pending = ss->pending;
   if (sigstate_is_global_rcv (ss))
     __sigorset (&pending, &pending, &_hurd_global_sigstate->pending);
   return pending;
 }
+versioned_symbol (libc, __hurd_sigstate_pending, _hurd_sigstate_pending, GLIBC_2_21);
+#if SHLIB_COMPAT (libc, GLIBC_2_13, GLIBC_2_21)
+sigset_t
+__hurd_sigstate_pending_2_13 (const struct hurd_sigstate *ss)
+{
+  return __hurd_sigstate_pending (ss);
+}
+compat_symbol (libc, __hurd_sigstate_pending_2_13, _hurd_sigstate_pending, GLIBC_2_13_DEBIAN_19);
+#endif
 
 /* Clear a pending signal and return the associated detailed
    signal information. SS must be locked, and must have signal SIGNO
