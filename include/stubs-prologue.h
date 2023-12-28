@@ -8,7 +8,7 @@
    every time called, usually setting errno to ENOSYS.  */
 
 #ifdef _LIBC
- #error Applications may not define the macro _LIBC
+# error Applications may not define the macro _LIBC
 #endif
 
 @ Placeholder line so we remember to keep the preceding blank line here.
