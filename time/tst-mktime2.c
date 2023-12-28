@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
 
 /* True if the arithmetic type T is signed.  */
 #define TYPE_SIGNED(t) (! ((t) 0 < (t) -1))
