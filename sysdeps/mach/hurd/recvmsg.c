@@ -23,6 +23,123 @@
 #include <hurd/fd.h>
 #include <hurd/socket.h>
 
+static unsigned
+contains_uid (unsigned int n, __uid_t uids[n], __uid_t uid)
+{
+  unsigned i;
+
+  for (i = 0; i < n; i++)
+    if (uids[i] == uid)
+      return 1;
+  return 0;
+}
+
+static unsigned
+contains_gid (unsigned int n, __gid_t gids[n], __gid_t gid)
+{
+  unsigned i;
+
+  for (i = 0; i < n; i++)
+    if (gids[i] == gid)
+      return 1;
+  return 0;
+}
+
+/* Check the passed credentials.  */
+static error_t
+check_auth (mach_port_t rendezvous,
+		    __pid_t pid,
+		    __uid_t uid, __uid_t euid,
+		    __gid_t gid,
+		    int ngroups, __gid_t groups[ngroups])
+{
+  error_t err;
+  size_t neuids = CMGROUP_MAX, nauids = CMGROUP_MAX;
+  size_t negids = CMGROUP_MAX, nagids = CMGROUP_MAX;
+  __uid_t euids_buf[neuids], auids_buf[nauids];
+  __gid_t egids_buf[negids], agids_buf[nagids];
+  __uid_t *euids = euids_buf, *auids = auids_buf;
+  __gid_t *egids = egids_buf, *agids = agids_buf;
+
+  struct procinfo *pi = NULL;
+  mach_msg_type_number_t pi_size = 0;
+  int flags = PI_FETCH_TASKINFO;
+  char *tw = NULL;
+  size_t tw_size = 0;
+  unsigned i;
+
+  err = __mach_port_mod_refs (mach_task_self (), rendezvous,
+			    MACH_PORT_RIGHT_SEND, 1);
+  if (err)
+    goto out;
+
+  do
+    err = __USEPORT
+      (AUTH, __auth_server_authenticate (port,
+					 rendezvous, MACH_MSG_TYPE_COPY_SEND,
+					 MACH_PORT_NULL, 0,
+					 &euids, &neuids, &auids, &nauids,
+					 &egids, &negids, &agids, &nagids));
+  while (err == EINTR);
+  if (err)
+    goto out;
+
+  /* Check whether this process indeed has these IDs */
+  if (   !contains_uid (neuids, euids,  uid)
+      && !contains_uid (nauids, auids,  uid)
+   ||    !contains_uid (neuids, euids, euid)
+      && !contains_uid (nauids, auids, euid)
+   ||    !contains_gid (negids, egids,  gid)
+      && !contains_gid (nagids, agids,  gid)
+    )
+    {
+      err = EIO;
+      goto out;
+    }
+
+  /* Check groups */
+  for (i = 0; i < ngroups; i++)
+    if (   !contains_gid (negids, egids, groups[i])
+	&& !contains_gid (nagids, agids, groups[i]))
+      {
+	err = EIO;
+	goto out;
+      }
+
+  /* Check PID  */
+  /* XXX: Using proc_getprocinfo until
+     proc_user_authenticate proc_server_authenticate is implemented
+  */
+  /* Get procinfo to check the owner.  Maybe he faked the pid, but at least we
+     check the owner.  */
+  err = __USEPORT (PROC, __proc_getprocinfo (port, pid, &flags,
+					     (procinfo_t *)&pi,
+					     &pi_size, &tw, &tw_size));
+  if (err)
+    goto out;
+
+  if (   !contains_uid (neuids, euids, pi->owner)
+      && !contains_uid (nauids, auids, pi->owner))
+    err = EIO;
+
+out:
+  __mach_port_deallocate (__mach_task_self (), rendezvous);
+  if (euids != euids_buf)
+    __vm_deallocate (__mach_task_self(), (vm_address_t) euids, neuids * sizeof(uid_t));
+  if (auids != auids_buf)
+    __vm_deallocate (__mach_task_self(), (vm_address_t) auids, nauids * sizeof(uid_t));
+  if (egids != egids_buf)
+    __vm_deallocate (__mach_task_self(), (vm_address_t) egids, negids * sizeof(uid_t));
+  if (agids != agids_buf)
+    __vm_deallocate (__mach_task_self(), (vm_address_t) agids, nagids * sizeof(uid_t));
+  if (tw_size)
+    __vm_deallocate (__mach_task_self(), (vm_address_t) tw, tw_size);
+  if (pi_size)
+    __vm_deallocate (__mach_task_self(), (vm_address_t) pi, pi_size);
+
+  return err;
+}
+
 /* Receive a message as described by MESSAGE from socket FD.
    Returns the number of bytes read or -1 for errors.  */
 ssize_t
@@ -198,6 +315,21 @@ __libc_recvmsg (int fd, struct msghdr *message, int flags)
 	    newfds++;
 	  }
       }
+    else if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_CREDS)
+      {
+	/* SCM_CREDS support.  */
+	/* Check received credentials */
+	struct cmsgcred *ucredp = (struct cmsgcred *) CMSG_DATA(cmsg);
+
+	err = check_auth (ports[i],
+			  ucredp->cmcred_pid,
+			  ucredp->cmcred_uid, ucredp->cmcred_euid,
+			  ucredp->cmcred_gid,
+			  ucredp->cmcred_ngroups, ucredp->cmcred_groups);
+	if (err)
+	  goto cleanup;
+	i++;
+      }
   }
 
   for (i = 0; i < nports; i++)
@@ -227,6 +359,11 @@ cleanup:
 		__mach_port_deallocate (__mach_task_self (), newports[newfds]);
 		__mach_port_deallocate (__mach_task_self (), ports[ii]);
 	      }
+	    }
+	  else if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_CREDS)
+	    {
+	      __mach_port_deallocate (__mach_task_self (), ports[ii]);
+	      ii++;
 	    }
 	}
     }

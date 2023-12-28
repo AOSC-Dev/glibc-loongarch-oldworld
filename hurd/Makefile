@@ -29,7 +29,7 @@ inline-headers = hurd.h $(addprefix hurd/,fd.h signal.h \
 # The RPC interfaces go in a separate library.
 interface-library := libhurduser
 user-interfaces		:= $(addprefix hurd/,\
-				       auth startup \
+				       auth auth_request auth_reply startup \
 				       process process_request \
 				       msg msg_reply msg_request \
 				       exec exec_startup crash interrupt \
