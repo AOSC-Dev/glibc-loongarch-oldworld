@@ -171,6 +171,7 @@ __hurd_sigstate_delete_2_13 (thread_t thread)
 }
 compat_symbol (libc, __hurd_sigstate_delete_2_13, _hurd_sigstate_delete, GLIBC_2_13_DEBIAN_19);
 #endif
+libc_hidden_ver (__hurd_sigstate_delete, _hurd_sigstate_delete)
 
 /* Make SS a global receiver, with pthread signal semantics.  */
 void
@@ -188,6 +189,7 @@ __hurd_sigstate_set_global_rcv_2_13 (struct hurd_sigstate *ss)
 }
 compat_symbol (libc, __hurd_sigstate_set_global_rcv_2_13, _hurd_sigstate_set_global_rcv, GLIBC_2_13_DEBIAN_19);
 #endif
+libc_hidden_ver (__hurd_sigstate_set_global_rcv, _hurd_sigstate_set_global_rcv)
 
 /* Check whether SS is a global receiver.  */
 static int
@@ -214,7 +216,9 @@ __hurd_sigstate_unlock (struct hurd_sigstate *ss)
     __spin_unlock (&_hurd_global_sigstate->lock);
 }
 versioned_symbol (libc, __hurd_sigstate_lock, _hurd_sigstate_lock, GLIBC_2_21);
+libc_hidden_ver (__hurd_sigstate_lock, _hurd_sigstate_lock)
 versioned_symbol (libc, __hurd_sigstate_unlock, _hurd_sigstate_unlock, GLIBC_2_21);
+libc_hidden_ver (__hurd_sigstate_unlock, _hurd_sigstate_unlock)
 
 #if SHLIB_COMPAT (libc, GLIBC_2_13, GLIBC_2_21)
 void
@@ -250,6 +254,7 @@ __hurd_sigstate_pending_2_13 (const struct hurd_sigstate *ss)
 }
 compat_symbol (libc, __hurd_sigstate_pending_2_13, _hurd_sigstate_pending, GLIBC_2_13_DEBIAN_19);
 #endif
+libc_hidden_ver (__hurd_sigstate_pending, _hurd_sigstate_pending)
 
 /* Clear a pending signal and return the associated detailed
    signal information. SS must be locked, and must have signal SIGNO
