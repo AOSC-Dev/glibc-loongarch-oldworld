@@ -1814,6 +1814,15 @@ open_verify (const char *name, int fd,
 	      *found_other_class = true;
 	      goto close_and_out;
 	    }
+#ifdef __arm__
+          else if (!VALID_FLOAT_ABI (ehdr->e_flags))
+	    {
+	      /* This is not a fatal error.  On architectures where
+		 soft-float and hard-float binaries can be run this
+		 might happen.  */
+	      goto close_and_out;
+	    }
+#endif
 	  else if (ehdr->e_ident[EI_DATA] != byteorder)
 	    {
 	      if (BYTE_ORDER == BIG_ENDIAN)
