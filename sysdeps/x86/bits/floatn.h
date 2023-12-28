@@ -28,7 +28,8 @@
    support, for x86_64 and x86.  */
 #if (defined __x86_64__							\
      ? __GNUC_PREREQ (4, 3)						\
-     : (defined __GNU__ ? __GNUC_PREREQ (4, 5) : __GNUC_PREREQ (4, 4)))
+     : (defined __GNU__ ? __GNUC_PREREQ (4, 5) : __GNUC_PREREQ (4, 4))) \
+     &&  !defined(__CUDACC__) && !defined(__ICC)
 # define __HAVE_FLOAT128 1
 #else
 # define __HAVE_FLOAT128 0
