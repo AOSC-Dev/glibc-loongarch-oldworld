@@ -35,7 +35,7 @@ user-interfaces		:= $(addprefix hurd/,\
 				       exec exec_experimental exec_startup crash interrupt \
 				       fs fs_experimental fsys io io_reply io_request \
 				       term tioctl socket ifsock \
-				       login password pfinet \
+				       login password pfinet pci \
 				       )
 server-interfaces	:= hurd/msg faultexc
 
