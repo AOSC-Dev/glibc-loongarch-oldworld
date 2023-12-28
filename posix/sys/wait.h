@@ -69,17 +69,6 @@ typedef __pid_t pid_t;
 # define W_STOPCODE(sig)	__W_STOPCODE (sig)
 #endif
 
-/* The following values are used by the `waitid' function.  */
-#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
-typedef enum
-{
-  P_ALL,		/* Wait for any child.  */
-  P_PID,		/* Wait for specified process.  */
-  P_PGID		/* Wait for members of process group.  */
-} idtype_t;
-#endif
-
-
 /* Wait for a child to die.  When one does, put its status in *STAT_LOC
    and return its process ID.  For errors, return (pid_t) -1.
 

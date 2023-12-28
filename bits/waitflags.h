@@ -24,3 +24,16 @@
 /* Bits in the third argument to `waitpid'.  */
 #define	WNOHANG		1	/* Don't block waiting.  */
 #define	WUNTRACED	2	/* Report status of stopped children.  */
+
+/* The following values are used by the `waitid' function.  */
+#if defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
+# ifndef __ENUM_IDTYPE_T
+# define __ENUM_IDTYPE_T 1
+typedef enum
+{
+  P_ALL,		/* Wait for any child.  */
+  P_PID,		/* Wait for specified process.  */
+  P_PGID		/* Wait for members of process group.  */
+} idtype_t;
+# endif
+#endif
