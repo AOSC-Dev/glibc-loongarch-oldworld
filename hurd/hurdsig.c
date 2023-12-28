@@ -182,7 +182,8 @@ compat_symbol (libc, __hurd_sigstate_set_global_rcv_2_13, _hurd_sigstate_set_glo
 static int
 sigstate_is_global_rcv (const struct hurd_sigstate *ss)
 {
-  return ss->actions[0].sa_handler == SIG_IGN;
+  return (_hurd_global_sigstate != NULL)
+	 && (ss->actions[0].sa_handler == SIG_IGN);
 }
 
 /* Lock/unlock a hurd_sigstate structure.  If the accessors below require
