@@ -1083,9 +1083,10 @@ parse_conf (const char *filename, bool do_chroot)
 
   if (file == NULL)
     {
-      error (0, errno, _("\
+      if (strcmp(canon, LD_SO_CONF) != 0 || opt_verbose)
+       error (0, errno, _("\
 Warning: ignoring configuration file that cannot be opened: %s"),
-	     canon);
+	      canon);
       if (canon != filename)
 	free ((char *) canon);
       return;
