@@ -15,3 +15,6 @@ ifeq ($(subdir),stdlib)
 gen-as-const-headers += ucontext_i.sym
 endif
 
+ifeq ($(subdir),io)
+sysdep_routines += statx_cp
+endif
