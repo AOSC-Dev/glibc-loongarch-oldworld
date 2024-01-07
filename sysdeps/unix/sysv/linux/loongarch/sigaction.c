@@ -408,10 +408,6 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
   result = INLINE_SYSCALL_CALL (rt_sigaction, sig, act ? &kact : NULL,
                                 oact ? &koact : NULL, STUB (act) _NW_NSIG / 8);
 
-  if (result >= 0 && new_prog)
-    {
-      store_handler (&prog_pool[sig], new_prog);
-    }
   if (oact && result >= 0)
     {
       if (!is_fake_handler ((__linx_sighandler_t)koact.k_sa_handler))
@@ -438,6 +434,10 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
               (_NSIG - _NW_NSIG) / 8);
       oact->sa_flags = koact.sa_flags;
       RESET_SA_RESTORER (oact, &koact);
+    }
+  if (result >= 0 && new_prog)
+    {
+      store_handler (&prog_pool[sig], new_prog);
     }
   if (result < 0)
     {
