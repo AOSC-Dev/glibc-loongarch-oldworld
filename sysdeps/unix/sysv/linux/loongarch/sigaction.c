@@ -19,6 +19,13 @@
 #include <signal.h>
 #include <string.h>
 
+#include <atomic.h>
+#if !IS_IN(rtld)
+#include <libc-lock.h>
+#endif
+#include <assert.h>
+#include <sigsetops.h>
+#include <sys/mman.h>
 #include <sys/syscall.h>
 #include <sysdep.h>
 
@@ -40,10 +47,9 @@
 
 typedef void (*__linx_sighandler_t) (int, siginfo_t *, void *);
 
-static volatile __linx_sighandler_t saved_handlers[NSIG] = { 0 };
-
 static void
-custom_handler (int sig, siginfo_t *info, void *ucontext)
+custom_handler (int sig, siginfo_t *info, void *ucontext,
+                __linx_sighandler_t real_handler)
 {
 
   struct nw_sigcontext
@@ -176,7 +182,7 @@ custom_handler (int sig, siginfo_t *info, void *ucontext)
       extinfo = (struct nw_sctx_info *)((void *)extinfo + extinfo->size);
     }
 
-  saved_handlers[sig](sig, info, &ow_ctx);
+  real_handler (sig, info, &ow_ctx);
 
   if (have_lasx)
     {
@@ -233,24 +239,150 @@ is_fake_handler (__linx_sighandler_t handler)
       ;
 }
 
+#define LA_INS_PCADDI 0x18000000u
+#define LA_INS_LD_D 0x28C00000u
+#define LA_INS_JIRL 0x4C000000u
+#define LA_REG_ZERO 0
+#define LA_REG_T0 12
+#define LA_REG_RA 1
+#define LA_REG_A0 4
+#define LA_REG_A1 5
+#define LA_REG_A2 6
+#define LA_REG_A3 7
+#define LA_REG_A4 8
+#define LA_REG_A5 9
+
+#define SIGHANDLER_PROG_NR_INS 4
+struct __attribute__ ((__packed__)) sighandler_prog
+{
+  unsigned int magic[2];
+  unsigned int prog[SIGHANDLER_PROG_NR_INS];
+
+  struct sighandler_prog_data
+  {
+    unsigned long our_handler_addr;
+    unsigned long orig_handler_addr;
+  } data;
+} const prog_tmpl = {
+  .magic = {U"开刀"},
+  .prog = {
+    /* pcaddi $t0, SIGHANDLER_PROG_NR_INS */
+    LA_INS_PCADDI | LA_REG_T0 | (SIGHANDLER_PROG_NR_INS << 5),
+    /* ld.d $a3, $t0, orig_handler_addr */
+    LA_INS_LD_D | LA_REG_A3 | (LA_REG_T0 << 5) | (offsetof (struct sighandler_prog_data, orig_handler_addr) << 10),
+    /* ld.d $t0, $t0, our_handler_addr */
+    LA_INS_LD_D | LA_REG_T0 | (LA_REG_T0 << 5) | (offsetof (struct sighandler_prog_data, our_handler_addr) << 10),
+    /* jirl $zero, $t0, 0 */
+    LA_INS_JIRL | LA_REG_ZERO | (LA_REG_T0 << 5) | (0 << 10),
+  },
+  .data = {
+    .our_handler_addr = (unsigned long)custom_handler,
+  }
+};
+
+#define PROG_POOL_SIZE 2
+#define LA_PAGE_SIZE (16 * 1024)
+
+static_assert (sizeof (struct sighandler_prog) <= LA_PAGE_SIZE,
+               "sighandler_prog too large");
+
+struct sighandler_prog_pool
+{
+  struct sighandler_prog *prog[PROG_POOL_SIZE];
+  size_t pos;
+#if !IS_IN(rtld)
+  __libc_lock_define (, lock);
+#endif
+};
+
+static void
+destroy_handler (struct sighandler_prog *prog)
+{
+  __munmap (prog, LA_PAGE_SIZE);
+}
+
+static struct sighandler_prog *
+alloc_handler (__linx_sighandler_t handler)
+{
+  struct sighandler_prog *prog
+      = __mmap (NULL, LA_PAGE_SIZE, PROT_READ | PROT_WRITE,
+                MAP_ANON | MAP_PRIVATE, -1, 0);
+  if (__glibc_unlikely (prog == MAP_FAILED))
+    {
+      return NULL;
+    }
+  memcpy (prog, &prog_tmpl, sizeof (struct sighandler_prog));
+  prog->data.orig_handler_addr = (unsigned long)handler;
+
+  int rc = __mprotect (prog, LA_PAGE_SIZE, PROT_READ | PROT_EXEC);
+  if (rc < 0)
+    {
+      destroy_handler (prog);
+      prog = NULL;
+    }
+  return prog;
+}
+
+static void
+store_handler (struct sighandler_prog_pool *pool, struct sighandler_prog *prog)
+{
+  struct sighandler_prog *orig_prog;
+  orig_prog = pool->prog[pool->pos];
+  pool->prog[pool->pos] = prog;
+  pool->pos = (pool->pos + 1) % PROG_POOL_SIZE;
+  if (orig_prog)
+    {
+      destroy_handler (orig_prog);
+    }
+}
+
 /* If ACT is not NULL, change the action for SIG to *ACT.
    If OACT is not NULL, put the old action for SIG in *OACT.  */
 int
 __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
-  int result;
+  int result = 0, result2 = 0;
 
   struct kernel_sigaction kact, koact;
 
-  __linx_sighandler_t orig_handler = saved_handlers[sig];
+  static struct sighandler_prog_pool prog_pool[_NW_NSIG]
+      = { [0 ... _NW_NSIG - 1] = {
+              .prog = { NULL },
+              .pos = 0,
+#if !IS_IN(rtld)
+              .lock = _LIBC_LOCK_INITIALIZER,
+#endif
+          } };
+
+  sigset_t saveset, allset;
+  struct sighandler_prog *old_prog = NULL;
+  struct sighandler_prog *new_prog = NULL;
+
+  if (sig <= 0 || sig >= _NSIG)
+    {
+      __set_errno (EINVAL);
+      return -1;
+    }
+  else if (sig >= _NW_NSIG)
+    {
+      if (oact)
+        {
+          memset (oact, 0, sizeof (struct sigaction));
+          oact->sa_handler = SIG_IGN;
+        }
+      return 0;
+    }
 
   if (act)
     {
       if (!is_fake_handler ((__linx_sighandler_t)(act)->sa_handler))
         {
-          orig_handler = atomic_exchange_acq (
-              &saved_handlers[sig], (__linx_sighandler_t)act->sa_handler);
-          kact.k_sa_handler = (__sighandler_t)custom_handler;
+          new_prog = alloc_handler ((__linx_sighandler_t)(act)->sa_handler);
+          if (!new_prog)
+            {
+              return -1;
+            }
+          kact.k_sa_handler = (__sighandler_t)new_prog;
         }
       else
         {
@@ -261,16 +393,41 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
       SET_SA_RESTORER (&kact, act);
     }
 
+  __sigfillset (&allset);
+  result = INLINE_SYSCALL_CALL (rt_sigprocmask, SIG_BLOCK, &allset, &saveset,
+                                _NW_NSIG / 8);
+  if (result < 0)
+    return result;
+
+#if !IS_IN(rtld)
+  __libc_lock_lock (prog_pool[sig].lock);
+#endif
+
   /* XXX The size argument hopefully will have to be changed to the
      real size of the user-level sigset_t.  */
   result = INLINE_SYSCALL_CALL (rt_sigaction, sig, act ? &kact : NULL,
                                 oact ? &koact : NULL, STUB (act) _NW_NSIG / 8);
 
+  if (result >= 0 && new_prog)
+    {
+      store_handler (&prog_pool[sig], new_prog);
+    }
   if (oact && result >= 0)
     {
-      if (koact.k_sa_handler == (__sighandler_t)custom_handler)
+      if (!is_fake_handler ((__linx_sighandler_t)koact.k_sa_handler))
         {
-          oact->sa_handler = (__sighandler_t)orig_handler;
+          old_prog = (struct sighandler_prog *)koact.k_sa_handler;
+          if (memcmp (old_prog->magic, prog_tmpl.magic,
+                      sizeof (prog_tmpl.magic))
+              == 0)
+            {
+              oact->sa_handler
+                  = (__sighandler_t)old_prog->data.orig_handler_addr;
+            }
+          else
+            {
+              oact->sa_handler = koact.k_sa_handler;
+            }
         }
       else
         {
@@ -282,10 +439,25 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
       oact->sa_flags = koact.sa_flags;
       RESET_SA_RESTORER (oact, &koact);
     }
-  else if (result < 0)
+  if (result < 0)
     {
-      atomic_exchange_acq (&saved_handlers[sig], orig_handler);
+      if (new_prog)
+        {
+          destroy_handler (new_prog);
+        }
     }
+
+out_unlock:
+#if !IS_IN(rtld)
+  __libc_lock_unlock (prog_pool[sig].lock);
+#endif
+
+out_unblock:
+  result2 = INLINE_SYSCALL_CALL (rt_sigprocmask, SIG_SETMASK, &saveset, NULL,
+                                 _NW_NSIG / 8);
+  if (result2 < 0)
+    result = result2;
+
   return result;
 }
 libc_hidden_def (__libc_sigaction)
