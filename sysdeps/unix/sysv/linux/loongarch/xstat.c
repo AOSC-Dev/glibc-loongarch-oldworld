@@ -43,10 +43,22 @@ __xstat (int vers, const char *name, struct stat *buf)
 
   struct stat64 kst64;
   struct statx tmp;
-  int rc = INLINE_SYSCALL (statx, 5, AT_FDCWD, name, AT_NO_AUTOMOUNT,
-                           STATX_BASIC_STATS, &tmp);
-  if (rc < 0)
-    return rc;
+
+  INTERNAL_SYSCALL_DECL (err);
+  unsigned long sys_result = INTERNAL_SYSCALL (
+      statx, err, 5, AT_FDCWD, name, AT_NO_AUTOMOUNT, STATX_BASIC_STATS, &tmp);
+  if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (sys_result, err), 0))
+    {
+      if (INTERNAL_SYSCALL_ERRNO (sys_result, err) == ENOSYS)
+        {
+          return INLINE_SYSCALL (newfstatat, 4, AT_FDCWD, name, buf, 0);
+        }
+      else
+        {
+          __set_errno (INTERNAL_SYSCALL_ERRNO (sys_result, err));
+          return -1;
+        }
+    }
 
   __cp_stat64_statx (&kst64, &tmp);
   return __xstat32_conv (vers, &kst64, buf);
