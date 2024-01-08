@@ -263,7 +263,7 @@ struct __attribute__ ((__packed__)) sighandler_prog
     unsigned long our_handler_addr;
     unsigned long orig_handler_addr;
   } data;
-} const prog_tmpl = {
+} static const prog_tmpl = {
   .magic = {U"开刀"},
   .prog = {
     /* pcaddi $t0, SIGHANDLER_PROG_NR_INS */
@@ -285,6 +285,21 @@ struct __attribute__ ((__packed__)) sighandler_prog
 
 static_assert (sizeof (struct sighandler_prog) <= LA_PAGE_SIZE,
                "sighandler_prog too large");
+static_assert (SIGHANDLER_PROG_NR_INS < (1u << 19), "prog too long");
+static_assert (offsetof (struct sighandler_prog, data.our_handler_addr)
+                   == offsetof (struct sighandler_prog, prog)
+                          + sizeof (unsigned int) * SIGHANDLER_PROG_NR_INS,
+               "data offset wrong");
+static_assert (offsetof (struct sighandler_prog, data.our_handler_addr)
+                       % sizeof (unsigned long)
+                   == 0,
+               "data offset not aligned");
+static_assert (offsetof (struct sighandler_prog_data, orig_handler_addr)
+                   < (1u << 11),
+               "data too long");
+static_assert (offsetof (struct sighandler_prog_data, our_handler_addr)
+                   < (1u << 11),
+               "data too long");
 
 struct sighandler_prog_pool
 {
