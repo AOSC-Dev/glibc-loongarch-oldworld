@@ -408,23 +408,38 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
       SET_SA_RESTORER (&kact, act);
     }
 
-  __sigfillset (&allset);
-  result = INLINE_SYSCALL_CALL (rt_sigprocmask, SIG_BLOCK, &allset, &saveset,
-                                _NW_NSIG / 8);
-  if (result < 0)
-    return result;
+  if (new_prog)
+    {
+      __sigfillset (&allset);
+      result = INLINE_SYSCALL_CALL (rt_sigprocmask, SIG_BLOCK, &allset,
+                                    &saveset, _NW_NSIG / 8);
+      if (result < 0)
+        {
+          destroy_handler (new_prog);
+          return result;
+        }
 
 #if !IS_IN(rtld)
-  __libc_lock_lock (prog_pool[sig].lock);
+      __libc_lock_lock (prog_pool[sig].lock);
 #endif
+    }
 
   /* XXX The size argument hopefully will have to be changed to the
      real size of the user-level sigset_t.  */
   result = INLINE_SYSCALL_CALL (rt_sigaction, sig, act ? &kact : NULL,
                                 oact ? &koact : NULL, STUB (act) _NW_NSIG / 8);
 
-  if (oact && result >= 0)
+  if (result < 0)
     {
+      if (new_prog)
+        {
+          destroy_handler (new_prog);
+        }
+      goto out_unlock;
+    }
+  if (oact)
+    {
+      oact->sa_handler = koact.k_sa_handler;
       if (!is_fake_handler ((__linx_sighandler_t)koact.k_sa_handler))
         {
           old_prog = (struct sighandler_prog *)koact.k_sa_handler;
@@ -435,14 +450,6 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
               oact->sa_handler
                   = (__sighandler_t)old_prog->data.orig_handler_addr;
             }
-          else
-            {
-              oact->sa_handler = koact.k_sa_handler;
-            }
-        }
-      else
-        {
-          oact->sa_handler = koact.k_sa_handler;
         }
       memcpy (&oact->sa_mask, &koact.sa_mask, _NW_NSIG / 8);
       memset ((void *)&oact->sa_mask + (_NW_NSIG / 8), 0,
@@ -450,29 +457,21 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
       oact->sa_flags = koact.sa_flags;
       RESET_SA_RESTORER (oact, &koact);
     }
-  if (result >= 0 && new_prog)
-    {
-      store_handler (&prog_pool[sig], new_prog);
-    }
-  if (result < 0)
-    {
-      if (new_prog)
-        {
-          destroy_handler (new_prog);
-        }
-    }
+  if (new_prog)
+    store_handler (&prog_pool[sig], new_prog);
 
 out_unlock:
+  if (new_prog)
+    {
 #if !IS_IN(rtld)
-  __libc_lock_unlock (prog_pool[sig].lock);
+      __libc_lock_unlock (prog_pool[sig].lock);
 #endif
 
-out_unblock:
-  result2 = INLINE_SYSCALL_CALL (rt_sigprocmask, SIG_SETMASK, &saveset, NULL,
-                                 _NW_NSIG / 8);
-  if (result2 < 0)
-    result = result2;
-
+      result2 = INLINE_SYSCALL_CALL (rt_sigprocmask, SIG_SETMASK, &saveset,
+                                     NULL, _NW_NSIG / 8);
+      if (result2 < 0)
+        result = result2;
+    }
   return result;
 }
 libc_hidden_def (__libc_sigaction)
