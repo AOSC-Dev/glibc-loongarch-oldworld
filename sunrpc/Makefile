@@ -22,7 +22,7 @@ subdir	:= sunrpc
 
 include ../Makeconfig
 
-ifdef have-GLIBC_2.31
+#ifdef have-GLIBC_2.31
 
 # The code in this subdirectory is taken from Sun's RPCSRC-4.0
 # distribution with some additional changes from the TI-RPC package
@@ -62,7 +62,7 @@ routines := auth_none authuxprot clnt_raw clnt_simp \
 	    rpc_gethostbyname
 # We only add the RPC for compatibility to libc.so.
 shared-only-routines = $(routines)
-endif
+#endif
 
 tests = tst-xdrmem tst-xdrmem2 tst-udp-error tst-udp-timeout \
   tst-udp-nonblocking tst-bug22542 tst-bug28768

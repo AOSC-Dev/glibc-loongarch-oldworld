@@ -20,6 +20,7 @@
 
 have-thread-library = yes
 have-anl-library = $(have-GLIBC_2.34)
+have-anl-library = yes
 
 # The thread library is integrated.
 shared-thread-library =

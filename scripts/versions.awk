@@ -89,7 +89,7 @@ function ord(c) {
   sortver=actver
   # Ensure GLIBC_ versions come always first
   sub(/^GLIBC_/," GLIBC_",sortver)
-  printf("%s %s %s\n", actlib, sortver, $0) | sort;
+  printf("%s %s %s\n", actlib == "libpthread_in_libc" ? "libc" : actlib, sortver, $0) | sort;
 }
 
 # Some targets do not set the ABI baseline for libdl.  As a result,
