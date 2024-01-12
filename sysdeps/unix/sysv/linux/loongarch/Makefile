@@ -5,6 +5,7 @@ endif
 ifeq ($(subdir),signal)
 sysdep_routines += \
   ow_sigisempty \
+  ow_sigismem \
   # sysdep_routines
 endif
 
