@@ -2,6 +2,12 @@ ifeq ($(subdir),stdlib)
 gen-as-const-headers += ucontext_i.sym
 endif
 
+ifeq ($(subdir),signal)
+sysdep_routines += \
+  ow_sigisempty \
+  # sysdep_routines
+endif
+
 abi-variants := lp64s lp64d
 
 ifeq (,$(filter $(default-abi),$(abi-variants)))
