@@ -1,0 +1,36 @@
+libc {
+  GLIBC_2.36 {
+    __ppoll_chk;
+    signalfd;
+    epoll_pwait2;
+    epoll_pwait;
+    pselect;
+    ppoll;
+    posix_spawnattr_getsigmask;
+    posix_spawnattr_getsigdefault;
+    posix_spawnattr_setsigmask;
+    posix_spawnattr_setsigdefault;
+    sigwaitinfo;
+    sigorset;
+    sigandset;
+    sigisemptyset;
+    sigismember;
+    sigaddset;
+    sigfillset;
+    sigemptyset;
+    sigdelset;
+    sigwait;
+    sigtimedwait;
+    __sigsuspend;
+    sigsuspend;
+    sigpending;
+    pthread_sigmask;
+    sigprocmask;
+    sigaction;
+    __sigaction;
+    swapcontext;
+    setcontext;
+    makecontext;
+    getcontext;
+  }
+}

@@ -27,9 +27,16 @@ function vers_compare (v1, v2)
 }
 
 NF > 2 && $2 == ":" {
-  for (i = 0; i <= NF - 3; ++i)
+  for (i = 0; i <= NF - 3; ++i){
     firstversion[$1, i] = $(3 + i);
+    if ( $1 == "libpthread" ) {
+      firstversion["libpthread_in_libc", i] = $(3 + i);
+    }
+  }
   idx[$1] = 0;
+  if ( $1 == "libpthread" ) {
+    idx["libpthread_in_libc"] = 0;
+  }
   next;
 }
 
