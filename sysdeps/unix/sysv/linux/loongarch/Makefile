@@ -6,6 +6,10 @@ ifeq ($(subdir),signal)
 sysdep_routines += \
   ow_sigisempty \
   ow_sigismem \
+  ow_sigaddset \
+  ow_sigfillset \
+  ow_sigempty \
+  ow_sigdelset \
   # sysdep_routines
 endif
 
