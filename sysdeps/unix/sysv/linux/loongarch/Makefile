@@ -10,6 +10,8 @@ sysdep_routines += \
   ow_sigfillset \
   ow_sigempty \
   ow_sigdelset \
+  ow_sigandset \
+  ow_sigorset \
   # sysdep_routines
 endif
 
