@@ -15,6 +15,8 @@
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
+
+#include <shlib-compat.h>
 #include "sys/regdef.h"
 #include "ucontext-macros.h"
 
@@ -80,7 +82,7 @@ LEAF (__setcontext)
 	b		__syscall_error
 
 PSEUDO_END (__setcontext)
-weak_alias (__setcontext, setcontext)
+versioned_symbol (libc, __setcontext, setcontext, GLIBC_2_36);
 
 LEAF (__start_context)
 

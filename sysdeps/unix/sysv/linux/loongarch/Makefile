@@ -1,5 +1,11 @@
 ifeq ($(subdir),stdlib)
-gen-as-const-headers += ucontext_i.sym
+gen-as-const-headers += ucontext_i.sym ow_ucontext_i.sym
+sysdep_routines += \
+  ow_swapcontext \
+  ow_makecontext \
+  ow_getcontext \
+  ow_setcontext \
+  # sysdep_routines
 endif
 
 ifeq ($(subdir),signal)
