@@ -17,6 +17,7 @@
    License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
+#include <shlib-compat.h>
 #include <sysdep.h>
 #include <sys/asm.h>
 #include <sys/ucontext.h>
@@ -78,4 +79,4 @@ __makecontext (ucontext_t *ucp, void (*func) (void), int argc, long int a0,
     }
 }
 
-weak_alias (__makecontext, makecontext)
+versioned_symbol (libc, __makecontext, makecontext, GLIBC_2_36);

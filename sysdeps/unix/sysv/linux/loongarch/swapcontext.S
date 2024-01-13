@@ -16,6 +16,7 @@
    License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
+#include <shlib-compat.h>
 #include "ucontext-macros.h"
 
 /* int swapcontext (ucontext_t *oucp, const ucontext_t *ucp) */
@@ -92,4 +93,4 @@ LEAF (__swapcontext)
 
 PSEUDO_END (__swapcontext)
 
-weak_alias (__swapcontext, swapcontext)
+versioned_symbol (libc, __swapcontext, swapcontext, GLIBC_2_36);

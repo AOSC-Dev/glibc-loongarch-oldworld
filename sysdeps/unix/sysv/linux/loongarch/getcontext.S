@@ -16,6 +16,7 @@
    License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
+#include <shlib-compat.h>
 #include "ucontext-macros.h"
 
 /* int getcontext (ucontext_t *ucp) */
@@ -56,4 +57,4 @@ LEAF (__getcontext)
 
 PSEUDO_END (__getcontext)
 
-weak_alias (__getcontext, getcontext)
+versioned_symbol (libc, __getcontext, getcontext, GLIBC_2_36);
