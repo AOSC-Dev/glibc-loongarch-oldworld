@@ -13,11 +13,9 @@ versioned_symbol (libc, __sigpending, sigpending, GLIBC_2_36);
 int __ow_sigpending (sigset_t *set)
 {
     int rc = __sigpending (set);
-    sigset_t tmp;
-    __ow_sigemptyset (&tmp);
-    sigfillset (&tmp);
-    if (rc == 0)
-        __ow_sigandset(set, set, &tmp);
+    if (rc >= 0){
+        __ow_clear_unused_bits(set);
+    }
     return rc;
 }
 compat_symbol (libc, __ow_sigpending, sigpending, GLIBC_2_0);

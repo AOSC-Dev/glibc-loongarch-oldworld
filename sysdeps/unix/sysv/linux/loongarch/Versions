@@ -8,8 +8,6 @@ libc {
     ppoll;
     posix_spawnattr_getsigmask;
     posix_spawnattr_getsigdefault;
-    pthread_attr_setsigmask_np;
-    pthread_attr_getsigmask_np;
     posix_spawnattr_setsigmask;
     posix_spawnattr_setsigdefault;
     sigwaitinfo;
@@ -29,6 +27,7 @@ libc {
     pthread_sigmask;
     sigprocmask;
     sigaction;
+    __sigaction;
     swapcontext;
     setcontext;
     makecontext;
