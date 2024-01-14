@@ -93,7 +93,7 @@ __pthread_kill (pthread_t threadid, int signo)
    avoid the symbol version if it ends up being used on ld.so.  */
 #if !IS_IN(rtld)
 libc_hidden_def (__pthread_kill)
-versioned_symbol (libc, __pthread_kill, pthread_kill, GLIBC_2_34);
+versioned_symbol (libpthread, __pthread_kill, pthread_kill, GLIBC_2_34);
 
 # if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_34)
 /* Variant which returns ESRCH in the no-TID case, for backwards
@@ -107,6 +107,6 @@ __pthread_kill_esrch (pthread_t threadid, int signo)
 
   return __pthread_kill_implementation (threadid, signo, ESRCH);
 }
-compat_symbol (libc, __pthread_kill_esrch, pthread_kill, GLIBC_2_0);
+compat_symbol (libpthread, __pthread_kill_esrch, pthread_kill, GLIBC_2_0);
 # endif
 #endif

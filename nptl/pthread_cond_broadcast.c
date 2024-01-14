@@ -86,7 +86,7 @@ ___pthread_cond_broadcast (pthread_cond_t *cond)
 
   return 0;
 }
-versioned_symbol (libc, ___pthread_cond_broadcast,
+versioned_symbol (libpthread, ___pthread_cond_broadcast,
 		  pthread_cond_broadcast, GLIBC_2_3_2);
 libc_hidden_ver (___pthread_cond_broadcast, __pthread_cond_broadcast)
 #ifndef SHARED

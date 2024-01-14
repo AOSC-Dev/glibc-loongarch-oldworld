@@ -24,12 +24,12 @@ ___pthread_join (pthread_t threadid, void **thread_return)
   return __pthread_clockjoin_ex (threadid, thread_return, 0 /* Ignored */,
 				 NULL, true);
 }
-versioned_symbol (libc, ___pthread_join, pthread_join, GLIBC_2_34);
+versioned_symbol (libpthread, ___pthread_join, pthread_join, GLIBC_2_34);
 libc_hidden_ver (___pthread_join, __pthread_join)
 #ifndef SHARED
 strong_alias (___pthread_join, __pthread_join)
 #endif
 
 #if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_34)
-compat_symbol (libc, ___pthread_join, pthread_join, GLIBC_2_0);
+compat_symbol (libpthread, ___pthread_join, pthread_join, GLIBC_2_0);
 #endif
