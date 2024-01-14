@@ -46,8 +46,8 @@ __pthread_sigmask (int how, const sigset_t *newmask, sigset_t *oldmask)
 }
 libc_hidden_def (__pthread_sigmask)
 
-versioned_symbol (libc, __pthread_sigmask, pthread_sigmask, GLIBC_2_32);
-#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_32)
+versioned_symbol (libpthread, __pthread_sigmask, pthread_sigmask, GLIBC_2_32);
+#if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_32)
 strong_alias (__pthread_sigmask, __pthread_sigmask_2);
-compat_symbol (libc, __pthread_sigmask_2, pthread_sigmask, GLIBC_2_0);
+compat_symbol (libpthread, __pthread_sigmask_2, pthread_sigmask, GLIBC_2_0);
 #endif

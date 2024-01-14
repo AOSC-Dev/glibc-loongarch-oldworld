@@ -20,7 +20,7 @@
 #include <shlib-compat.h>
 
 
-#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_2)
+#if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_3_2)
 int
 __pthread_cond_destroy_2_0 (pthread_cond_2_0_t *cond)
 {
@@ -29,6 +29,6 @@ __pthread_cond_destroy_2_0 (pthread_cond_2_0_t *cond)
 
   return 0;
 }
-compat_symbol (libc, __pthread_cond_destroy_2_0, pthread_cond_destroy,
+compat_symbol (libpthread, __pthread_cond_destroy_2_0, pthread_cond_destroy,
 	       GLIBC_2_0);
 #endif

@@ -21,6 +21,10 @@ sysdep_routines += \
   # sysdep_routines
 endif
 
+ifeq ($(subdir),nptl)
+sysdep-CFLAGS += -DCOMP_CHANGED_PTHREAD_STACK_MIN
+endif
+
 abi-variants := lp64s lp64d
 
 ifeq (,$(filter $(default-abi),$(abi-variants)))

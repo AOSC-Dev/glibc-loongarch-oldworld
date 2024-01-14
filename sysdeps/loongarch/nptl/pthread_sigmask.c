@@ -48,7 +48,7 @@ libc_hidden_def (__pthread_sigmask)
 
 versioned_symbol (libc, __pthread_sigmask, pthread_sigmask, GLIBC_2_36);
 
-#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_36)
+#if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_36)
 
 #include<sysdeps/unix/sysv/linux/loongarch/ow_sigop.h>
 
@@ -61,13 +61,13 @@ __ow___pthread_sigmask (int how, const sigset_t *newmask, sigset_t *oldmask)
   }
   return rc;
 }
-#if SHLIB_COMPAT (libc, GLIBC_2_32, GLIBC_2_36)
-compat_symbol (libc, __ow___pthread_sigmask, pthread_sigmask, GLIBC_2_32);
+#if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_32, GLIBC_2_36)
+compat_symbol (libpthread, __ow___pthread_sigmask, pthread_sigmask, GLIBC_2_32);
 #endif
 
-#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_32)
+#if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_32)
 strong_alias (__ow___pthread_sigmask, __ow___pthread_sigmask_2);
-compat_symbol (libc, __ow___pthread_sigmask_2, pthread_sigmask, GLIBC_2_0);
+compat_symbol (libpthread, __ow___pthread_sigmask_2, pthread_sigmask, GLIBC_2_0);
 #endif
 
 #endif
