@@ -584,6 +584,7 @@ libpthread_in_libc {
     connect; __connect; recv; recvfrom; recvmsg; send; __send; sendmsg; sendto;
     fsync; lseek; __lseek; msync; open; __open; pause; tcdrain;
     system;
+    nanosleep; wait; __wait; waitpid;
 
     # Hidden entry point (through macros).
     _pthread_cleanup_push; _pthread_cleanup_pop;
@@ -597,6 +598,17 @@ libpthread_in_libc {
     # Functions which previously have been overwritten.
     sigwait; sigaction; __sigaction; _exit; _Exit; longjmp; siglongjmp;
     raise;
+
+    #Additional
+    pthread_attr_destroy; pthread_attr_getdetachstate;
+    pthread_attr_getinheritsched; pthread_attr_getschedparam;
+    pthread_attr_getschedpolicy; pthread_attr_getscope; pthread_attr_init;
+    pthread_attr_setdetachstate; pthread_attr_setinheritsched;
+    pthread_attr_setschedparam; pthread_attr_setschedpolicy;
+    pthread_attr_setscope; pthread_cond_destroy; pthread_cond_init;
+    pthread_condattr_destroy;
+    pthread_condattr_init; pthread_equal; pthread_getschedparam; pthread_self;
+    pthread_setschedparam;
   }
 
   GLIBC_2.1 {
@@ -669,14 +681,23 @@ libpthread_in_libc {
     __pthread_rwlock_unlock;
 
     __res_state;
+
+    # Additional
+    pthread_attr_init;
   }
 
   GLIBC_2.2.3 {
     __libpthread_version_placeholder;
+
+    # Additional
+    pthread_getattr_np;
   }
 
   GLIBC_2.2.6 {
     __libpthread_version_placeholder;
+
+    # Additional
+    __nanosleep;
   }
 
   GLIBC_2.3.2 {
@@ -684,6 +705,9 @@ libpthread_in_libc {
     pthread_cond_init;
     pthread_cond_wait; pthread_cond_timedwait;
     pthread_cond_signal; pthread_cond_broadcast;
+
+    # Additional
+    pthread_cond_destroy;
   }
 
   GLIBC_2.3.3 {
@@ -705,6 +729,10 @@ libpthread_in_libc {
     # affinity interfaces without size parameter
     pthread_setaffinity_np;
     pthread_attr_getaffinity_np;
+
+    # Additional
+    pthread_attr_setaffinity_np; pthread_attr_setstack;
+    pthread_attr_setstacksize; pthread_getaffinity_np;
   }
 
   GLIBC_2.3.4 {
@@ -713,6 +741,9 @@ libpthread_in_libc {
     pthread_attr_getaffinity_np;
 
     pthread_setschedprio;
+
+    # Additional
+    pthread_attr_setaffinity_np;
   }
 
   GLIBC_2.4 {

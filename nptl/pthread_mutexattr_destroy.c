@@ -23,11 +23,11 @@ ___pthread_mutexattr_destroy (pthread_mutexattr_t *attr)
 {
   return 0;
 }
-versioned_symbol (libc, ___pthread_mutexattr_destroy,
+versioned_symbol (libpthread, ___pthread_mutexattr_destroy,
                   pthread_mutexattr_destroy, GLIBC_2_34);
 #if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_34)
-compat_symbol (libc, ___pthread_mutexattr_destroy,
+compat_symbol (libpthread, ___pthread_mutexattr_destroy,
                pthread_mutexattr_destroy, GLIBC_2_0);
-compat_symbol (libc, ___pthread_mutexattr_destroy,
+compat_symbol (libpthread, ___pthread_mutexattr_destroy,
                __pthread_mutexattr_destroy, GLIBC_2_0);
 #endif

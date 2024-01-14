@@ -205,10 +205,10 @@ __pthread_getattr_np (pthread_t thread_id, pthread_attr_t *attr)
 
   return ret;
 }
-versioned_symbol (libc, __pthread_getattr_np, pthread_getattr_np, GLIBC_2_32);
+versioned_symbol (libpthread, __pthread_getattr_np, pthread_getattr_np, GLIBC_2_32);
 
-#if SHLIB_COMPAT (libc, GLIBC_2_2_3, GLIBC_2_32)
+#if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_2_3, GLIBC_2_32)
 strong_alias (__pthread_getattr_np, __pthread_getattr_np_alias)
-compat_symbol (libc, __pthread_getattr_np_alias,
+compat_symbol (libpthread, __pthread_getattr_np_alias,
 	       pthread_getattr_np, GLIBC_2_2_3);
 #endif
