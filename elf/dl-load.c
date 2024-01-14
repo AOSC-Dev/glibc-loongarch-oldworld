@@ -123,6 +123,9 @@ static const size_t system_dirs_len[] =
   SYSTEM_DIRS_LEN
 };
 #define nsystem_dirs_len array_length (system_dirs_len)
+#define normal_system_dirs_len (nsystem_dirs_len - SYSTEM_DIRS_PRE_COUNT)
+
+static_assert (SYSTEM_DIRS_PRE_COUNT < nsystem_dirs_len, "should have at least one system dir");
 
 static bool
 is_trusted_path_normalize (const char *path, size_t len)
@@ -723,7 +726,7 @@ _dl_init_paths (const char *llp, const char *source,
 
   /* First set up the rest of the default search directory entries.  */
   aelem = __rtld_search_dirs.dirs = (struct r_search_path_elem **)
-    malloc ((nsystem_dirs_len + 1) * sizeof (struct r_search_path_elem *));
+    malloc ((nsystem_dirs_len + 2) * sizeof (struct r_search_path_elem *));
   if (__rtld_search_dirs.dirs == NULL)
     {
       errstring = N_("cannot create search path array");
@@ -748,10 +751,16 @@ _dl_init_paths (const char *llp, const char *source,
   pelem = GL(dl_all_dirs) = __rtld_search_dirs.dirs[0];
   strp = system_dirs;
   idx = 0;
+  aelem = &__rtld_search_dirs.dirs[normal_system_dirs_len + 1];
 
   do
     {
       size_t cnt;
+
+      if (aelem == &__rtld_search_dirs.dirs[nsystem_dirs_len + 1]){
+        *aelem = NULL;
+        aelem = &__rtld_search_dirs.dirs[0];
+      }
 
       *aelem++ = pelem;
 
@@ -2025,9 +2034,22 @@ _dl_map_object (struct link_map *loader, const char *name,
 
       fd = -1;
 
+      if (SYSTEM_DIRS_PRE_COUNT > 0
+          && ((l = loader ?: GL(dl_ns)[nsid]._ns_loaded) == NULL
+          || __glibc_likely (!(l->l_flags_1 & DF_1_NODEFLIB)))
+          && __rtld_search_dirs.dirs != (void *) -1)
+        {
+          struct r_search_path_struct pre_sp = {
+            .dirs = &__rtld_search_dirs.dirs[normal_system_dirs_len + 1],
+            .malloced = 0,
+          };
+          fd = open_path (name, namelen, mode, &pre_sp,
+              &realname, &fb, l, LA_SER_DEFAULT, &found_other_class);
+        }
+
       /* When the object has the RUNPATH information we don't use any
 	 RPATHs.  */
-      if (loader == NULL || loader->l_info[DT_RUNPATH] == NULL)
+      if (fd == -1 && (loader == NULL || loader->l_info[DT_RUNPATH] == NULL))
 	{
 	  /* This is the executable's map (if there is one).  Make sure that
 	     we do not look at it twice.  */
