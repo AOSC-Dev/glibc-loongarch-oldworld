@@ -40,7 +40,7 @@ ___pthread_mutex_destroy (pthread_mutex_t *mutex)
 
   return 0;
 }
-versioned_symbol (libc, ___pthread_mutex_destroy, pthread_mutex_destroy,
+versioned_symbol (libpthread, ___pthread_mutex_destroy, pthread_mutex_destroy,
                   GLIBC_2_0);
 libc_hidden_ver (___pthread_mutex_destroy, __pthread_mutex_destroy)
 #ifndef SHARED

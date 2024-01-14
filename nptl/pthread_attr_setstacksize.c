@@ -45,7 +45,7 @@ versioned_symbol (libc, __pthread_attr_setstacksize,
 		  pthread_attr_setstacksize, GLIBC_2_34);
 
 
-#if PTHREAD_STACK_MIN == 16384
+#if PTHREAD_STACK_MIN == 16384 && !defined(COMP_CHANGED_PTHREAD_STACK_MIN)
 # if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_1, GLIBC_2_34)
 compat_symbol (libpthread, __pthread_attr_setstacksize,
 	       pthread_attr_setstacksize, GLIBC_2_1);

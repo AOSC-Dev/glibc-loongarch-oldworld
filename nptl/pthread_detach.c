@@ -59,5 +59,5 @@ strong_alias (___pthread_detach, __pthread_detach)
 #endif
 
 #if OTHER_SHLIB_COMPAT (libpthread, GLIBC_2_0, GLIBC_2_34)
-compat_symbol (libc, ___pthread_detach, pthread_detach, GLIBC_2_0);
+compat_symbol (libpthread, ___pthread_detach, pthread_detach, GLIBC_2_0);
 #endif

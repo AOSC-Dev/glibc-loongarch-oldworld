@@ -618,7 +618,7 @@ ___pthread_cond_wait (pthread_cond_t *cond, pthread_mutex_t *mutex)
   return __pthread_cond_wait_common (cond, mutex, 0, NULL);
 }
 
-versioned_symbol (libc, ___pthread_cond_wait, pthread_cond_wait,
+versioned_symbol (libpthread, ___pthread_cond_wait, pthread_cond_wait,
 		  GLIBC_2_3_2);
 libc_hidden_ver (___pthread_cond_wait, __pthread_cond_wait)
 #ifndef SHARED
@@ -658,7 +658,7 @@ ___pthread_cond_timedwait (pthread_cond_t *cond, pthread_mutex_t *mutex,
   return __pthread_cond_timedwait64 (cond, mutex, &ts64);
 }
 #endif /* __TIMESIZE == 64 */
-versioned_symbol (libc, ___pthread_cond_timedwait,
+versioned_symbol (libpthread, ___pthread_cond_timedwait,
 		  pthread_cond_timedwait, GLIBC_2_3_2);
 libc_hidden_ver (___pthread_cond_timedwait, __pthread_cond_timedwait)
 #ifndef SHARED
