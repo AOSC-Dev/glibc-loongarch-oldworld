@@ -1358,6 +1358,7 @@ $(objpfx)trusted-dirs.st: Makefile $(..)Makeconfig
 	echo "$(subst :, ,$(user-defined-trusted-dirs-pre) $(default-rpath) $(user-defined-trusted-dirs))"    \
 	| $(AWK) -f gen-trusted-dirs.awk > ${@:st=T};
 	echo '#define DL_DST_LIB "$(notdir $(slibdir))"' >> ${@:st=T}
+	echo '#define SYSTEM_DIRS_PRE_COUNT $(words $(subst :, ,$(user-defined-trusted-dirs-pre)))' >> ${@:st=T}
 	$(move-if-change) ${@:st=T} ${@:st=h}
 	touch $@
 CPPFLAGS-dl-load.c += -I$(objpfx). -I$(csu-objpfx).
