@@ -1,5 +1,5 @@
 /* Libc stubs for pthread functions.  Hurd pthread version.
-   Copyright (C) 2002-2023 Free Software Foundation, Inc.
+   Copyright (C) 2002-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -57,28 +57,9 @@ FORWARD (pthread_attr_destroy, (pthread_attr_t *attr), (attr), 0)
 
 FORWARD (pthread_attr_init, (pthread_attr_t *attr), (attr), 0)
 
-FORWARD (pthread_attr_getdetachstate,
-	 (const pthread_attr_t *attr, int *detachstate), (attr, detachstate),
-	 0)
-FORWARD (pthread_attr_setdetachstate, (pthread_attr_t *attr, int detachstate),
-	 (attr, detachstate), 0)
-
-FORWARD (pthread_attr_getinheritsched,
-	 (const pthread_attr_t *attr, int *inherit), (attr, inherit), 0)
-FORWARD (pthread_attr_setinheritsched, (pthread_attr_t *attr, int inherit),
-	 (attr, inherit), 0)
-
-FORWARD (pthread_attr_getschedparam,
-	 (const pthread_attr_t *attr, struct sched_param *param),
-	 (attr, param), 0)
 FORWARD (pthread_attr_setschedparam,
 	 (pthread_attr_t *attr, const struct sched_param *param),
 	 (attr, param), 0)
-
-FORWARD (pthread_attr_getschedpolicy,
-	 (const pthread_attr_t *attr, int *policy), (attr, policy), 0)
-FORWARD (pthread_attr_setschedpolicy, (pthread_attr_t *attr, int policy),
-	 (attr, policy), 0)
 
 FORWARD (pthread_attr_getscope,
 	 (const pthread_attr_t *attr, int *scope), (attr, scope), 0)
@@ -102,23 +83,10 @@ FORWARD (pthread_cond_timedwait,
 	 (pthread_cond_t *cond, pthread_mutex_t *mutex,
 	  const struct timespec *abstime), (cond, mutex, abstime), 0)
 
-FORWARD (pthread_equal, (pthread_t thread1, pthread_t thread2),
-	 (thread1, thread2), 1)
-
-
 /* Use an alias to avoid warning, as pthread_exit is declared noreturn.  */
 FORWARD_NORETURN (__pthread_exit, void, (void *retval), (retval),
 		  exit (EXIT_SUCCESS))
 strong_alias (__pthread_exit, pthread_exit);
-
-
-FORWARD (pthread_getschedparam,
-	 (pthread_t target_thread, int *policy, struct sched_param *param),
-	 (target_thread, policy, param), 0)
-FORWARD (pthread_setschedparam,
-	 (pthread_t target_thread, int policy,
-	  const struct sched_param *param), (target_thread, policy, param), 0)
-
 
 FORWARD (pthread_mutex_destroy, (pthread_mutex_t *mutex), (mutex), 0)
 

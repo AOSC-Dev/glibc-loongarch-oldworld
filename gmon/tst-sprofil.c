@@ -1,4 +1,4 @@
-/* Copyright (C) 2001-2023 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -34,7 +34,6 @@ size_t taddr[] =
     0x00010000		/* Linux elf32/sparc */
 #if __WORDSIZE > 32
     ,
-    0x4000000000000000,	/* Linux elf64/ia64 */
     0x0000000120000000,	/* Linux elf64/alpha */
     0x4000000000001000,	/* elf64/hppa */
     0x0000000100000000	/* Linux elf64/sparc */

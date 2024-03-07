@@ -1,5 +1,5 @@
 /* Support for dynamic linking code in static libc.
-   Copyright (C) 1996-2023 Free Software Foundation, Inc.
+   Copyright (C) 1996-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -59,10 +59,6 @@ int _dl_dynamic_weak;
 
 /* If nonzero print warnings about problematic situations.  */
 int _dl_verbose;
-
-/* We never do profiling.  */
-const char *_dl_profile;
-const char *_dl_profile_output;
 
 /* Names of shared object for which the RUNPATHs and RPATHs should be
    ignored.  */
@@ -276,14 +272,28 @@ _dl_non_dynamic_init (void)
   _dl_main_map.l_phdr = GL(dl_phdr);
   _dl_main_map.l_phnum = GL(dl_phnum);
 
-  _dl_verbose = *(getenv ("LD_WARN") ?: "") == '\0' ? 0 : 1;
-
   /* Set up the data structures for the system-supplied DSO early,
      so they can influence _dl_init_paths.  */
   setup_vdso (NULL, NULL);
 
   /* With vDSO setup we can initialize the function pointers.  */
   setup_vdso_pointers ();
+
+  if (__libc_enable_secure)
+    {
+      static const char unsecure_envvars[] =
+	UNSECURE_ENVVARS
+	;
+      const char *cp = unsecure_envvars;
+
+      while (cp < unsecure_envvars + sizeof (unsecure_envvars))
+	{
+	  __unsetenv (cp);
+	  cp = strchr (cp, '\0') + 1;
+	}
+    }
+
+  _dl_verbose = *(getenv ("LD_WARN") ?: "") == '\0' ? 0 : 1;
 
   /* Initialize the data structures for the search paths for shared
      objects.  */
@@ -300,25 +310,6 @@ _dl_non_dynamic_init (void)
   _dl_bind_not = *(getenv ("LD_BIND_NOT") ?: "") != '\0';
 
   _dl_dynamic_weak = *(getenv ("LD_DYNAMIC_WEAK") ?: "") == '\0';
-
-  _dl_profile_output = getenv ("LD_PROFILE_OUTPUT");
-  if (_dl_profile_output == NULL || _dl_profile_output[0] == '\0')
-    _dl_profile_output
-      = &"/var/tmp\0/var/profile"[__libc_enable_secure ? 9 : 0];
-
-  if (__libc_enable_secure)
-    {
-      static const char unsecure_envvars[] =
-	UNSECURE_ENVVARS
-	;
-      const char *cp = unsecure_envvars;
-
-      while (cp < unsecure_envvars + sizeof (unsecure_envvars))
-	{
-	  __unsetenv (cp);
-	  cp = strchr (cp, '\0') + 1;
-	}
-    }
 
 #ifdef DL_PLATFORM_INIT
   DL_PLATFORM_INIT;
@@ -353,7 +344,6 @@ _dl_non_dynamic_init (void)
 DL_SYSINFO_IMPLEMENTATION
 #endif
 
-#if ENABLE_STATIC_PIE
 /* Since relocation to hidden _dl_main_map causes relocation overflow on
    aarch64, a function is used to get the address of _dl_main_map.  */
 
@@ -362,7 +352,6 @@ _dl_get_dl_main_map (void)
 {
   return &_dl_main_map;
 }
-#endif
 
 /* This is used by _dl_runtime_profile, not used on static code.  */
 void

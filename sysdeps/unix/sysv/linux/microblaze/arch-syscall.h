@@ -15,6 +15,7 @@
 #define __NR_bpf 387
 #define __NR_break 17
 #define __NR_brk 45
+#define __NR_cachestat 451
 #define __NR_capget 184
 #define __NR_capset 185
 #define __NR_chdir 12
@@ -66,6 +67,7 @@
 #define __NR_fchdir 133
 #define __NR_fchmod 94
 #define __NR_fchmodat 306
+#define __NR_fchmodat2 452
 #define __NR_fchown 95
 #define __NR_fchown32 207
 #define __NR_fchownat 298
@@ -93,8 +95,11 @@
 #define __NR_ftruncate 93
 #define __NR_ftruncate64 194
 #define __NR_futex 240
+#define __NR_futex_requeue 456
 #define __NR_futex_time64 422
+#define __NR_futex_wait 455
 #define __NR_futex_waitv 449
+#define __NR_futex_wake 454
 #define __NR_futimesat 299
 #define __NR_get_kernel_syms 130
 #define __NR_get_mempolicy 275
@@ -181,6 +186,7 @@
 #define __NR_lstat 107
 #define __NR_lstat64 196
 #define __NR_madvise 219
+#define __NR_map_shadow_stack 453
 #define __NR_mbind 274
 #define __NR_membarrier 390
 #define __NR_memfd_create 386

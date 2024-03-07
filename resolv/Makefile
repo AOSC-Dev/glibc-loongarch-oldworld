@@ -1,4 +1,4 @@
-# Copyright (C) 1994-2023 Free Software Foundation, Inc.
+# Copyright (C) 1994-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -102,6 +102,7 @@ tests += \
   tst-resolv-invalid-cname \
   tst-resolv-network \
   tst-resolv-noaaaa \
+  tst-resolv-noaaaa-vc \
   tst-resolv-nondecimal \
   tst-resolv-res_init-multi \
   tst-resolv-search \
@@ -293,6 +294,7 @@ $(objpfx)tst-resolv-res_init-thread: $(objpfx)libresolv.so \
 $(objpfx)tst-resolv-invalid-cname: $(objpfx)libresolv.so \
   $(shared-thread-library)
 $(objpfx)tst-resolv-noaaaa: $(objpfx)libresolv.so $(shared-thread-library)
+$(objpfx)tst-resolv-noaaaa-vc: $(objpfx)libresolv.so $(shared-thread-library)
 $(objpfx)tst-resolv-nondecimal: $(objpfx)libresolv.so $(shared-thread-library)
 $(objpfx)tst-resolv-qtypes: $(objpfx)libresolv.so $(shared-thread-library)
 $(objpfx)tst-resolv-rotate: $(objpfx)libresolv.so $(shared-thread-library)

@@ -1,5 +1,5 @@
 /* PLT trampolines.  Alpha version.
-   Copyright (C) 2005-2023 Free Software Foundation, Inc.
+   Copyright (C) 2005-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -89,6 +89,7 @@ _dl_runtime_resolve_new:
 	.globl	_dl_runtime_profile_new
 	.type	_dl_runtime_profile_new, @function
 
+#ifdef SHARED
 #undef FRAMESIZE
 #define FRAMESIZE	20*8
 
@@ -207,6 +208,7 @@ _dl_runtime_profile_new:
 
 	cfi_endproc
 	.size	_dl_runtime_profile_new, .-_dl_runtime_profile_new
+#endif /* SHARED */
 
 	.align	4
 	.globl	_dl_runtime_resolve_old
@@ -340,6 +342,7 @@ _dl_runtime_resolve_old:
 	.usepv	_dl_runtime_profile_old, no
 	.type	_dl_runtime_profile_old, @function
 
+#ifdef SHARED
 	/* We save the registers in a different order than desired by
 	   .mask/.fmask, so we have to use explicit cfi directives.  */
 	cfi_startproc
@@ -538,3 +541,4 @@ _dl_runtime_profile_old:
 
 	cfi_endproc
 	.size	_dl_runtime_profile_old, .-_dl_runtime_profile_old
+#endif /* SHARED */

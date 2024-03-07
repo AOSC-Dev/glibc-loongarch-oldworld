@@ -1,6 +1,6 @@
 /* Internal representation of tunables.
 
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -61,19 +61,10 @@ struct _tunable
 {
   const char name[TUNABLE_NAME_MAX];	/* Internal name of the tunable.  */
   tunable_type_t type;			/* Data type of the tunable.  */
+  const tunable_val_t def;		/* The value.  */
   tunable_val_t val;			/* The value.  */
   bool initialized;			/* Flag to indicate that the tunable is
 					   initialized.  */
-  tunable_seclevel_t security_level;	/* Specify the security level for the
-					   tunable with respect to AT_SECURE
-					   programs.  See description of
-					   tunable_seclevel_t to see a
-					   description of the values.
-
-					   Note that even if the tunable is
-					   read, it may not get used by the
-					   target module if the value is
-					   considered unsafe.  */
   /* Compatibility elements.  */
   const char env_alias[TUNABLE_ALIAS_MAX]; /* The compatibility environment
 					   variable name.  */

@@ -1,5 +1,5 @@
 /* PLT trampolines.  SH version.
-   Copyright (C) 2005-2023 Free Software Foundation, Inc.
+   Copyright (C) 2005-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -142,6 +142,7 @@ _dl_runtime_resolve:
 	.size _dl_runtime_resolve, .-_dl_runtime_resolve
 
 
+#ifdef SHARED
 	.globl _dl_runtime_profile
 	.type _dl_runtime_profile,@function
 	cfi_startproc
@@ -428,3 +429,4 @@ _dl_runtime_profile:
 8:	.long _dl_audit_pltexit
 #endif
 	.size _dl_runtime_profile, .-_dl_runtime_profile
+#endif /* SHARED */

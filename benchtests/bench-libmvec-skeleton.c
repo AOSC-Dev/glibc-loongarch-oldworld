@@ -1,5 +1,5 @@
 /* Skeleton for libmvec benchmark programs.
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@
 #include <bench-libmvec-arch.h>
 
 #include <bench-util.c>
-#define D_ITERS 10000
+#define D_ITERS 200000
 
 int
 main (int argc, char **argv)

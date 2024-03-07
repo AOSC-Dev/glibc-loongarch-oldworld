@@ -1,5 +1,5 @@
 /* Default strchrnul implementation for S/390.
-   Copyright (C) 2015-2023 Free Software Foundation, Inc.
+   Copyright (C) 2015-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,7 +24,9 @@
 # endif
 
 # include <string/strchrnul.c>
-# if defined SHARED && IS_IN (libc)
+# if HAVE_STRCHRNUL_IFUNC
+#  if defined SHARED && IS_IN (libc)
 __hidden_ver1 (__strchrnul_c, __GI___strchrnul, __strchrnul_c);
+#  endif
 # endif
 #endif

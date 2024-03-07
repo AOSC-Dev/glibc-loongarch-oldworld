@@ -34,7 +34,7 @@ libc {
     fnmatch; fork; fpathconf; freeaddrinfo;
 
     # g*
-    getaddrinfo; getdtablesize; getegid; geteuid; getgid; getopt; getopt_long;
+    getdtablesize; getegid; geteuid; getgid; getopt; getopt_long;
     getopt_long_only; getpgid; getpgrp; getpid; getppid; getsid; getuid; glob;
     glob_pattern_p; globfree; group_member;
 
@@ -53,7 +53,7 @@ libc {
     sched_get_priority_max; sched_get_priority_min; sched_getparam;
     sched_getscheduler; sched_rr_get_interval; sched_setparam;
     sched_setscheduler; sched_yield; setegid; seteuid; setgid;
-    setpgid; setpgrp; setsid; setuid; sleep; sysconf;
+    setgroups; setpgid; setpgrp; setsid; setuid; sleep; sysconf;
 
     # t*
     times;
@@ -72,7 +72,7 @@ libc {
     __pread64; __pwrite64;
 
     # g*
-    gai_strerror; getnameinfo; glob64; globfree64;
+    gai_strerror; glob64; globfree64;
 
     # p*
     pread; pread64; pwrite; pwrite64;

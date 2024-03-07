@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Test that glibc's sys/pidfd.h constants match the kernel's.
-# Copyright (C) 2022-2023 Free Software Foundation, Inc.
+# Copyright (C) 2022-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 #
 # The GNU C Library is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ def main():
         sys.exit (77)
 
     linux_version_headers = glibcsyscalls.linux_kernel_version(args.cc)
-    linux_version_glibc = (6, 3)
+    linux_version_glibc = (6, 7)
     sys.exit(glibcextract.compare_macro_consts(
                 '#include <sys/pidfd.h>\n',
                 '#include <asm/fcntl.h>\n'

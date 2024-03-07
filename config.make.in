@@ -50,7 +50,6 @@ c++-sysincludes = @CXX_SYSINCLUDES@
 c++-cstdlib-header = @CXX_CSTDLIB_HEADER@
 c++-cmath-header = @CXX_CMATH_HEADER@
 c++-bits-std_abs-h = @CXX_BITS_STD_ABS_H@
-all-warnings = @all_warnings@
 enable-werror = @enable_werror@
 
 have-z-execstack = @libc_cv_z_execstack@
@@ -81,16 +80,12 @@ mach-interface-list = @mach_interface_list@
 
 memory-tagging = @memory_tagging@
 
-nss-crypt = @libc_cv_nss_crypt@
-static-nss-crypt = @libc_cv_static_nss_crypt@
-
 # Configuration options.
 build-shared = @shared@
 build-profile = @profile@
 build-static-nss = @static_nss@
 cross-compiling = @cross_compiling@
 force-install = @force_install@
-build-crypt = @build_crypt@
 build-nscd = @build_nscd@
 use-nscd = @use_nscd@
 build-hardcoded-path-in-tests= @hardcoded_path_in_tests@

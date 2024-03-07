@@ -1,5 +1,5 @@
 /* System dependent pieces of sysconf; Mach version
-   Copyright (C) 1996-2023 Free Software Foundation, Inc.
+   Copyright (C) 1996-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -61,12 +61,6 @@ __get_nprocs (void)
 }
 libc_hidden_def (__get_nprocs)
 weak_alias (__get_nprocs, get_nprocs)
-
-int
-__get_nprocs_sched (void)
-{
-  return __get_nprocs ();
-}
 
 /* Return the number of physical pages on the system. */
 long int

@@ -14,6 +14,7 @@
 #define __NR_brk 5012
 #define __NR_cachectl 5198
 #define __NR_cacheflush 5197
+#define __NR_cachestat 5451
 #define __NR_capget 5123
 #define __NR_capset 5124
 #define __NR_chdir 5078
@@ -58,6 +59,7 @@
 #define __NR_fchdir 5079
 #define __NR_fchmod 5089
 #define __NR_fchmodat 5258
+#define __NR_fchmodat2 5452
 #define __NR_fchown 5091
 #define __NR_fchownat 5250
 #define __NR_fcntl 5070
@@ -78,7 +80,10 @@
 #define __NR_fsync 5072
 #define __NR_ftruncate 5075
 #define __NR_futex 5194
+#define __NR_futex_requeue 5456
+#define __NR_futex_wait 5455
 #define __NR_futex_waitv 5449
+#define __NR_futex_wake 5454
 #define __NR_futimesat 5251
 #define __NR_get_kernel_syms 5170
 #define __NR_get_mempolicy 5228
@@ -148,6 +153,7 @@
 #define __NR_lsetxattr 5181
 #define __NR_lstat 5006
 #define __NR_madvise 5027
+#define __NR_map_shadow_stack 5453
 #define __NR_mbind 5227
 #define __NR_membarrier 5318
 #define __NR_memfd_create 5314

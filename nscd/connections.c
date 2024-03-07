@@ -1,5 +1,5 @@
 /* Inner loops of cache daemon.
-   Copyright (C) 1998-2023 Free Software Foundation, Inc.
+   Copyright (C) 1998-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software; you can redistribute it and/or modify
@@ -256,6 +256,17 @@ int inotify_fd = -1;
 #ifdef HAVE_NETLINK
 /* Descriptor for netlink status updates.  */
 static int nl_status_fd = -1;
+
+static uint32_t
+__bump_nl_timestamp (void)
+{
+  static uint32_t nl_timestamp;
+
+  if (atomic_fetch_add_relaxed (&nl_timestamp, 1) + 1 == 0)
+    atomic_fetch_add_relaxed (&nl_timestamp, 1);
+
+  return nl_timestamp;
+}
 #endif
 
 /* Number of times clients had to wait.  */

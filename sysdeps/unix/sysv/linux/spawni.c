@@ -1,5 +1,5 @@
 /* POSIX spawn interface.  Linux version.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -68,6 +68,7 @@ struct posix_spawn_args
   int xflags;
   bool use_clone3;
   int err;
+  int pidfd;
 };
 
 /* Older version requires that shell script without shebang definition
@@ -309,7 +310,7 @@ fail:
 /* Spawn a new process executing PATH with the attributes describes in *ATTRP.
    Before running the process perform the actions described in FILE-ACTIONS. */
 static int
-__spawnix (pid_t * pid, const char *file,
+__spawnix (int *pid, const char *file,
 	   const posix_spawn_file_actions_t * file_actions,
 	   const posix_spawnattr_t * attrp, char *const argv[],
 	   char *const envp[], int xflags,
@@ -318,6 +319,17 @@ __spawnix (pid_t * pid, const char *file,
   pid_t new_pid;
   struct posix_spawn_args args;
   int ec;
+
+  bool use_pidfd = xflags & SPAWN_XFLAGS_RET_PIDFD;
+
+  /* For CLONE_PIDFD, older kernels might not fail with unsupported flags or
+     some versions might not support waitid (P_PIDFD).  So to avoid the need
+     to handle the error on the helper process, check for full pidfd
+     support.
+     ENOSYS is returned because without proper waitid support, pidfd_spawn
+     can not be used proporly independently of its arguments.  */
+  if (use_pidfd && !__clone_pidfd_supported ())
+    return ENOSYS;
 
   /* To avoid imposing hard limits on posix_spawn{p} the total number of
      arguments is first calculated to allocate a mmap to hold all possible
@@ -368,6 +380,7 @@ __spawnix (pid_t * pid, const char *file,
   args.argv = argv;
   args.argc = argc;
   args.envp = envp;
+  args.pidfd = 0;
   args.xflags = xflags;
 
   internal_signal_block_all (&args.oldmask);
@@ -380,14 +393,24 @@ __spawnix (pid_t * pid, const char *file,
      need for CLONE_SETTLS.  Although parent and child share the same TLS
      namespace, there will be no concurrent access for TLS variables (errno
      for instance).  */
+  bool set_cgroup = attrp ? (attrp->__flags & POSIX_SPAWN_SETCGROUP) : false;
   struct clone_args clone_args =
     {
       /* Unsupported flags like CLONE_CLEAR_SIGHAND will be cleared up by
 	 __clone_internal_fallback.  */
-      .flags = CLONE_CLEAR_SIGHAND | CLONE_VM | CLONE_VFORK,
+      .flags = (set_cgroup ? CLONE_INTO_CGROUP : 0)
+	       | (use_pidfd ? CLONE_PIDFD : 0)
+	       | CLONE_CLEAR_SIGHAND
+	       | CLONE_VM
+	       | CLONE_VFORK,
       .exit_signal = SIGCHLD,
       .stack = (uintptr_t) stack,
       .stack_size = stack_size,
+      .cgroup = (set_cgroup ? attrp->__cgroup : 0),
+      .pidfd = use_pidfd ? (uintptr_t) &args.pidfd : 0,
+      /* This is require for clone fallback, where pidfd is returned
+	 on parent_tid.  */
+      .parent_tid = use_pidfd ? (uintptr_t) &args.pidfd : 0,
     };
 #ifdef HAVE_CLONE3_WRAPPER
   args.use_clone3 = true;
@@ -398,8 +421,19 @@ __spawnix (pid_t * pid, const char *file,
 #endif
     {
       args.use_clone3 = false;
-      new_pid = __clone_internal_fallback (&clone_args, __spawni_child,
-					   &args);
+      if (!set_cgroup)
+	new_pid = __clone_internal_fallback (&clone_args, __spawni_child,
+					     &args);
+      else
+	{
+	  /* No fallback for POSIX_SPAWN_SETCGROUP if clone3 is not
+	     supported.  */
+	  new_pid = -1;
+#ifdef HAVE_CLONE3_WRAPPER
+	  if (errno == ENOSYS)
+#endif
+	    errno = ENOTSUP;
+	}
     }
 
   /* It needs to collect the case where the auxiliary process was created
@@ -429,7 +463,7 @@ __spawnix (pid_t * pid, const char *file,
   __munmap (stack, stack_size);
 
   if ((ec == 0) && (pid != NULL))
-    *pid = new_pid;
+    *pid = use_pidfd ? args.pidfd : new_pid;
 
   internal_signal_restore_set (&args.oldmask);
 

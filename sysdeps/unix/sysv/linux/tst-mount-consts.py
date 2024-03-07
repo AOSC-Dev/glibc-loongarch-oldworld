@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Test that glibc's sys/mount.h constants match the kernel's.
-# Copyright (C) 2022-2023 Free Software Foundation, Inc.
+# Copyright (C) 2022-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 #
 # The GNU C Library is free software; you can redistribute it and/or
@@ -39,10 +39,10 @@ def main():
         sys.exit (77)
 
     linux_version_headers = glibcsyscalls.linux_kernel_version(args.cc)
-    # Constants in glibc were updated to match Linux v6.3.  When glibc
+    # Constants in glibc were updated to match Linux v6.7.  When glibc
     # constants are updated this value should be updated to match the
     # released kernel version from which the constants were taken.
-    linux_version_glibc = (6, 3)
+    linux_version_glibc = (6, 7)
     def check(cte, exclude=None):
         return glibcextract.compare_macro_consts(
                 '#include <sys/mount.h>\n',

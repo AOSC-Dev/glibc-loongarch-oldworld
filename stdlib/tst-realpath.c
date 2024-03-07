@@ -7,7 +7,7 @@
    __attribute__ ((__malloc__ (free, 1))) char*
    realpath (const char *, char *);
 
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
@@ -50,7 +51,11 @@ void dealloc (void *p)
 
 char* alloc (void)
 {
-  return (char *)malloc (8);
+#ifdef PATH_MAX
+  return (char *)malloc (PATH_MAX);
+#else
+  return (char *)malloc (4096);
+#endif
 }
 
 static int

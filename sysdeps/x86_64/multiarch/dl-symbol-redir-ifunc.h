@@ -1,5 +1,5 @@
 /* Symbol rediretion for loader/static initialization code.
-   Copyright (C) 2022-2023 Free Software Foundation, Inc.
+   Copyright (C) 2022-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,8 @@
 #ifndef _DL_IFUNC_GENERIC_H
 #define _DL_IFUNC_GENERIC_H
 
+#ifndef SHARED
+
 #include <isa-level.h>
 
 #if MINIMUM_X86_ISA_LEVEL >= 4
@@ -30,5 +32,18 @@
 #endif
 
 asm ("memset = " HAVE_MEMSET_IFUNC_GENERIC);
+
+
+#if MINIMUM_X86_ISA_LEVEL >= 4
+# define HAVE_MEMCMP_IFUNC_GENERIC "__memcmp_evex_movbe"
+#elif MINIMUM_X86_ISA_LEVEL == 3
+# define HAVE_MEMCMP_IFUNC_GENERIC "__memcmp_avx2_movbe"
+#else
+# define HAVE_MEMCMP_IFUNC_GENERIC "__memcmp_sse2"
+#endif
+
+asm ("memcmp = " HAVE_MEMCMP_IFUNC_GENERIC);
+
+#endif /* SHARED */
 
 #endif

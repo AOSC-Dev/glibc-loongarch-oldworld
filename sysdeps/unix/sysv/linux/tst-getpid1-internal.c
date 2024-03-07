@@ -1,5 +1,5 @@
 /* Verify that the parent pid is unchanged by __clone_internal.
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -60,11 +60,7 @@ do_test (void)
       return 1;
     }
 
-#ifdef __ia64__
-# define STACK_SIZE 256 * 1024
-#else
-# define STACK_SIZE 128 * 1024
-#endif
+#define STACK_SIZE 128 * 1024
   char st[STACK_SIZE] __attribute__ ((aligned));
   struct clone_args clone_args =
     {

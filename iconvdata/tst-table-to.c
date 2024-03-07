@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2023 Free Software Foundation, Inc.
+/* Copyright (C) 2000-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -32,6 +32,7 @@ main (int argc, char *argv[])
   const char *charset;
   iconv_t cd;
   int bmp_only;
+  int no_tags;
 
   if (argc != 2)
     {
@@ -47,16 +48,19 @@ main (int argc, char *argv[])
       return 1;
     }
 
-  /* When testing UTF-8 or GB18030, stop at 0x10000, otherwise the output
+  /* When testing UTF-8, stop at 0x10000, otherwise the output
      file gets too big.  */
-  bmp_only = (strcmp (charset, "UTF-8") == 0
+  bmp_only = (strcmp (charset, "UTF-8") == 0);
+  /* When testing any encoding other than UTF-8 or GB18030, stop at 0xE0000,
+     because the conversion drops Unicode tag characters (range
+     U+E0000..U+E007F).  */
+  no_tags = !(strcmp (charset, "UTF-8") == 0
 	      || strcmp (charset, "GB18030") == 0);
 
   {
     unsigned int i;
     unsigned char buf[10];
-
-    for (i = 0; i < (bmp_only ? 0x10000 : 0x30000); i++)
+    for (i = 0; i < (bmp_only ? 0x10000 : no_tags ? 0xE0000 : 0x110000); i++)
       {
 	unsigned char in[6];
 	unsigned int incount =

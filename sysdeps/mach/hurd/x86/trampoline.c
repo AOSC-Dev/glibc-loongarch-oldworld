@@ -1,5 +1,5 @@
 /* Set thread_state for sighandler, and sigcontext to recover.  x86 version.
-   Copyright (C) 1994-2023 Free Software Foundation, Inc.
+   Copyright (C) 1994-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -79,8 +79,8 @@ static void fill_ucontext (ucontext_t *uc, const struct sigcontext *sc)
 
   /* Registers.  */
 #ifdef __x86_64__
-  memcpy (&uc->uc_mcontext.gregs[REG_GSFS], &sc->sc_gs,
-          (REG_ERR - REG_GSFS) * sizeof (long));
+  memcpy (&uc->uc_mcontext.gregs[REG_R8], &sc->sc_r8,
+          (REG_ERR - REG_R8) * sizeof (long));
 #else
   memcpy (&uc->uc_mcontext.gregs[REG_GS], &sc->sc_gs,
           (REG_TRAPNO - REG_GS) * sizeof (int));

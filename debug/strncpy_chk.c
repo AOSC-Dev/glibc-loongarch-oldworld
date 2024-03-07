@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2023 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,3 +27,4 @@ __strncpy_chk (char *s1, const char *s2, size_t n, size_t s1len)
 
   return strncpy (s1, s2, n);
 }
+libc_hidden_builtin_def (__strncpy_chk)

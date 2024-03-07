@@ -1,5 +1,5 @@
 /* Cache handling for netgroup lookup.
-   Copyright (C) 2011-2023 Free Software Foundation, Inc.
+   Copyright (C) 2011-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#include "../inet/netgroup.h"
+#include "../nss/netgroup.h"
 #include "nscd.h"
 #include "dbg_log.h"
 

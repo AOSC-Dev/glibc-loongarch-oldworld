@@ -1,5 +1,5 @@
 /* Internal header for proving correct grouping in strings of numbers.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -59,7 +59,6 @@ __correctly_grouped_prefixmb (const STRING_TYPE *begin, const STRING_TYPE *end,
   size_t thousands_len = 1;
 #else
   size_t thousands_len = strlen (thousands);
-  int cnt;
 #endif
 
   while (end - begin >= thousands_len)
@@ -74,14 +73,8 @@ __correctly_grouped_prefixmb (const STRING_TYPE *begin, const STRING_TYPE *end,
 	  if (*cp == thousands)
 	    break;
 #else
-	  if (cp[thousands_len - 1] == *thousands)
-	    {
-	      for (cnt = 1; thousands[cnt] != '\0'; ++cnt)
-		if (thousands[cnt] != cp[thousands_len - 1 - cnt])
-		  break;
-	      if (thousands[cnt] == '\0')
-		break;
-	    }
+	  if (memcmp (cp, thousands, thousands_len) == 0)
+	    break;
 #endif
 	  --cp;
 	}
@@ -91,7 +84,7 @@ __correctly_grouped_prefixmb (const STRING_TYPE *begin, const STRING_TYPE *end,
       if (cp < begin)
 	return end;
 
-      if (end - cp == (int) *gp + 1)
+      if (end - cp == (int) *gp + thousands_len)
 	{
 	  /* This group matches the specification.  */
 
@@ -105,7 +98,7 @@ __correctly_grouped_prefixmb (const STRING_TYPE *begin, const STRING_TYPE *end,
 	     remainder of the string from BEGIN to NEW_END is the part we
 	     will consider if there is a grouping error in this trailing
 	     portion from CP to END.  */
-	  new_end = cp - 1;
+	  new_end = cp;
 
 	  /* Loop while the grouping is correct.  */
 	  while (1)
@@ -132,10 +125,7 @@ __correctly_grouped_prefixmb (const STRING_TYPE *begin, const STRING_TYPE *end,
 		      if (*cp == thousands)
 			break;
 #else
-		      for (cnt = 0; thousands[cnt] != '\0'; ++cnt)
-			if (thousands[cnt] != cp[thousands_len - cnt - 1])
-			  break;
-		      if (thousands[cnt] == '\0')
+		      if (memcmp (cp, thousands, thousands_len) == 0)
 			break;
 #endif
 		      --cp;
@@ -156,20 +146,17 @@ __correctly_grouped_prefixmb (const STRING_TYPE *begin, const STRING_TYPE *end,
 		      if (*cp == thousands)
 			break;
 #else
-		      for (cnt = 0; thousands[cnt] != '\0'; ++cnt)
-			if (thousands[cnt] != cp[thousands_len - cnt - 1])
-			  break;
-		      if (thousands[cnt] == '\0')
+		      if (memcmp (cp, thousands, thousands_len) == 0)
 			break;
 #endif
 		      --cp;
 		    }
 
-		  if (cp < begin && group_end - cp <= (int) *gp)
+		  if (cp < begin && group_end - cp <= (int) *gp + thousands_len - 1)
 		    /* Final group is correct.  */
 		    return end;
 
-		  if (cp < begin || group_end - cp != (int) *gp)
+		  if (cp < begin || group_end - cp != (int) *gp + thousands_len - 1)
 		    /* Incorrect group.  Punt.  */
 		    break;
 		}
@@ -183,8 +170,8 @@ __correctly_grouped_prefixmb (const STRING_TYPE *begin, const STRING_TYPE *end,
       else
 	{
 	  /* Even the first group was wrong; determine maximum shift.  */
-	  if (end - cp > (int) *gp + 1)
-	    end = cp + (int) *gp + 1;
+	  if (end - cp > (int) *gp + thousands_len)
+	    end = cp + (int) *gp + thousands_len;
 	  else if (cp < begin)
 	    /* This number does not fill the first group, but is correct.  */
 	    return end;

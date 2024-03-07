@@ -1,5 +1,5 @@
 /* Optimized strlen implementation using SIMD.
-   Copyright (C) 2018-2023 Free Software Foundation, Inc.
+   Copyright (C) 2018-2024 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -203,4 +203,3 @@ L(page_cross):
 	ret
 
 END (__strlen_asimd)
-libc_hidden_builtin_def (__strlen_asimd)

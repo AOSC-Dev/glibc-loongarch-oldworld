@@ -1,4 +1,4 @@
-/* Copyright (C) 2004-2023 Free Software Foundation, Inc.
+/* Copyright (C) 2004-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -42,7 +42,9 @@ __readonly_area (const char *ptr, size_t size)
 	     to the /proc filesystem if it is set[ug]id.  There has
 	     been no willingness to change this in the kernel so
 	     far.  */
-	  || errno == EACCES)
+	  || errno == EACCES
+	  /* Process has reached the maximum number of open files.  */
+	  || errno == EMFILE)
 	return 1;
       return -1;
     }

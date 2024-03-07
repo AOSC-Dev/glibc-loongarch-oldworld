@@ -1,5 +1,5 @@
 /* Run initializers for newly loaded objects.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -25,10 +25,14 @@
 static void
 call_init (struct link_map *l, int argc, char **argv, char **env)
 {
+  /* Do not run constructors for proxy objects.  */
+  if (l != l->l_real)
+    return;
+
   /* If the object has not been relocated, this is a bug.  The
      function pointers are invalid in this case.  (Executables do not
-     need relocation, and neither do proxy objects.)  */
-  assert (l->l_real->l_relocated || l->l_real->l_type == lt_executable);
+     need relocation.)  */
+  assert (l->l_relocated || l->l_type == lt_executable);
 
   if (l->l_init_called)
     /* This object is all done.  */

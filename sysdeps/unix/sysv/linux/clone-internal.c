@@ -1,5 +1,5 @@
 /* The internal wrapper of clone and clone3.
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -54,25 +54,17 @@ __clone_internal_fallback (struct clone_args *cl_args,
   void *stack = cast_to_pointer (cl_args->stack);
   int ret;
 
-#ifdef __ia64__
-  ret = __clone2 (func, stack, cl_args->stack_size,
-		  flags, arg,
-		  cast_to_pointer (cl_args->parent_tid),
-		  cast_to_pointer (cl_args->tls),
-		  cast_to_pointer (cl_args->child_tid));
-#else
-# if !_STACK_GROWS_DOWN && !_STACK_GROWS_UP
-#  error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
-# endif
+#if !_STACK_GROWS_DOWN && !_STACK_GROWS_UP
+# error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
+#endif
 
-# if _STACK_GROWS_DOWN
+#if _STACK_GROWS_DOWN
   stack += cl_args->stack_size;
-# endif
+#endif
   ret = __clone (func, stack, flags, arg,
 		 cast_to_pointer (cl_args->parent_tid),
 		 cast_to_pointer (cl_args->tls),
 		 cast_to_pointer (cl_args->child_tid));
-#endif
   return ret;
 }
 

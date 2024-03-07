@@ -1,6 +1,6 @@
 /* Multiple versions of __memmove_chk
    All versions must be listed in ifunc-impl-list.c.
-   Copyright (C) 2017-2023 Free Software Foundation, Inc.
+   Copyright (C) 2017-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -32,4 +32,6 @@ libc_ifunc_redirected (__redirect_memmove_chk, __memmove_chk,
 __hidden_ver1 (__memmove_chk, __GI___memmove_chk, __redirect_memmove_chk)
   __attribute__ ((visibility ("hidden"))) __attribute_copy__ (__memmove_chk);
 # endif
+#else
+# include <debug/memmove_chk.c>
 #endif

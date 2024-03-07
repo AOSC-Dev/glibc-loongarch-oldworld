@@ -1,5 +1,5 @@
 /* Test x86-specific floating-point environment (bug 16068): SSE part.
-   Copyright (C) 2015-2023 Free Software Foundation, Inc.
+   Copyright (C) 2015-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,17 +22,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-
-static bool
-have_sse2 (void)
-{
-  unsigned int eax, ebx, ecx, edx;
-
-  if (!__get_cpuid (1, &eax, &ebx, &ecx, &edx))
-    return false;
-
-  return (edx & bit_SSE2) != 0;
-}
+#include <cpu-features.h>
+#include <support/check.h>
 
 static uint32_t
 get_sse_mxcsr (void)
@@ -164,13 +155,9 @@ sse_tests (void)
 static int
 do_test (void)
 {
-  if (!have_sse2 ())
-    {
-      puts ("CPU does not support SSE2, cannot test");
-      return 0;
-    }
+  if (!CPU_FEATURE_USABLE (SSE2))
+    FAIL_UNSUPPORTED ("CPU does not support SSE2");
   return sse_tests ();
 }
 
-#define TEST_FUNCTION do_test ()
-#include <test-skeleton.c>
+#include <support/test-driver.c>

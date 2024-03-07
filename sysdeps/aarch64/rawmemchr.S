@@ -1,6 +1,6 @@
 /* rawmemchr - find a character in a memory zone
 
-   Copyright (C) 2015-2023 Free Software Foundation, Inc.
+   Copyright (C) 2015-2024 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -31,7 +31,7 @@ ENTRY (__rawmemchr)
 
 L(do_strlen):
 	mov	x15, x30
-	cfi_return_column (x15)
+	cfi_register (x30, x15)
 	mov	x14, x0
 	bl	__strlen
 	add	x0, x14, x0

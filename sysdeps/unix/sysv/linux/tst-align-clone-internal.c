@@ -1,5 +1,5 @@
 /* Verify that the clone child stack is properly aligned.
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -44,11 +44,7 @@ do_test (void)
   if (TEST_STACK_ALIGN ())
     FAIL_EXIT1 ("stack alignment failed");
 
-#ifdef __ia64__
-# define STACK_SIZE 256 * 1024
-#else
-# define STACK_SIZE 128 * 1024
-#endif
+#define STACK_SIZE 128 * 1024
   char st[STACK_SIZE] __attribute__ ((aligned));
   struct clone_args clone_args =
     {

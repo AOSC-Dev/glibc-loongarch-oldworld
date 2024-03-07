@@ -1,5 +1,5 @@
 /* strcpy with SSE2 and unaligned load
-   Copyright (C) 2011-2023 Free Software Foundation, Inc.
+   Copyright (C) 2011-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -64,7 +64,7 @@
 	absolute	address.  */                            \
 	addl	(%ecx,INDEX,SCALE), %ecx;                       \
 	/* We loaded the jump table and adjusted ECX. Go.  */  \
-	_CET_NOTRACK jmp *%ecx
+	jmp *%ecx
 # else
 #  define JMPTBL(I, B)	I
 
@@ -73,7 +73,7 @@
 	jump	table.  SCALE is the scale of INDEX. */
 
 #  define BRANCH_TO_JMPTBL_ENTRY(TABLE, INDEX, SCALE)		\
-	_CET_NOTRACK jmp *TABLE(,INDEX,SCALE)
+	jmp *TABLE(,INDEX,SCALE)
 # endif
 
 .text

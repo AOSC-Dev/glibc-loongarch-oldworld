@@ -1,5 +1,5 @@
 /* Resolver state initialization and resolv.conf parsing.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -553,7 +553,7 @@ struct resolv_conf *
 __resolv_conf_load (struct __res_state *preinit,
                     struct file_change_detection *change)
 {
-  /* Ensure that /etc/hosts.conf has been loaded (once).  */
+  /* Ensure that /etc/host.conf has been loaded (once).  */
   _res_hconf_init ();
 
   FILE *fp = fopen (_PATH_RESCONF, "rce");

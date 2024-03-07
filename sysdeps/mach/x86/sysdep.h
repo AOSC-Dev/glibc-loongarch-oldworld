@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2023 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2024 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -24,20 +24,6 @@
 #include <tls.h>
 
 #define LOSE asm volatile ("hlt")
-
-#define SNARF_ARGS(entry_sp, argc, argv, envp)				      \
-  do									      \
-    {									      \
-      char **p;								      \
-      argc = (int) *entry_sp;						      \
-      argv = (char **) (entry_sp + 1);					      \
-      p = argv;								      \
-      while (*p++ != NULL)						      \
-	;								      \
-      if (p >= (char **) argv[0])					      \
-	--p;								      \
-      envp = p;							      \
-    } while (0)
 
 #define STACK_GROWTH_DOWN
 

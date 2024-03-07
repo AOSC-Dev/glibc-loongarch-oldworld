@@ -169,17 +169,13 @@ Enable Intel Control-flow Enforcement Technology (CET) support.  When
 is protected with indirect branch tracking (IBT) and shadow stack
 (SHSTK)@.  When CET is enabled, @theglibc{} is compatible with all
 existing executables and shared libraries.  This feature is currently
-supported on i386, x86_64 and x32 with GCC 8 and binutils 2.29 or later.
-Note that when CET is enabled, @theglibc{} requires CPUs capable of
-multi-byte NOPs, like x86-64 processors as well as Intel Pentium Pro or
-newer.  With @option{--enable-cet}, it is an error to dlopen a non CET
+supported on x86_64 and x32 with GCC 8 and binutils 2.29 or later.
+With @option{--enable-cet}, it is an error to dlopen a non CET
 enabled shared library in CET enabled application.  With
 @option{--enable-cet=permissive}, CET is disabled when dlopening a
 non CET enabled shared library in CET enabled application.
 
-NOTE: @option{--enable-cet} has been tested for i686, x86_64 and x32
-on non-CET processors.  @option{--enable-cet} has been tested for
-i686, x86_64 and x32 on CET processors.
+NOTE: @option{--enable-cet} is only supported on x86_64 and x32.
 
 @item --enable-memory-tagging
 Enable memory tagging support if the architecture supports it.  When
@@ -255,19 +251,6 @@ configure with @option{--disable-werror}.
 @item --disable-mathvec
 By default for x86_64, @theglibc{} is built with the vector math library.
 Use this option to disable the vector math library.
-
-@item --enable-crypt
-Install the legacy passphrase-hashing library @file{libcrypt} and the
-header file @file{crypt.h}.  @file{unistd.h} will declare the function
-@code{crypt} regardless of this option.  Using this option does not
-change the set of programs that may need to be linked with
-@option{-lcrypt}; it only means that @theglibc{} will provide that
-library.
-
-This option is for hackers and distributions who may not yet be able to
-use libcrypt alternatives such as libxcrypt and need this legacy
-implementation as a temporary workaround.  Note that libcrypt may be
-removed in a future release.
 
 @item --disable-scv
 Disable using @code{scv} instruction for syscalls. All syscalls will use
@@ -519,7 +502,7 @@ build @theglibc{}:
 @item
 GNU @code{make} 4.0 or newer
 
-As of release time, GNU @code{make} 4.4 is the newest verified to work
+As of release time, GNU @code{make} 4.4.1 is the newest verified to work
 to build @theglibc{}.
 
 @item
@@ -567,7 +550,7 @@ GNU @code{binutils} 2.25 or later
 
 You must use GNU @code{binutils} (as and ld) to build @theglibc{}.
 No other assembler or linker has the necessary functionality at the
-moment. As of release time, GNU @code{binutils} 2.41 is the newest
+moment. As of release time, GNU @code{binutils} 2.42 is the newest
 verified to work to build @theglibc{}.
 
 For PowerPC 64-bits little-endian (powerpc64le), @command{objcopy} is required
@@ -607,7 +590,7 @@ Perl 5
 
 Perl is not required, but if present it is used in some tests and the
 @code{mtrace} program, to build the @glibcadj{} manual.  As of release
-time @code{perl} version 5.38.0 is the newest verified to work to
+time @code{perl} version 5.38.2 is the newest verified to work to
 build @theglibc{}.
 
 @item
@@ -631,6 +614,14 @@ its output to the printers'.  PExpect is used to capture the output of
 GDB, and should be compatible with the Python version in your system.
 As of release time PExpect 4.8.0 is the newest verified to work to test
 the pretty printers.
+
+@item
+The Python @code{abnf} module.
+
+This module is optional and used to verify some ABNF grammars in the
+manual.  Version 2.2.0 has been confirmed to work as expected.  A
+missing @code{abnf} module does not reduce the test coverage of the
+library itself.
 
 @item
 GDB 7.8 or later with support for Python 2.7/3.4 or later
@@ -677,8 +668,6 @@ patches, although we try to avoid this.
 
 If you are installing @theglibc{} on @gnulinuxsystems{}, you need to have
 the header files from a 3.2 or newer kernel around for reference.
-(For the ia64 architecture, you need version 3.2.18 or newer because this
-is the first version with support for the @code{accept4} system call.)
 These headers must be installed using @samp{make headers_install}; the
 headers present in the kernel source directory are not suitable for
 direct use by @theglibc{}.  You do not need to use that kernel, just have

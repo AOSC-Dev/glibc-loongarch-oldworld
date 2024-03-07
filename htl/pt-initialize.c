@@ -1,5 +1,5 @@
 /* Initialize pthreads library.
-   Copyright (C) 2000-2023 Free Software Foundation, Inc.
+   Copyright (C) 2000-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,14 +29,7 @@
 static const struct pthread_functions pthread_functions = {
   .ptr_pthread_attr_destroy = __pthread_attr_destroy,
   .ptr_pthread_attr_init = __pthread_attr_init,
-  .ptr_pthread_attr_getdetachstate = __pthread_attr_getdetachstate,
-  .ptr_pthread_attr_setdetachstate = __pthread_attr_setdetachstate,
-  .ptr_pthread_attr_getinheritsched = __pthread_attr_getinheritsched,
-  .ptr_pthread_attr_setinheritsched = __pthread_attr_setinheritsched,
-  .ptr_pthread_attr_getschedparam = __pthread_attr_getschedparam,
   .ptr_pthread_attr_setschedparam = __pthread_attr_setschedparam,
-  .ptr_pthread_attr_getschedpolicy = __pthread_attr_getschedpolicy,
-  .ptr_pthread_attr_setschedpolicy = __pthread_attr_setschedpolicy,
   .ptr_pthread_attr_getscope = __pthread_attr_getscope,
   .ptr_pthread_attr_setscope = __pthread_attr_setscope,
   .ptr_pthread_condattr_destroy = __pthread_condattr_destroy,
@@ -47,10 +40,7 @@ static const struct pthread_functions pthread_functions = {
   .ptr_pthread_cond_signal = __pthread_cond_signal,
   .ptr_pthread_cond_wait = __pthread_cond_wait,
   .ptr_pthread_cond_timedwait = __pthread_cond_timedwait,
-  .ptr_pthread_equal = __pthread_equal,
   .ptr___pthread_exit = __pthread_exit,
-  .ptr_pthread_getschedparam = __pthread_getschedparam,
-  .ptr_pthread_setschedparam = __pthread_setschedparam,
   .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
   .ptr_pthread_mutex_init = __pthread_mutex_init,
   .ptr_pthread_mutex_lock = __pthread_mutex_lock,

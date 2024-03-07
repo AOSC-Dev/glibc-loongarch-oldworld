@@ -1,5 +1,5 @@
 /* DWARF2 exception handling and frame unwind runtime interface routines.
-   Copyright (C) 1997-2023 Free Software Foundation, Inc.
+   Copyright (C) 1997-2024 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -224,7 +224,6 @@ _Unwind_FindEnclosingFunction (void *pc)
     return NULL;
 }
 
-#ifndef __ia64__
 _Unwind_Ptr
 _Unwind_GetDataRelBase (struct _Unwind_Context *context)
 {
@@ -236,7 +235,6 @@ _Unwind_GetTextRelBase (struct _Unwind_Context *context)
 {
   return (_Unwind_Ptr) context->bases.tbase;
 }
-#endif
 
 /* Extract any interesting information from the CIE for the translation
    unit F belongs to.  Return a pointer to the byte after the augmentation,

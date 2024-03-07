@@ -1,5 +1,5 @@
 /* memcpy with SSSE3
-   Copyright (C) 2010-2023 Free Software Foundation, Inc.
+   Copyright (C) 2010-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -64,7 +64,7 @@
 	absolute	address.  */		\
 	addl	(%ebx, INDEX, SCALE), %ebx;		\
     /* We loaded the jump table.  Go.  */		\
-	_CET_NOTRACK jmp *%ebx
+	jmp *%ebx
 # else
 
 #  define PARMS		4
@@ -78,7 +78,7 @@
 	jump table.  SCALE is the scale of INDEX. */
 
 #  define BRANCH_TO_JMPTBL_ENTRY(TABLE, INDEX, SCALE)		\
-	_CET_NOTRACK jmp *TABLE(, INDEX, SCALE)
+	jmp *TABLE(, INDEX, SCALE)
 # endif
 
 	.section .text.ssse3,"ax",@progbits

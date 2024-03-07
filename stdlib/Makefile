@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2023 Free Software Foundation, Inc.
+# Copyright (C) 1991-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@ headers := \
   bits/indirect-return.h \
   bits/monetary-ldbl.h \
   bits/stdint-intn.h \
+  bits/stdint-least.h \
   bits/stdint-uintn.h \
   bits/stdlib-bsearch.h \
   bits/stdlib-float.h \
@@ -41,6 +42,7 @@ headers := \
   fmtmsg.h \
   inttypes.h \
   monetary.h \
+  stdbit.h \
   stdint.h \
   stdlib.h \
   sys/errno.h \
@@ -96,7 +98,6 @@ routines := \
   mbtowc \
   mrand48 \
   mrand48_r \
-  msort \
   nrand48 \
   nrand48_r \
   old_atexit  \
@@ -116,6 +117,76 @@ routines := \
   setenv \
   srand48 \
   srand48_r \
+  stdc_bit_ceil_uc \
+  stdc_bit_ceil_ui \
+  stdc_bit_ceil_ul \
+  stdc_bit_ceil_ull \
+  stdc_bit_ceil_us \
+  stdc_bit_floor_uc \
+  stdc_bit_floor_ui \
+  stdc_bit_floor_ul \
+  stdc_bit_floor_ull \
+  stdc_bit_floor_us \
+  stdc_bit_width_uc \
+  stdc_bit_width_ui \
+  stdc_bit_width_ul \
+  stdc_bit_width_ull \
+  stdc_bit_width_us \
+  stdc_count_ones_uc \
+  stdc_count_ones_ui \
+  stdc_count_ones_ul \
+  stdc_count_ones_ull \
+  stdc_count_ones_us \
+  stdc_count_zeros_uc \
+  stdc_count_zeros_ui \
+  stdc_count_zeros_ul \
+  stdc_count_zeros_ull \
+  stdc_count_zeros_us \
+  stdc_first_leading_one_uc \
+  stdc_first_leading_one_ui \
+  stdc_first_leading_one_ul \
+  stdc_first_leading_one_ull \
+  stdc_first_leading_one_us \
+  stdc_first_leading_zero_uc \
+  stdc_first_leading_zero_ui \
+  stdc_first_leading_zero_ul \
+  stdc_first_leading_zero_ull \
+  stdc_first_leading_zero_us \
+  stdc_first_trailing_one_uc \
+  stdc_first_trailing_one_ui \
+  stdc_first_trailing_one_ul \
+  stdc_first_trailing_one_ull \
+  stdc_first_trailing_one_us \
+  stdc_first_trailing_zero_uc \
+  stdc_first_trailing_zero_ui \
+  stdc_first_trailing_zero_ul \
+  stdc_first_trailing_zero_ull \
+  stdc_first_trailing_zero_us \
+  stdc_has_single_bit_uc \
+  stdc_has_single_bit_ui \
+  stdc_has_single_bit_ul \
+  stdc_has_single_bit_ull \
+  stdc_has_single_bit_us \
+  stdc_leading_ones_uc \
+  stdc_leading_ones_ui \
+  stdc_leading_ones_ul \
+  stdc_leading_ones_ull \
+  stdc_leading_ones_us \
+  stdc_leading_zeros_uc \
+  stdc_leading_zeros_ui \
+  stdc_leading_zeros_ul \
+  stdc_leading_zeros_ull \
+  stdc_leading_zeros_us \
+  stdc_trailing_ones_uc \
+  stdc_trailing_ones_ui \
+  stdc_trailing_ones_ul \
+  stdc_trailing_ones_ull \
+  stdc_trailing_ones_us \
+  stdc_trailing_zeros_uc \
+  stdc_trailing_zeros_ui \
+  stdc_trailing_zeros_ul \
+  stdc_trailing_zeros_ull \
+  stdc_trailing_zeros_us \
   strfmon \
   strfmon_l \
   strfromd \
@@ -215,6 +286,8 @@ tests := \
   tst-on_exit \
   tst-qsort \
   tst-qsort2 \
+  tst-qsort3 \
+  tst-qsort6 \
   tst-quick_exit \
   tst-rand48 \
   tst-rand48-2 \
@@ -232,6 +305,23 @@ tests := \
   tst-setcontext7 \
   tst-setcontext8 \
   tst-setcontext9 \
+  tst-setcontext10 \
+  tst-setcontext11 \
+  tst-stdbit-Wconversion \
+  tst-stdc_bit_ceil \
+  tst-stdc_bit_floor \
+  tst-stdc_bit_width \
+  tst-stdc_count_ones \
+  tst-stdc_count_zeros \
+  tst-stdc_first_leading_one \
+  tst-stdc_first_leading_zero \
+  tst-stdc_first_trailing_one \
+  tst-stdc_first_trailing_zero \
+  tst-stdc_has_single_bit \
+  tst-stdc_leading_ones \
+  tst-stdc_leading_zeros \
+  tst-stdc_trailing_ones \
+  tst-stdc_trailing_zeros \
   tst-strfmon_l \
   tst-strfrom \
   tst-strfrom-locale \
@@ -252,6 +342,7 @@ tests := \
   tst-strtol-locale \
   tst-strtoll \
   tst-swapcontext1 \
+  tst-swapcontext2 \
   tst-thread-quick_exit \
   tst-tininess \
   tst-unsetenv1 \
@@ -261,6 +352,7 @@ tests := \
   # tests
 
 tests-internal := \
+  tst-qsort4 \
   tst-strtod1i \
   tst-strtod3 \
   tst-strtod4 \
@@ -300,6 +392,22 @@ LDLIBS-test-dlclose-exit-race-helper.so = $(libsupport) $(shared-thread-library)
 CFLAGS-tst-abs.c += -fno-builtin
 CFLAGS-tst-labs.c += -fno-builtin
 CFLAGS-tst-llabs.c += -fno-builtin
+
+CFLAGS-tst-stdbit-Wconversion.c += -Wconversion -Werror
+CFLAGS-tst-stdc_trailing_zeros.c += -fno-builtin
+CFLAGS-tst-stdc_trailing_ones.c += -fno-builtin
+CFLAGS-tst-stdc_leading_zeros.c += -fno-builtin
+CFLAGS-tst-stdc_leading_ones.c += -fno-builtin
+CFLAGS-tst-stdc_has_single_bit.c += -fno-builtin
+CFLAGS-tst-stdc_first_trailing_zero.c += -fno-builtin
+CFLAGS-tst-stdc_first_trailing_one.c += -fno-builtin
+CFLAGS-tst-stdc_first_leading_zero.c += -fno-builtin
+CFLAGS-tst-stdc_first_leading_one.c += -fno-builtin
+CFLAGS-tst-stdc_count_zeros.c += -fno-builtin
+CFLAGS-tst-stdc_count_ones.c += -fno-builtin
+CFLAGS-tst-stdc_bit_width.c += -fno-builtin
+CFLAGS-tst-stdc_bit_floor.c += -fno-builtin
+CFLAGS-tst-stdc_bit_ceil.c += -fno-builtin
 
 ifeq ($(have-cxx-thread_local),yes)
 CFLAGS-tst-quick_exit.o = -std=c++11
@@ -380,7 +488,6 @@ generated += \
   # generated
 
 CFLAGS-bsearch.c += $(uses-callbacks)
-CFLAGS-msort.c += $(uses-callbacks)
 CFLAGS-qsort.c += $(uses-callbacks)
 CFLAGS-system.c += -fexceptions
 CFLAGS-system.os = -fomit-frame-pointer
@@ -512,3 +619,5 @@ $(objpfx)tst-setcontext3.out: tst-setcontext3.sh $(objpfx)tst-setcontext3
 		 '$(run-program-env)' '$(test-program-prefix-after-env)' \
 		 $(common-objpfx)stdlib/; \
 	$(evaluate-test)
+
+$(objpfx)tst-qsort5: $(libm)

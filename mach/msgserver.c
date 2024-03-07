@@ -1,4 +1,4 @@
-/* Copyright (C) 1993-2023 Free Software Foundation, Inc.
+/* Copyright (C) 1993-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -65,10 +65,6 @@
 #include <mach/mig_errors.h>
 #include <stdlib.h>		/* For malloc and free.  */
 #include <assert.h>
-
-#ifdef NDR_CHAR_ASCII		/* OSF Mach flavors have different names.  */
-# define mig_reply_header_t	mig_reply_error_t
-#endif
 
 mach_msg_return_t
 __mach_msg_server_timeout (boolean_t (*demux) (mach_msg_header_t *request,

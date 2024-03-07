@@ -1,5 +1,5 @@
 /* Skeleton for benchmark programs.
-   Copyright (C) 2013-2023 Free Software Foundation, Inc.
+   Copyright (C) 2013-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ main (int argc, char **argv)
 
   memset (&runtime, 0, sizeof (runtime));
 
-  unsigned long iters = 1000;
+  unsigned long iters = 2000;
 
 #ifdef BENCH_INIT
   BENCH_INIT ();

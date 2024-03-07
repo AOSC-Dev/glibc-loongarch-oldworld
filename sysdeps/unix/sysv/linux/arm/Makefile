@@ -17,10 +17,6 @@ endif
 
 # Add a syscall function to each library that needs one.
 
-ifeq ($(subdir),crypt)
-libcrypt-sysdep_routines += libc-do-syscall
-endif
-
 ifeq ($(subdir),rt)
 librt-sysdep_routines += libc-do-syscall
 librt-shared-only-routines += libc-do-syscall
@@ -42,9 +38,6 @@ endif
 ifeq ($(subdir),nss)
 libnss_db-sysdep_routines += libc-do-syscall
 libnss_db-shared-only-routines += libc-do-syscall
-endif
-
-ifeq ($(subdir),posix)
 LDFLAGS-tst-rfc3484 += $(common-objpfx)csu/libc-do-syscall.o
 LDFLAGS-tst-rfc3484-2 += $(common-objpfx)csu/libc-do-syscall.o
 LDFLAGS-tst-rfc3484-3 += $(common-objpfx)csu/libc-do-syscall.o

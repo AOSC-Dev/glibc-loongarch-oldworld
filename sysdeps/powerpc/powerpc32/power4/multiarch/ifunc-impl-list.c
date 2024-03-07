@@ -1,5 +1,5 @@
 /* Enumerate available IFUNC implementations of a function.  PowerPC32 version.
-   Copyright (C) 2013-2023 Free Software Foundation, Inc.
+   Copyright (C) 2013-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@
 #include <wchar.h>
 #include <ldsodefs.h>
 #include <ifunc-impl-list.h>
+#include <cpu-features.h>
 
 size_t
 __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
@@ -28,7 +29,8 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 {
   size_t i = max;
 
-  unsigned long int hwcap = GLRO(dl_hwcap);
+  const struct cpu_features *features = &GLRO(dl_powerpc_cpu_features);
+  unsigned long int hwcap = features->hwcap;
   /* hwcap contains only the latest supported ISA, the code checks which is
      and fills the previous supported ones.  */
   if (hwcap & PPC_FEATURE_ARCH_2_06)

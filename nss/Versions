@@ -5,9 +5,99 @@ libc {
     # Functions exported as no-op compat symbols.
     __nss_passwd_lookup; __nss_group_lookup; __nss_hosts_lookup; __nss_next;
     __nss_database_lookup;
+
+    # e*
+    endgrent;
+    endnetgrent;
+    endpwent;
+    endspent;
+    ether_hostton; ether_ntohost;
+
+    # f*
+    fgetgrent; fgetgrent_r;
+    fgetpwent; fgetpwent_r;
+    fgetspent; fgetspent_r;
+
+    # g*
+    getaddrinfo;
+    getaliasbyname; getaliasbyname_r; getaliasent; getaliasent_r;
+    getgrent; getgrent_r; getgrgid; getgrgid_r; getgrnam; getgrnam_r;
+    getgroups;
+    gethostbyaddr; gethostbyaddr_r; gethostbyname; gethostbyname2;
+    gethostbyname2_r; gethostbyname_r; gethostent; gethostent_r;
+    getnetgrent; getnetgrent_r;
+    getnetbyaddr; getnetbyaddr_r; getnetbyname; getnetbyname_r;
+    getnetent; getnetent_r;
+    getprotobyname; getprotobyname_r; getprotobynumber;
+    getprotobynumber_r; getprotoent; getprotoent_r;
+    getpw; getpwent; getpwent_r; getpwnam; getpwnam_r; getpwuid; getpwuid_r;
+    getrpcbyname; getrpcbyname_r; getrpcbynumber; getrpcbynumber_r;
+    getrpcent; getrpcent_r;
+    getservbyname; getservbyname_r; getservbyport;
+    getservbyport_r; getservent; getservent_r;
+    getspent; getspent_r; getspnam; getspnam_r;
+
+    # i*
+    initgroups;
+
+    # l*
+    lckpwdf;
+
+    # p*
+    putpwent;
+    putspent;
+
+    # s*
+    setgrent;
+    setnetgrent;
+    setpwent;
+    setspent;
+    sgetspent; sgetspent_r;
+
+    # u*
+    ulckpwdf;
+  }
+  GLIBC_2.1 {
+    # g*
+    getnameinfo;
+
+    # p*
+    putgrent;
+  }
+  GLIBC_2.1.2 {
+    # g*
+    getgrent_r; getgrgid_r; getgrnam_r;
+    getnetgrent_r;
+    getprotobyname_r; getprotobynumber_r; getprotoent_r;
+    getpwent_r; getpwuid_r; getpwnam_r;
+    getservbyname_r; getservbyport_r; getservent_r;
+    getspent_r; getspnam_r;
   }
   GLIBC_2.2.2 {
     __nss_hostname_digits_dots;
+  }
+  GLIBC_2.2.4 {
+    # g*
+    getgrouplist;
+  }
+  GLIBC_2.10 {
+    # e*
+    endsgent;
+
+    # f*
+    fgetsgent; fgetsgent_r;
+
+    # g*
+    getsgent; getsgent_r; getsgnam; getsgnam_r;
+
+    # p*
+    putsgent;
+
+    # s*
+    setsgent;
+
+    # s*
+    sgetsgent; sgetsgent_r;
   }
   GLIBC_2.27 {
   }
@@ -107,6 +197,11 @@ libc {
     _nss_files_initgroups_dyn;
 
     _nss_files_init;
+
+    __merge_grp; __copy_grp;
+
+    __internal_endnetgrent; __internal_getnetgrent_r;
+    __internal_setnetgrent;
   }
 }
 

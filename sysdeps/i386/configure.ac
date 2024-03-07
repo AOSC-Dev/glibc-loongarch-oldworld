@@ -1,6 +1,11 @@
 GLIBC_PROVIDES dnl See aclocal.m4 in the top level source directory.
 # Local configure fragment for sysdeps/i386.
 
+# CET is only supported for x86-64.
+if test $enable_cet != no; then
+  AC_MSG_ERROR(["CET is only supported on x86_64 or x32"])
+fi
+
 # We no longer support i386 since it lacks the atomic instructions
 # required to implement NPTL threading.
 if test "$config_machine" = i386; then

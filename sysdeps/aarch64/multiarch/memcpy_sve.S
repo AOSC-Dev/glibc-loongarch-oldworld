@@ -1,5 +1,5 @@
 /* Optimized memcpy for SVE.
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -141,7 +141,6 @@ L(copy64_from_end):
 	ret
 
 END (__memcpy_sve)
-libc_hidden_builtin_def (__memcpy_sve)
 
 
 ENTRY (__memmove_sve)
@@ -208,5 +207,4 @@ L(return):
 	ret
 
 END (__memmove_sve)
-libc_hidden_builtin_def (__memmove_sve)
 #endif

@@ -1,5 +1,5 @@
 /* PLT trampolines.  PPC64 version.
-   Copyright (C) 2005-2023 Free Software Foundation, Inc.
+   Copyright (C) 2005-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -195,7 +195,7 @@ END(_dl_runtime_resolve)
    and r11 contains the link_map (from PLT0+16).  The link_map becomes
    parm1 (r3) and the index (r0) needs to be converted to an offset
    (index * 24) in parm2 (r4).  */
-#ifndef PROF
+#if !defined PROF && defined SHARED
 	.hidden _dl_profile_resolve
 ENTRY (_dl_profile_resolve, 4)
 /* Spill r30, r31 to preserve the link_map* and reloc_addr, in case we

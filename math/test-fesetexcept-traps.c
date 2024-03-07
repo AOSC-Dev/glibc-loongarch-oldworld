@@ -1,5 +1,5 @@
 /* Test fesetexcept: exception traps enabled.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
 #include <fenv.h>
 #include <stdio.h>
 #include <math-tests.h>
+#include <math-barriers.h>
 
 static int
 do_test (void)
@@ -39,16 +40,44 @@ do_test (void)
       return result;
     }
 
-  if (EXCEPTION_SET_FORCES_TRAP)
-    {
-      puts ("setting exceptions traps, cannot test on this architecture");
-      return 77;
-    }
-  /* Verify fesetexcept does not cause exception traps.  */
+  /* Verify fesetexcept does not cause exception traps.  For architectures
+     where setting the exception might result in traps the function should
+     return a nonzero value.
+     Also check if the function does not alter the exception mask.  */
   ret = fesetexcept (FE_ALL_EXCEPT);
+
+  _Static_assert (!(EXCEPTION_SET_FORCES_TRAP && !EXCEPTION_TESTS(float)),
+		  "EXCEPTION_SET_FORCES_TRAP only makes sense if the "
+		  "architecture suports exceptions");
+  {
+    int exc_before = fegetexcept ();
+    ret = fesetexcept (FE_ALL_EXCEPT);
+    int exc_after = fegetexcept ();
+    if (exc_before != exc_after)
+      {
+	puts ("fesetexcept (FE_ALL_EXCEPT) changed the exceptions mask");
+	return 1;
+      }
+  }
+
+  /* Execute some floating-point operations, since on some CPUs exceptions
+     triggers a trap only at the next floating-point instruction.  */
+  volatile double a = 1.0;
+  volatile double b = a + a;
+  math_force_eval (b);
+  volatile long double al = 1.0L;
+  volatile long double bl = al + al;
+  math_force_eval (bl);
+
   if (ret == 0)
-    puts ("fesetexcept (FE_ALL_EXCEPT) succeeded");
-  else
+    {
+      if (EXCEPTION_SET_FORCES_TRAP)
+	{
+	  puts ("unexpected fesetexcept success");
+	  result = 1;
+	}
+    }
+  else if (!EXCEPTION_SET_FORCES_TRAP)
     {
       puts ("fesetexcept (FE_ALL_EXCEPT) failed");
       if (EXCEPTION_TESTS (float))
@@ -64,5 +93,4 @@ do_test (void)
   return result;
 }
 
-#define TEST_FUNCTION do_test ()
-#include "../test-skeleton.c"
+#include <support/test-driver.c>

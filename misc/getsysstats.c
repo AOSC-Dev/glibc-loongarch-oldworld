@@ -1,5 +1,5 @@
 /* getsysstats - Determine various system internal values, stub version.
-   Copyright (C) 1996-2023 Free Software Foundation, Inc.
+   Copyright (C) 1996-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -43,12 +43,6 @@ weak_alias (__get_nprocs, get_nprocs)
 
 link_warning (get_nprocs, "warning: get_nprocs will always return 1")
 
-
-int
-__get_nprocs_sched (void)
-{
-  return 1;
-}
 
 long int
 __get_phys_pages (void)

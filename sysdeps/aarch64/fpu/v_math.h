@@ -1,5 +1,5 @@
 /* Utilities for Advanced SIMD libmvec routines.
-   Copyright (C) 2023 Free Software Foundation, Inc.
+   Copyright (C) 2023-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,16 +29,31 @@
 #define V_NAME_F2(fun) _ZGVnN4vv_##fun##f
 #define V_NAME_D2(fun) _ZGVnN2vv_##fun
 
-/* Shorthand helpers for declaring constants.  */
-#define V2(x)                                                                  \
-  {                                                                            \
-    x, x                                                                       \
+#include "advsimd_f32_protos.h"
+
+#define HALF_WIDTH_ALIAS_F1(fun)                                              \
+  float32x2_t VPCS_ATTR _ZGVnN2v_##fun##f (float32x2_t x)                     \
+  {                                                                           \
+    return vget_low_f32 (_ZGVnN4v_##fun##f (vcombine_f32 (x, x)));            \
   }
 
-#define V4(x)                                                                  \
-  {                                                                            \
-    x, x, x, x                                                                 \
+#define HALF_WIDTH_ALIAS_F2(fun)                                              \
+  float32x2_t VPCS_ATTR _ZGVnN2vv_##fun##f (float32x2_t x, float32x2_t y)     \
+  {                                                                           \
+    return vget_low_f32 (                                                     \
+	_ZGVnN4vv_##fun##f (vcombine_f32 (x, x), vcombine_f32 (y, y)));       \
   }
+
+/* Shorthand helpers for declaring constants.  */
+#define V2(X) { X, X }
+#define V4(X) { X, X, X, X }
+#define V8(X) { X, X, X, X, X, X, X, X }
+
+static inline int
+v_any_u16h (uint16x4_t x)
+{
+  return vget_lane_u64 (vreinterpret_u64_u16 (x), 0) != 0;
+}
 
 static inline float32x4_t
 v_f32 (float x)
@@ -62,6 +77,11 @@ v_any_u32 (uint32x4_t x)
 {
   /* assume elements in x are either 0 or -1u.  */
   return vpaddd_u64 (vreinterpretq_u64_u32 (x)) != 0;
+}
+static inline int
+v_any_u32h (uint32x2_t x)
+{
+  return vget_lane_u64 (vreinterpret_u64_u32 (x), 0) != 0;
 }
 static inline float32x4_t
 v_lookup_f32 (const float *tab, uint32x4_t idx)
@@ -132,7 +152,13 @@ v_lookup_u64 (const uint64_t *tab, uint64x2_t idx)
 static inline float64x2_t
 v_call_f64 (double (*f) (double), float64x2_t x, float64x2_t y, uint64x2_t p)
 {
-  return (float64x2_t){ p[0] ? f (x[0]) : y[0], p[1] ? f (x[1]) : y[1] };
+  double p1 = p[1];
+  double x1 = x[1];
+  if (__glibc_likely (p[0]))
+    y[0] = f (x[0]);
+  if (__glibc_likely (p1))
+    y[1] = f (x1);
+  return y;
 }
 static inline float64x2_t
 v_call2_f64 (double (*f) (double, double), float64x2_t x1, float64x2_t x2,

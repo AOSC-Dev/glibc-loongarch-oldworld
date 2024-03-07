@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2023 Free Software Foundation, Inc.
+# Copyright (C) 1998-2024 Free Software Foundation, Inc.
 # Copyright The GNU Toolchain Authors.
 # This file is part of the GNU C Library.
 
@@ -178,6 +178,9 @@ CFLAGS-tst-longjmp_chk3.c += -fexceptions -fasynchronous-unwind-tables
 CPPFLAGS-tst-longjmp_chk3.c += $(no-fortify-source),-D_FORTIFY_SOURCE=1
 CPPFLAGS-tst-realpath-chk.c += $(no-fortify-source),-D_FORTIFY_SOURCE=2
 CPPFLAGS-tst-chk-cancel.c += $(no-fortify-source),-D_FORTIFY_SOURCE=2
+CFLAGS-tst-sprintf-fortify-rdonly.c += $(no-fortify-source),-D_FORTIFY_SOURCE=2
+CFLAGS-tst-fortify-syslog.c += $(no-fortify-source),-D_FORTIFY_SOURCE=2
+CFLAGS-tst-fortify-wide.c += $(no-fortify-source),-D_FORTIFY_SOURCE=2
 
 # _FORTIFY_SOURCE tests.
 # Auto-generate tests for _FORTIFY_SOURCE for different levels, compilers and
@@ -281,15 +284,21 @@ tests = \
   tst-backtrace4 \
   tst-backtrace5 \
   tst-backtrace6 \
+  tst-fortify-wide \
   tst-longjmp_chk \
   tst-longjmp_chk2 \
   tst-realpath-chk \
+  tst-sprintf-fortify-rdonly \
   tst-sprintf-fortify-unchecked \
   # tests
 
 tests-time64 += \
   $(tests-all-time64-chk) \
   # tests-time64
+
+tests-container += \
+  tst-fortify-syslog \
+  # tests-container
 
 ifeq ($(have-ssp),yes)
 tests += tst-ssp-1

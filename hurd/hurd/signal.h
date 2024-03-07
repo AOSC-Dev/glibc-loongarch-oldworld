@@ -1,5 +1,5 @@
 /* Implementing POSIX.1 signals under the Hurd.
-   Copyright (C) 1993-2023 Free Software Foundation, Inc.
+   Copyright (C) 1993-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -183,6 +183,12 @@ _hurd_self_sigstate (void)
 }
 # endif
 #endif
+
+struct machine_thread_all_state;
+extern mach_port_t
+_hurdsig_abort_rpcs (struct hurd_sigstate *ss, int signo, int sigthread,
+		     struct machine_thread_all_state *state, int *state_change,
+		     void (*reply) (void));
 
 /* Thread listening on our message port; also called the "signal thread".  */
 
@@ -325,7 +331,6 @@ extern void _hurd_internal_post_signal (struct hurd_sigstate *ss,
    stack the handler will use, and which describes the state of the thread
    encoded in STATE before running the handler).  */
 
-struct machine_thread_all_state;
 extern struct sigcontext *
 _hurd_setup_sighandler (struct hurd_sigstate *ss, const struct sigaction *action,
 			__sighandler_t handler,

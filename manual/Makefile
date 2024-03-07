@@ -1,4 +1,4 @@
-# Copyright (C) 1992-2023 Free Software Foundation, Inc.
+# Copyright (C) 1992-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ endif
 chapters = $(addsuffix .texi, \
 		       intro errno memory ctype string charset locale	\
 		       message search pattern io stdio llio filesys	\
-		       pipe socket terminal syslog math arith time	\
+		       pipe socket terminal syslog math arith stdbit time \
 		       resource setjmp signal startup process ipc job	\
 		       nss users sysinfo conf crypt debug threads	\
 		       dynlink probes tunables)

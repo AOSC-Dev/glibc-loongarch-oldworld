@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2023 Free Software Foundation, Inc.
+# Copyright (C) 1991-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -243,6 +243,7 @@ tests := \
   tst-scanf-binary-c2x \
   tst-scanf-binary-gnu11 \
   tst-scanf-binary-gnu89 \
+  tst-scanf-intn \
   tst-scanf-round \
   tst-scanf-to_inpunct \
   tst-setvbuf1 \
@@ -358,6 +359,7 @@ $(addprefix $(objpfx)siglist, $(object-suffixes-noshared)): \
 
 ifeq ($(run-built-tests),yes)
 LOCALES := \
+  bn_BD.UTF-8 \
   de_DE.ISO-8859-1 \
   de_DE.UTF-8 \
   en_US.ISO-8859-1 \
@@ -365,7 +367,9 @@ LOCALES := \
   hi_IN.UTF-8 \
   ja_JP.EUC-JP \
   ps_AF.UTF-8 \
+  rw_RW.UTF-8 \
   tg_TJ.UTF-8 \
+  unm_US.UTF-8 \
   # LOCALES
 include ../gen-locales.mk
 
@@ -458,6 +462,11 @@ CFLAGS-isoc23_fscanf.c += -fexceptions
 CFLAGS-isoc23_scanf.c += -fexceptions
 
 CFLAGS-dprintf.c += $(config-cflags-wno-ignored-attributes)
+
+# Called during static library initialization, so turn stack-protection
+# off for non-shared builds.
+CFLAGS-_itoa.o = $(no-stack-protector)
+CFLAGS-_itoa.op = $(no-stack-protector)
 
 # scanf18.c and scanf19.c test a deprecated extension which is no
 # longer visible under most conformance levels; see the source files

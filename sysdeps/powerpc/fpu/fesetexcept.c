@@ -1,5 +1,5 @@
 /* Set given exception flags.  PowerPC version.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,6 +31,11 @@ fesetexcept (int excepts)
 	    & FE_INVALID_SOFTWARE));
   if (n.l != u.l)
     {
+      if (n.l & fenv_exceptions_to_reg (excepts))
+	/* Setting the exception flags may trigger a trap.  ISO C 23 § 7.6.4.4
+	    does not allow it.   */
+	return -1;
+
       fesetenv_register (n.fenv);
 
       /* Deal with FE_INVALID_SOFTWARE not being implemented on some chips.  */

@@ -1,6 +1,6 @@
 /* Run-time dynamic linker data structures for loaded ELF shared objects.
    X86 version.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -61,7 +61,6 @@ struct La_x32_retval;
 				     struct La_x86_64_retval *,		\
 				     const char *)
 
-#include <cet-control.h>
 #include_next <ldsodefs.h>
 
 #endif

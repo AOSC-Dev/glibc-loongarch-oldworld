@@ -1,5 +1,5 @@
 # List of all known Linux system calls.
-# Copyright (C) 2017-2023 Free Software Foundation, Inc.
+# Copyright (C) 2017-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 #
 # The GNU C Library is free software; you can redistribute it and/or
@@ -21,8 +21,8 @@
 # This file can list all potential system calls.  The names are only
 # used if the installed kernel headers also provide them.
 
-# The list of system calls is current as of Linux 6.4.
-kernel 6.4
+# The list of system calls is current as of Linux 6.7.
+kernel 6.7
 
 FAST_atomic_update
 FAST_cmpxchg
@@ -58,6 +58,7 @@ breakpoint
 brk
 cachectl
 cacheflush
+cachestat
 capget
 capset
 chdir
@@ -116,6 +117,7 @@ fanotify_mark
 fchdir
 fchmod
 fchmodat
+fchmodat2
 fchown
 fchown32
 fchownat
@@ -145,8 +147,11 @@ ftime
 ftruncate
 ftruncate64
 futex
+futex_requeue
 futex_time64
+futex_wait
 futex_waitv
+futex_wake
 futimesat
 get_kernel_syms
 get_mempolicy
@@ -245,6 +250,7 @@ lsetxattr
 lstat
 lstat64
 madvise
+map_shadow_stack
 mbind
 membarrier
 memfd_create

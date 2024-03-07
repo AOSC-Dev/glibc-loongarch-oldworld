@@ -1,5 +1,5 @@
 /* memset with unaligned store and rep stosb
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -293,7 +293,7 @@ L(more_2x_vec):
 	leaq	(VEC_SIZE * 4)(%rax), %LOOP_REG
 #endif
 	/* Align dst for loop.  */
-	andq	$(VEC_SIZE * -2), %LOOP_REG
+	andq	$(VEC_SIZE * -1), %LOOP_REG
 	.p2align 4
 L(loop):
 	VMOVA	%VMM(0), LOOP_4X_OFFSET(%LOOP_REG)

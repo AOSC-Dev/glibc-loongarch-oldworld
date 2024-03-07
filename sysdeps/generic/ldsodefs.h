@@ -1,5 +1,5 @@
 /* Run-time dynamic linker data structures for loaded ELF shared objects.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -1172,10 +1172,6 @@ void __libc_setup_tls (void);
 # if ENABLE_STATIC_PIE
 /* Relocate static executable with PIE.  */
 extern void _dl_relocate_static_pie (void) attribute_hidden;
-
-/* Get a pointer to _dl_main_map.  */
-extern struct link_map * _dl_get_dl_main_map (void)
-  __attribute__ ((visibility ("hidden")));
 # else
 #  define _dl_relocate_static_pie()
 # endif
@@ -1217,6 +1213,9 @@ rtld_hidden_proto (_dl_deallocate_tls)
 
 extern void _dl_nothread_init_static_tls (struct link_map *) attribute_hidden;
 
+/* Get a pointer to _dl_main_map.  */
+extern struct link_map * _dl_get_dl_main_map (void) attribute_hidden;
+
 /* Find origin of the executable.  */
 extern const char *_dl_get_origin (void) attribute_hidden;
 
@@ -1251,7 +1250,8 @@ extern void _dl_add_to_slotinfo (struct link_map *l, bool do_add)
 
 /* Update slot information data for at least the generation of the
    module with the given index.  */
-extern struct link_map *_dl_update_slotinfo (unsigned long int req_modid)
+extern struct link_map *_dl_update_slotinfo (unsigned long int req_modid,
+					     size_t gen)
      attribute_hidden;
 
 /* Look up the module's TLS block as for __tls_get_addr,
@@ -1378,7 +1378,14 @@ void DL_ARCH_FIXUP_ATTRIBUTE _dl_audit_pltexit (struct link_map *l,
 						const void *inregs,
 						void *outregs)
   attribute_hidden;
-#endif /* SHARED */
+
+#else  /* !SHARED */
+static inline void
+_dl_audit_objclose (struct link_map *l)
+{
+  /* No audit implementation for !SHARED.  */
+}
+#endif /* !SHARED */
 
 #if PTHREAD_IN_LIBC && defined SHARED
 /* Recursive locking implementation for use within the dynamic loader.

@@ -1,5 +1,5 @@
 /* Implementation of the internal dcigettext function.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published by
@@ -691,9 +691,10 @@ DCIGETTEXT (const char *domainname, const char *msgid1, const char *msgid2,
 	    continue;
 	}
 
-      /* If the current locale value is C (or POSIX) we don't load a
-	 domain.  Return the MSGID.  */
-      if (strcmp (single_locale, "C") == 0
+      /* If the current locale value is "C" or "C.<encoding>" or "POSIX",
+	 we don't load a domain.  Return the MSGID.  */
+      if ((single_locale[0] == 'C'
+	   && (single_locale[1] == '\0' || single_locale[1] == '.'))
 	  || strcmp (single_locale, "POSIX") == 0)
 	break;
 
@@ -1560,8 +1561,12 @@ guess_category_value (int category, const char *categoryname)
      2. The precise output of some programs in the "C" locale is specified
 	by POSIX and should not depend on environment variables like
 	"LANGUAGE" or system-dependent information.  We allow such programs
-        to use gettext().  */
-  if (strcmp (locale, "C") == 0)
+        to use gettext().
+     Ignore LANGUAGE and its system-dependent analogon also if the locale is
+     set to "C.UTF-8" or, more generally, to "C.<encoding>", because that's
+     the by-design behaviour for glibc, see
+     <https://sourceware.org/glibc/wiki/Proposals/C.UTF-8>.  */
+  if (locale[0] == 'C' && (locale[1] == '\0' || locale[1] == '.'))
     return locale;
 
   /* The highest priority value is the value of the 'LANGUAGE' environment

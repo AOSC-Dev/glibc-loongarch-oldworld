@@ -1,5 +1,5 @@
 /* Set up the data structures for the system-supplied DSO.
-   Copyright (C) 2012-2023 Free Software Foundation, Inc.
+   Copyright (C) 2012-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -51,9 +51,6 @@ setup_vdso (struct link_map *main_map __attribute__ ((unused)),
 		l->l_addr = ph->p_vaddr;
 	      if (ph->p_vaddr + ph->p_memsz >= l->l_map_end)
 		l->l_map_end = ph->p_vaddr + ph->p_memsz;
-	      if ((ph->p_flags & PF_X)
-		  && ph->p_vaddr + ph->p_memsz >= l->l_text_end)
-		l->l_text_end = ph->p_vaddr + ph->p_memsz;
 	    }
 	  else
 	    /* There must be no TLS segment.  */
@@ -62,7 +59,6 @@ setup_vdso (struct link_map *main_map __attribute__ ((unused)),
       l->l_map_start = (ElfW(Addr)) GLRO(dl_sysinfo_dso);
       l->l_addr = l->l_map_start - l->l_addr;
       l->l_map_end += l->l_addr;
-      l->l_text_end += l->l_addr;
       l->l_ld = (void *) ((ElfW(Addr)) l->l_ld + l->l_addr);
       elf_get_dynamic_info (l, false, false);
       _dl_setup_hash (l);

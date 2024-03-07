@@ -1,6 +1,6 @@
 #!/bin/sh
 # Merge test results of individual tests or subdirectories.
-# Copyright (C) 2014-2023 Free Software Foundation, Inc.
+# Copyright (C) 2014-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -50,7 +50,10 @@ case $type in
   -t)
     subdir_file_name=$1
     shift
+    echo "		=== glibc tests ==="
     for d in "$@"; do
+      echo
+      echo "Running $d ..."
       if [ -f "$objpfx$d/$subdir_file_name" ]; then
 	cat "$objpfx$d/$subdir_file_name"
       else

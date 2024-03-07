@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2023 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -15,6 +15,7 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -260,7 +261,6 @@ _hurd_sigstate_actions (struct hurd_sigstate *ss)
 #include <hurd/msg_server.h>
 #include <hurd/msg_reply.h>	/* For __msg_sig_post_reply.  */
 #include <hurd/interrupt.h>
-#include <assert.h>
 #include <unistd.h>
 
 
@@ -416,9 +416,9 @@ _hurdsig_abort_rpcs (struct hurd_sigstate *ss, int signo, int sigthread,
 		     struct machine_thread_all_state *state, int *state_change,
 		     void (*reply) (void))
 {
-  extern const void _hurd_intr_rpc_msg_about_to;
-  extern const void _hurd_intr_rpc_msg_setup_done;
-  extern const void _hurd_intr_rpc_msg_in_trap;
+  extern const void _hurd_intr_rpc_msg_about_to attribute_hidden;
+  extern const void _hurd_intr_rpc_msg_setup_done attribute_hidden;
+  extern const void _hurd_intr_rpc_msg_in_trap attribute_hidden;
   mach_port_t rcv_port = MACH_PORT_NULL;
   mach_port_t intr_port;
 

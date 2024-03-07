@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2023 Free Software Foundation, Inc.
+# Copyright (C) 1998-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ nscd-modules := nscd connections pwdcache getpwnam_r getpwuid_r grpcache \
 		getgrnam_r getgrgid_r hstcache gethstbyad_r gethstbynm3_r \
 		getsrvbynm_r getsrvbypt_r servicescache \
 		dbg_log nscd_conf nscd_stat cache mem nscd_setup_thread \
-		xmalloc xstrdup aicache initgrcache gai res_hconf \
+		xmalloc xstrdup aicache initgrcache res_hconf \
 		netgroupcache cachedumper
 
 ifeq ($(build-nscd)$(have-thread-library),yesyes)

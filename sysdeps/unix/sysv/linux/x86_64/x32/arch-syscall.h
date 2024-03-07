@@ -11,6 +11,7 @@
 #define __NR_bind 1073741873
 #define __NR_bpf 1073742145
 #define __NR_brk 1073741836
+#define __NR_cachestat 1073742275
 #define __NR_capget 1073741949
 #define __NR_capset 1073741950
 #define __NR_chdir 1073741904
@@ -54,6 +55,7 @@
 #define __NR_fchdir 1073741905
 #define __NR_fchmod 1073741915
 #define __NR_fchmodat 1073742092
+#define __NR_fchmodat2 1073742276
 #define __NR_fchown 1073741917
 #define __NR_fchownat 1073742084
 #define __NR_fcntl 1073741896
@@ -74,7 +76,10 @@
 #define __NR_fsync 1073741898
 #define __NR_ftruncate 1073741901
 #define __NR_futex 1073742026
+#define __NR_futex_requeue 1073742280
+#define __NR_futex_wait 1073742279
 #define __NR_futex_waitv 1073742273
+#define __NR_futex_wake 1073742278
 #define __NR_futimesat 1073742085
 #define __NR_get_mempolicy 1073742063
 #define __NR_get_robust_list 1073742355

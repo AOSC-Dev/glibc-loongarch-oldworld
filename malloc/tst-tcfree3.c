@@ -1,5 +1,5 @@
 /* Test that malloc tcache catches double free.
-   Copyright (C) 2018-2023 Free Software Foundation, Inc.
+   Copyright (C) 2018-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,9 +18,6 @@
 
 #include <malloc.h>
 #include <string.h>
-
-/* Prevent GCC from optimizing away any malloc/free pairs.  */
-#pragma GCC optimize ("O0")
 
 static int
 do_test (void)

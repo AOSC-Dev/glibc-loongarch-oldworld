@@ -1,6 +1,6 @@
 /* Initialize CPU feature data.  LoongArch64 version.
    This file is part of the GNU C Library.
-   Copyright (C) 2022 Free Software Foundation, Inc.
+   Copyright (C) 2022-2024 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -25,5 +25,6 @@
 #define SUPPORT_LSX (GLRO (dl_hwcap) & HWCAP_LOONGARCH_LSX)
 #define SUPPORT_LASX (GLRO (dl_hwcap) & HWCAP_LOONGARCH_LASX)
 
-#endif /* _CPU_FEATURES_LOONGARCH64_H  */
+#define INIT_ARCH()
 
+#endif /* _CPU_FEATURES_LOONGARCH64_H  */

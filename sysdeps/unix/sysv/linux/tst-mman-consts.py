@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Test that glibc's sys/mman.h constants match the kernel's.
-# Copyright (C) 2018-2023 Free Software Foundation, Inc.
+# Copyright (C) 2018-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 #
 # The GNU C Library is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ def main():
                         help='C compiler (including options) to use')
     args = parser.parse_args()
     linux_version_headers = glibcsyscalls.linux_kernel_version(args.cc)
-    linux_version_glibc = (6, 3)
+    linux_version_glibc = (6, 7)
     sys.exit(glibcextract.compare_macro_consts(
         '#define _GNU_SOURCE 1\n'
         '#include <sys/mman.h>\n',

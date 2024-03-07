@@ -1,4 +1,4 @@
-# Copyright (C) 1995-2023 Free Software Foundation, Inc.
+# Copyright (C) 1995-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -179,7 +179,9 @@ tests := \
   tst-wcpncpy \
   tst-wcrtomb \
   tst-wcslcat \
+  tst-wcslcat2 \
   tst-wcslcpy \
+  tst-wcslcpy2 \
   tst-wcsnlen \
   tst-wcstod-nan-locale \
   tst-wcstod-nan-sign \
@@ -196,6 +198,7 @@ tests := \
   tst-wscanf-binary-c2x \
   tst-wscanf-binary-gnu11 \
   tst-wscanf-binary-gnu89 \
+  tst-wscanf-intn \
   tst-wscanf-to_inpunct \
   wcsatcliff \
   wcsmbs-tst1 \

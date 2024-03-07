@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.
-   Copyright (C) 2022-2023 Free Software Foundation, Inc.
+   Copyright (C) 2022-2024 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -90,7 +90,7 @@ static inline ElfW (Addr) elf_machine_dynamic (void)
 	or	$a0, $sp, $zero   \n\
 	bl	_dl_start   \n\
 	# Stash user entry point in s0.   \n\
-	or	$s0, $v0, $zero   \n\
+	or	$s0, $a0, $zero   \n\
 	# Load the original argument count.   \n\
 	ld.d	$a1, $sp, 0   \n\
 	# Call _dl_init (struct link_map *main_map, int argc, \
@@ -270,9 +270,11 @@ elf_machine_runtime_setup (struct link_map *l, struct r_scope_elem *scope[],
   /* If using PLTs, fill in the first two entries of .got.plt.  */
   if (l->l_info[DT_JMPREL])
     {
-#if HAVE_LOONGARCH_VEC_ASM && !defined __loongarch_soft_float
+#if !defined __loongarch_soft_float
       extern void _dl_runtime_resolve_lasx (void) attribute_hidden;
       extern void _dl_runtime_resolve_lsx (void) attribute_hidden;
+      extern void _dl_runtime_profile_lasx (void) attribute_hidden;
+      extern void _dl_runtime_profile_lsx (void) attribute_hidden;
 #endif
       extern void _dl_runtime_resolve (void) attribute_hidden;
       extern void _dl_runtime_profile (void) attribute_hidden;
@@ -285,9 +287,17 @@ elf_machine_runtime_setup (struct link_map *l, struct r_scope_elem *scope[],
 	 to intercept the calls to collect information.  In this case we
 	 don't store the address in the GOT so that all future calls also
 	 end in this function.  */
+#ifdef SHARED
       if (profile != 0)
 	{
-	   gotplt[0] = (ElfW(Addr)) &_dl_runtime_profile;
+# if !defined __loongarch_soft_float
+	  if (SUPPORT_LASX)
+	    gotplt[0] = (ElfW(Addr)) &_dl_runtime_profile_lasx;
+	  else if (SUPPORT_LSX)
+	    gotplt[0] = (ElfW(Addr)) &_dl_runtime_profile_lsx;
+	  else
+# endif
+	    gotplt[0] = (ElfW(Addr)) &_dl_runtime_profile;
 
 	  if (GLRO(dl_profile) != NULL
 	      && _dl_name_match_p (GLRO(dl_profile), l))
@@ -296,11 +306,12 @@ elf_machine_runtime_setup (struct link_map *l, struct r_scope_elem *scope[],
 	    GL(dl_profile_map) = l;
 	}
       else
+#endif
 	{
 	  /* This function will get called to fix up the GOT entry
 	     indicated by the offset on the stack, and then jump to
 	     the resolved address.  */
-#if HAVE_LOONGARCH_VEC_ASM && !defined __loongarch_soft_float
+#if !defined __loongarch_soft_float
 	  if (SUPPORT_LASX)
 	    gotplt[0] = (ElfW(Addr)) &_dl_runtime_resolve_lasx;
 	  else if (SUPPORT_LSX)

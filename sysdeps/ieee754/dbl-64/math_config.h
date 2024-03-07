@@ -1,5 +1,5 @@
 /* Configuration for double precision math routines.
-   Copyright (C) 2018-2023 Free Software Foundation, Inc.
+   Copyright (C) 2018-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -201,6 +201,10 @@ extern const struct exp_data
   double poly[4]; /* Last four coefficients.  */
   double exp2_shift;
   double exp2_poly[EXP2_POLY_ORDER];
+  double invlog10_2N;
+  double neglog10_2hiN;
+  double neglog10_2loN;
+  double exp10_poly[5];
   uint64_t tab[2*(1 << EXP_TABLE_BITS)];
 } __exp_data attribute_hidden;
 

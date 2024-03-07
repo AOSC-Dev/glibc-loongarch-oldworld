@@ -1,5 +1,5 @@
 /* Make sure longjmp fortification catches bad signal stacks.
-   Copyright (C) 2013-2023 Free Software Foundation, Inc.
+   Copyright (C) 2013-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,10 +19,6 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <string.h>
-
-static int do_test (void);
-#define TEST_FUNCTION do_test ()
-#include "../test-skeleton.c"
 
 static char buf[SIGSTKSZ * 4];
 static jmp_buf jb;
@@ -83,3 +79,5 @@ do_test (void)
   puts ("longjmp returned and shouldn't");
   return 1;
 }
+
+#include <support/test-driver.c>

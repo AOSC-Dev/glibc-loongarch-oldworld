@@ -1,5 +1,5 @@
 /* Test static linking against multiple libraries, to find symbol conflicts.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -18,9 +18,6 @@
 
 #include <math.h>
 #include <pthread.h>
-#if USE_CRYPT
-# include <crypt.h>
-#endif
 #include <resolv.h>
 #include <dlfcn.h>
 #include <utmp.h>
@@ -34,9 +31,6 @@ void *references[] =
   {
     &pow,                       /* libm */
     &pthread_create,            /* libpthread */
-#if USE_CRYPT
-    &crypt,                     /* libcrypt */
-#endif
     &res_send,                  /* libresolv */
     &dlopen,                    /* libdl */
     &login,                     /* libutil */

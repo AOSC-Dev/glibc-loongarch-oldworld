@@ -1,4 +1,4 @@
-# Copyright (C) 1994-2023 Free Software Foundation, Inc.
+# Copyright (C) 1994-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -64,7 +64,7 @@ routines := auth_none authuxprot clnt_raw clnt_simp \
 shared-only-routines = $(routines)
 endif
 
-tests = tst-xdrmem tst-xdrmem2 test-rpcent tst-udp-error tst-udp-timeout \
+tests = tst-xdrmem tst-xdrmem2 tst-udp-error tst-udp-timeout \
   tst-udp-nonblocking tst-bug22542 tst-bug28768
 
 xtests := tst-getmyaddr

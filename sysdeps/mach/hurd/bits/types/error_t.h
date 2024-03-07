@@ -1,5 +1,5 @@
 /* Define error_t.
-   Copyright (C) 1991-2023 Free Software Foundation, Inc.
+   Copyright (C) 1991-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,6 +24,12 @@
 #ifndef __error_t_defined
 # define __error_t_defined 1
 
+#ifdef __cplusplus
+/* Unfortunately, in C++ int and enum __error_t_codes are not
+   interoperable...  */
+typedef int error_t;
+#else
 typedef enum __error_t_codes error_t;
+#endif
 
 #endif

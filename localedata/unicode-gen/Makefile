@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2023 Free Software Foundation, Inc.
+# Copyright (C) 2015-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@
 # files for making modifications.
 
 
-UNICODE_VERSION = 15.0.0
+UNICODE_VERSION = 15.1.0
 
 PYTHON3 = python3
 WGET = wget

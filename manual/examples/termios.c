@@ -1,5 +1,5 @@
 /* Noncanonical Mode Example
-   Copyright (C) 1991-2023 Free Software Foundation, Inc.
+   Copyright (C) 1991-2024 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -34,7 +34,6 @@ void
 set_input_mode (void)
 {
   struct termios tattr;
-  char *name;
 
   /* Make sure stdin is a terminal. */
   if (!isatty (STDIN_FILENO))
@@ -70,7 +69,7 @@ main (void)
       if (c == '\004')		/* @kbd{C-d} */
 	break;
       else
-	putchar (c);
+	write (STDOUT_FILENO, &c, 1);
     }
 
   return EXIT_SUCCESS;

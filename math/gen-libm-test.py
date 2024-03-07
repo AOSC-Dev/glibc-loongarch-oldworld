@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Generate tests for libm functions.
-# Copyright (C) 2018-2023 Free Software Foundation, Inc.
+# Copyright (C) 2018-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 #
 # The GNU C Library is free software; you can redistribute it and/or
@@ -93,7 +93,8 @@ BEAUTIFY_MAP = {'minus_zero': '-0',
 
 # Flags in auto-libm-test-out that map directly to C flags.
 FLAGS_SIMPLE = {'ignore-zero-inf-sign': 'IGNORE_ZERO_INF_SIGN',
-                'xfail': 'XFAIL_TEST'}
+                'xfail': 'XFAIL_TEST',
+                'no-mathvec': 'NO_TEST_MATHVEC'}
 
 # Exceptions in auto-libm-test-out, and their corresponding C flags
 # for being required, OK or required to be absent.

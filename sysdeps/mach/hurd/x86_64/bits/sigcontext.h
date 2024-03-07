@@ -1,5 +1,5 @@
 /* Machine-dependent signal context structure for GNU Hurd.  x86_64 version.
-   Copyright (C) 1991-2023 Free Software Foundation, Inc.
+   Copyright (C) 1991-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -59,13 +59,7 @@ struct sigcontext
        }
        trampoline.c knows this, so it must be changed if this changes.  */
 
-#define sc_i386_thread_state sc_gs /* Beginning of correspondence.  */
-    /* Segment registers.  */
-    int sc_gs;
-    int sc_fs;
-    int sc_es;
-    int sc_ds;
-
+#define sc_i386_thread_state sc_r8 /* Beginning of correspondence.  */
     long sc_r8;
     long sc_r9;
     long sc_r10;

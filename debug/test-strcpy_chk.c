@@ -1,5 +1,5 @@
 /* Test and measure __strcpy_chk functions.
-   Copyright (C) 1999-2023 Free Software Foundation, Inc.
+   Copyright (C) 1999-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 # define STRCPY_RESULT(dst, len) dst
 # define TEST_MAIN
 # define TEST_NAME "strcpy_chk"
-# include "../string/test-string.h"
+# include <string/test-string.h>
 
 /* This test case implicitly tests the availability of the __chk_fail
    symbol, which is part of the public ABI and may be used

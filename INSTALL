@@ -141,17 +141,13 @@ if ‘CFLAGS’ is specified it must enable optimization.  For example:
      indirect branch tracking (IBT) and shadow stack (SHSTK).  When CET
      is enabled, the GNU C Library is compatible with all existing
      executables and shared libraries.  This feature is currently
-     supported on i386, x86_64 and x32 with GCC 8 and binutils 2.29 or
-     later.  Note that when CET is enabled, the GNU C Library requires
-     CPUs capable of multi-byte NOPs, like x86-64 processors as well as
-     Intel Pentium Pro or newer.  With ‘--enable-cet’, it is an error to
-     dlopen a non CET enabled shared library in CET enabled application.
-     With ‘--enable-cet=permissive’, CET is disabled when dlopening a
-     non CET enabled shared library in CET enabled application.
+     supported on x86_64 and x32 with GCC 8 and binutils 2.29 or later.
+     With ‘--enable-cet’, it is an error to dlopen a non CET enabled
+     shared library in CET enabled application.  With
+     ‘--enable-cet=permissive’, CET is disabled when dlopening a non CET
+     enabled shared library in CET enabled application.
 
-     NOTE: ‘--enable-cet’ has been tested for i686, x86_64 and x32 on
-     non-CET processors.  ‘--enable-cet’ has been tested for i686,
-     x86_64 and x32 on CET processors.
+     NOTE: ‘--enable-cet’ is only supported on x86_64 and x32.
 
 ‘--enable-memory-tagging’
      Enable memory tagging support if the architecture supports it.
@@ -227,19 +223,6 @@ if ‘CFLAGS’ is specified it must enable optimization.  For example:
 ‘--disable-mathvec’
      By default for x86_64, the GNU C Library is built with the vector
      math library.  Use this option to disable the vector math library.
-
-‘--enable-crypt’
-     Install the legacy passphrase-hashing library ‘libcrypt’ and the
-     header file ‘crypt.h’.  ‘unistd.h’ will declare the function
-     ‘crypt’ regardless of this option.  Using this option does not
-     change the set of programs that may need to be linked with
-     ‘-lcrypt’; it only means that the GNU C Library will provide that
-     library.
-
-     This option is for hackers and distributions who may not yet be
-     able to use libcrypt alternatives such as libxcrypt and need this
-     legacy implementation as a temporary workaround.  Note that
-     libcrypt may be removed in a future release.
 
 ‘--disable-scv’
      Disable using ‘scv’ instruction for syscalls.  All syscalls will
@@ -479,7 +462,7 @@ build the GNU C Library:
 
    • GNU ‘make’ 4.0 or newer
 
-     As of release time, GNU ‘make’ 4.4 is the newest verified to work
+     As of release time, GNU ‘make’ 4.4.1 is the newest verified to work
      to build the GNU C Library.
 
    • GCC 6.2 or newer
@@ -525,7 +508,7 @@ build the GNU C Library:
 
      You must use GNU ‘binutils’ (as and ld) to build the GNU C Library.
      No other assembler or linker has the necessary functionality at the
-     moment.  As of release time, GNU ‘binutils’ 2.41 is the newest
+     moment.  As of release time, GNU ‘binutils’ 2.42 is the newest
      verified to work to build the GNU C Library.
 
      For PowerPC 64-bits little-endian (powerpc64le), ‘objcopy’ is
@@ -562,7 +545,7 @@ build the GNU C Library:
 
      Perl is not required, but if present it is used in some tests and
      the ‘mtrace’ program, to build the GNU C Library manual.  As of
-     release time ‘perl’ version 5.38.0 is the newest verified to work
+     release time ‘perl’ version 5.38.2 is the newest verified to work
      to build the GNU C Library.
 
    • GNU ‘sed’ 3.02 or newer
@@ -584,6 +567,13 @@ build the GNU C Library:
      the output of GDB, and should be compatible with the Python version
      in your system.  As of release time PExpect 4.8.0 is the newest
      verified to work to test the pretty printers.
+
+   • The Python ‘abnf’ module.
+
+     This module is optional and used to verify some ABNF grammars in
+     the manual.  Version 2.2.0 has been confirmed to work as expected.
+     A missing ‘abnf’ module does not reduce the test coverage of the
+     library itself.
 
    • GDB 7.8 or later with support for Python 2.7/3.4 or later
 
@@ -618,15 +608,13 @@ Specific advice for GNU/Linux systems
 
 If you are installing the GNU C Library on GNU/Linux systems, you need
 to have the header files from a 3.2 or newer kernel around for
-reference.  (For the ia64 architecture, you need version 3.2.18 or newer
-because this is the first version with support for the ‘accept4’ system
-call.)  These headers must be installed using ‘make headers_install’;
-the headers present in the kernel source directory are not suitable for
-direct use by the GNU C Library.  You do not need to use that kernel,
-just have its headers installed where the GNU C Library can access them,
-referred to here as INSTALL-DIRECTORY.  The easiest way to do this is to
-unpack it in a directory such as ‘/usr/src/linux-VERSION’.  In that
-directory, run ‘make headers_install
+reference.  These headers must be installed using ‘make
+headers_install’; the headers present in the kernel source directory are
+not suitable for direct use by the GNU C Library.  You do not need to
+use that kernel, just have its headers installed where the GNU C Library
+can access them, referred to here as INSTALL-DIRECTORY.  The easiest way
+to do this is to unpack it in a directory such as
+‘/usr/src/linux-VERSION’.  In that directory, run ‘make headers_install
 INSTALL_HDR_PATH=INSTALL-DIRECTORY’.  Finally, configure the GNU C
 Library with the option ‘--with-headers=INSTALL-DIRECTORY/include’.  Use
 the most recent kernel you can get your hands on.  (If you are

@@ -1,7 +1,7 @@
 /* Copy memory to memory until the specified number of bytes
    has been copied.  Overlap is handled correctly.
    For SPARC V9.
-   Copyright (C) 2017-2023 Free Software Foundation, Inc.
+   Copyright (C) 2017-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ ENTRY(memmove)
 /*
  * normal, copy forwards
  */
-2:	ble	%XCC, .Ldbytecp
+2:	bleu	%XCC, .Ldbytecp
 	 andcc	%o1, 3, %o5	/* is src word aligned  */
 	bz,pn	%icc, .Laldst
 	 cmp	%o5, 2		/* is src half-word aligned  */

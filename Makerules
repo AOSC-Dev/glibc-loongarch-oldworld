@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2023 Free Software Foundation, Inc.
+# Copyright (C) 1991-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -1121,8 +1121,6 @@ $(inst_includedir)/%.h: $(objpfx)%.h $(+force)
 $(inst_includedir)/%.h: $(common-objpfx)%.h $(+force)
 	$(do-install)
 $(inst_includedir)/%.h: %.h $(+force)
-	$(do-install)
-$(inst_includedir)/%.h: $(..)include/%.h $(+force)
 	$(do-install)
 headers-nonh := $(filter-out %.h,$(headers))
 ifdef headers-nonh

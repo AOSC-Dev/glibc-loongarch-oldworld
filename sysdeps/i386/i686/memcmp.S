@@ -1,5 +1,5 @@
 /* Compare two memory blocks for differences in the first COUNT bytes.
-   Copyright (C) 2004-2023 Free Software Foundation, Inc.
+   Copyright (C) 2004-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -80,7 +80,7 @@ L(not_1):
 	LOAD_JUMP_TABLE_ENTRY (L(table_32bytes), %ecx)
 	addl	%ecx, %edx
 	addl	%ecx, %esi
-	_CET_NOTRACK jmp *%ebx
+	jmp	*%ebx
 
 	ALIGN (4)
 L(28bytes):
@@ -326,7 +326,7 @@ L(32bytesormore):
 	LOAD_JUMP_TABLE_ENTRY (L(table_32bytes), %ecx)
 	addl	%ecx, %edx
 	addl	%ecx, %esi
-	_CET_NOTRACK jmp *%ebx
+	jmp	*%ebx
 
 L(load_ecx_28):
 	addl	$0x4, %edx

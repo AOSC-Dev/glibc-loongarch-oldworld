@@ -1,5 +1,5 @@
 /* Check if two DNS packets contain the same query.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -83,6 +83,7 @@
  */
 
 #include <resolv.h>
+#include <resolv/resolv-internal.h>
 
 /* Author: paul vixie, 29may94.  */
 int
@@ -94,15 +95,15 @@ __libc_res_queriesmatch (const unsigned char *buf1, const unsigned char *eom1,
 
   /* Only header section present in replies to dynamic update
      packets.  */
-  if ((((HEADER *) buf1)->opcode == ns_o_update) &&
-      (((HEADER *) buf2)->opcode == ns_o_update))
+  if ((((UHEADER *) buf1)->opcode == ns_o_update) &&
+      (((UHEADER *) buf2)->opcode == ns_o_update))
     return 1;
 
   /* Note that we initially do not convert QDCOUNT to the host byte
      order.  We can compare it with the second buffer's QDCOUNT
      value without doing this.  */
-  int qdcount = ((HEADER *) buf1)->qdcount;
-  if (qdcount != ((HEADER *) buf2)->qdcount)
+  int qdcount = ((UHEADER *) buf1)->qdcount;
+  if (qdcount != ((UHEADER *) buf2)->qdcount)
     return 0;
 
   qdcount = htons (qdcount);

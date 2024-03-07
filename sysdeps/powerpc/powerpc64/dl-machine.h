@@ -1,6 +1,6 @@
 /* Machine-dependent ELF dynamic relocation inline functions.
    PowerPC64 version.
-   Copyright 1995-2023 Free Software Foundation, Inc.
+   Copyright 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@
 #include <dl-tls.h>
 #include <sysdep.h>
 #include <hwcapinfo.h>
-#include <cpu-features.c>
 #include <dl-static-tls.h>
 #include <dl-funcdesc.h>
 #include <dl-machine-rel.h>
@@ -297,7 +296,6 @@ static inline void __attribute__ ((unused))
 dl_platform_init (void)
 {
   __tcb_parse_hwcap_and_convert_at_platform ();
-  init_cpu_features (&GLRO(dl_powerpc_cpu_features));
 }
 #endif
 
@@ -364,13 +362,19 @@ elf_machine_runtime_setup (struct link_map *map, struct r_scope_elem *scope[],
 	  Elf64_Word offset;
 	  Elf64_Addr dlrr;
 
-	  dlrr = (Elf64_Addr) (profile ? _dl_profile_resolve
-				       : _dl_runtime_resolve);
-	  if (profile && GLRO(dl_profile) != NULL
-	      && _dl_name_match_p (GLRO(dl_profile), map))
-	    /* This is the object we are looking for.  Say that we really
-	       want profiling and the timers are started.  */
-	    GL(dl_profile_map) = map;
+#ifdef SHARED
+	  if (__glibc_unlikely (profile))
+	    {
+	      dlrr = (Elf64_Addr) _dl_profile_resolve;
+	      if (profile && GLRO(dl_profile) != NULL
+		  && _dl_name_match_p (GLRO(dl_profile), map))
+		/* This is the object we are looking for.  Say that we really
+		   want profiling and the timers are started.  */
+		GL(dl_profile_map) = map;
+	    }
+	  else
+#endif
+	    dlrr = (Elf64_Addr) _dl_runtime_resolve;
 
 #if _CALL_ELF != 2
 	  /* We need to stuff the address/TOC of _dl_runtime_resolve

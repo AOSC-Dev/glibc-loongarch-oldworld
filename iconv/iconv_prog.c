@@ -1,5 +1,5 @@
 /* Convert text in given files from the specified from-set to the to-set.
-   Copyright (C) 1998-2023 Free Software Foundation, Inc.
+   Copyright (C) 1998-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software; you can redistribute it and/or modify
@@ -187,7 +187,7 @@ main (int argc, char *argv[])
 
       if (res != __GCONV_OK)
 	{
-	  if (errno == EINVAL)
+	  if (res == __GCONV_NOCONV || res == __GCONV_NODB)
 	    {
 	      /* Try to be nice with the user and tell her which of the
 		 two encoding names is wrong.  This is possible because
@@ -405,7 +405,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2023");
+"), "2024");
   fprintf (stream, gettext ("Written by %s.\n"), "Ulrich Drepper");
 }
 

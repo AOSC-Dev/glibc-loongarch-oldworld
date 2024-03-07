@@ -1,8 +1,16 @@
 # The i387 `long double' is a distinct type we support.
 long-double-fcts = yes
 
+ifeq (yes,$(have-z-mark-plt))
+# Always generate DT_X86_64_PLT* tags.
+sysdep-LDFLAGS += -Wl,-z,mark-plt
+# Never generate DT_X86_64_PLT* tags on ld.so to avoid changing its own
+# PLT.
+LDFLAGS-rtld += -Wl,-z,nomark-plt
+endif
+
 ifeq ($(subdir),csu)
-gen-as-const-headers += link-defines.sym
+gen-as-const-headers += features-offsets.sym link-defines.sym
 endif
 
 ifeq ($(subdir),gmon)
@@ -175,6 +183,33 @@ ifeq (no,$(build-hardcoded-path-in-tests))
 tests-container += tst-glibc-hwcaps-cache
 endif
 
+ifeq (yes,$(have-z-mark-plt))
+tests += \
+  tst-plt-rewrite1 \
+  tst-plt-rewrite2 \
+# tests
+modules-names += \
+  tst-plt-rewritemod1 \
+  tst-plt-rewritemod2 \
+# modules-names
+
+tst-plt-rewrite1-no-pie = yes
+LDFLAGS-tst-plt-rewrite1 = -Wl,-z,now
+LDFLAGS-tst-plt-rewritemod1.so = -Wl,-z,now
+tst-plt-rewrite1-ENV = GLIBC_TUNABLES=glibc.cpu.plt_rewrite=1 LD_DEBUG=files:bindings
+$(objpfx)tst-plt-rewrite1: $(objpfx)tst-plt-rewritemod1.so
+$(objpfx)tst-plt-rewrite1.out: /dev/null $(objpfx)tst-plt-rewrite1
+	$(tst-plt-rewrite1-ENV) $(make-test-out) > $@ 2>&1; \
+	grep -q -E "changing 'bar' PLT entry in .*/elf/tst-plt-rewritemod1.so' to direct branch" $@; \
+	$(evaluate-test)
+
+tst-plt-rewrite2-no-pie = yes
+LDFLAGS-tst-plt-rewrite2 = -Wl,-z,now
+LDFLAGS-tst-plt-rewritemod2.so = -Wl,-z,now,-z,undefs
+tst-plt-rewrite2-ENV = GLIBC_TUNABLES=glibc.cpu.plt_rewrite=2
+$(objpfx)tst-plt-rewrite2: $(objpfx)tst-plt-rewritemod2.so
+endif
+
 endif # $(subdir) == elf
 
 ifeq ($(subdir),csu)
@@ -197,6 +232,249 @@ sysdep_routines += \
 tests += \
   tst-rsi-wcslen
 endif
+
+
+ifeq ($(subdir),setjmp)
+ifneq ($(enable-cet),no)
+tests += \
+  tst-setjmp-cet \
+# tests
+tst-setjmp-cet-ENV = GLIBC_TUNABLES=glibc.cpu.x86_ibt=on:glibc.cpu.x86_shstk=on
+endif
+endif
+
+
+ifneq ($(enable-cet),no)
+ifeq ($(subdir),elf)
+sysdep-dl-routines += dl-cet
+
+tests += \
+  tst-cet-legacy-1 \
+  tst-cet-legacy-1a \
+  tst-cet-legacy-2 \
+  tst-cet-legacy-2a \
+  tst-cet-legacy-3 \
+  tst-cet-legacy-4 \
+  tst-cet-legacy-5a \
+  tst-cet-legacy-6a \
+  tst-cet-legacy-7 \
+  tst-cet-legacy-8 \
+  tst-cet-legacy-9 \
+  tst-cet-legacy-9-static \
+  tst-cet-legacy-10 \
+  tst-cet-legacy-10-static \
+  tst-cet-legacy-10a \
+  tst-cet-legacy-10a-static \
+# tests
+tests-static += \
+  tst-cet-legacy-9-static \
+  tst-cet-legacy-10-static \
+  tst-cet-legacy-10a-static \
+# tests-static
+tst-cet-legacy-1a-ARGS = -- $(host-test-program-cmd)
+
+tests += \
+  tst-shstk-legacy-1a \
+  tst-shstk-legacy-1a-static \
+  tst-shstk-legacy-1b \
+  tst-shstk-legacy-1b-static \
+  tst-shstk-legacy-1c \
+  tst-shstk-legacy-1c-static \
+  tst-shstk-legacy-1d \
+  tst-shstk-legacy-1d-static \
+  tst-shstk-legacy-1e \
+  tst-shstk-legacy-1e-static \
+  tst-shstk-legacy-1f \
+  tst-shstk-legacy-1g \
+# tests
+modules-names += \
+  tst-shstk-legacy-mod-1 \
+# modules-names
+tests-static += \
+  tst-shstk-legacy-1a-static \
+  tst-shstk-legacy-1b-static \
+  tst-shstk-legacy-1c-static \
+  tst-shstk-legacy-1d-static \
+  tst-shstk-legacy-1e-static \
+# tests-static
+extra-objs += \
+  tst-shstk-legacy-1-extra.o \
+# extra-objs
+
+tests += \
+  tst-cet-legacy-4a \
+  tst-cet-legacy-4b \
+  tst-cet-legacy-4c \
+  tst-cet-legacy-5b \
+  tst-cet-legacy-6b \
+# tests
+modules-names += \
+  tst-cet-legacy-mod-1 \
+  tst-cet-legacy-mod-2 \
+  tst-cet-legacy-mod-4 \
+  tst-cet-legacy-mod-5a \
+  tst-cet-legacy-mod-5b \
+  tst-cet-legacy-mod-5c \
+  tst-cet-legacy-mod-6a \
+  tst-cet-legacy-mod-6b \
+  tst-cet-legacy-mod-6c \
+# modules-names
+
+CFLAGS-tst-cet-legacy-2.c += -fcf-protection=none -fcf-protection=branch
+CFLAGS-tst-cet-legacy-2a.c += -fcf-protection
+CFLAGS-tst-cet-legacy-mod-1.c += -fcf-protection=none
+CFLAGS-tst-cet-legacy-mod-2.c += -fcf-protection=none
+CFLAGS-tst-cet-legacy-3.c += -fcf-protection=none
+CFLAGS-tst-cet-legacy-4.c += -fcf-protection=none -fcf-protection=branch
+CPPFLAGS-tst-cet-legacy-4a.c += -DCET_IS_PERMISSIVE=1
+CFLAGS-tst-cet-legacy-4a.c += -fcf-protection
+CFLAGS-tst-cet-legacy-4b.c += -fcf-protection
+CFLAGS-tst-cet-legacy-mod-4.c += -fcf-protection=none
+CFLAGS-tst-cet-legacy-5a.c += -fcf-protection -mshstk
+ifeq ($(enable-cet),permissive)
+CPPFLAGS-tst-cet-legacy-5a.c += -DCET_IS_PERMISSIVE=1
+endif
+CFLAGS-tst-cet-legacy-5b.c += -fcf-protection -mshstk
+CPPFLAGS-tst-cet-legacy-5b.c += -DCET_DISABLED_BY_ENV=1
+CFLAGS-tst-cet-legacy-mod-5a.c += -fcf-protection=none -fcf-protection=branch
+CFLAGS-tst-cet-legacy-mod-5b.c += -fcf-protection
+CFLAGS-tst-cet-legacy-mod-5c.c += -fcf-protection
+CFLAGS-tst-cet-legacy-6a.c += -fcf-protection -mshstk
+ifeq ($(enable-cet),permissive)
+CPPFLAGS-tst-cet-legacy-6a.c += -DCET_IS_PERMISSIVE=1
+endif
+CFLAGS-tst-cet-legacy-6b.c += -fcf-protection -mshstk
+CPPFLAGS-tst-cet-legacy-6b.c += -DCET_DISABLED_BY_ENV=1
+CFLAGS-tst-cet-legacy-mod-6a.c += -fcf-protection=none -fcf-protection=branch
+CFLAGS-tst-cet-legacy-mod-6b.c += -fcf-protection
+CFLAGS-tst-cet-legacy-mod-6c.c += -fcf-protection
+CFLAGS-tst-cet-legacy-7.c += -fcf-protection=none
+CFLAGS-tst-cet-legacy-10.c += -mshstk
+CFLAGS-tst-cet-legacy-10-static.c += -mshstk
+CFLAGS-tst-cet-legacy-10a.c += -fcf-protection=none
+CFLAGS-tst-cet-legacy-10a-static.c += -fcf-protection=none
+
+tst-cet-legacy-4-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-cet-legacy-6-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-cet-legacy-10-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-cet-legacy-10-static-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-cet-legacy-10a-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-cet-legacy-10a-static-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+
+CFLAGS-tst-shstk-legacy-1a.c += -fcf-protection=none
+CFLAGS-tst-shstk-legacy-1a-static.c += -fcf-protection=none
+CFLAGS-tst-shstk-legacy-1d.c += -fcf-protection=none
+CFLAGS-tst-shstk-legacy-1d-static.c += -fcf-protection=none
+CFLAGS-tst-shstk-legacy-1f.c += -fcf-protection=none
+
+$(objpfx)tst-cet-legacy-1: $(objpfx)tst-cet-legacy-mod-1.so \
+		       $(objpfx)tst-cet-legacy-mod-2.so
+$(objpfx)tst-cet-legacy-1a: $(objpfx)tst-cet-legacy-mod-1.so \
+		       $(objpfx)tst-cet-legacy-mod-2.so
+$(objpfx)tst-cet-legacy-2: $(objpfx)tst-cet-legacy-mod-2.so
+$(objpfx)tst-cet-legacy-2.out: $(objpfx)tst-cet-legacy-mod-1.so
+$(objpfx)tst-cet-legacy-2a: $(objpfx)tst-cet-legacy-mod-2.so
+$(objpfx)tst-cet-legacy-2a.out: $(objpfx)tst-cet-legacy-mod-1.so
+$(objpfx)tst-cet-legacy-4.out: $(objpfx)tst-cet-legacy-mod-4.so
+$(objpfx)tst-cet-legacy-5a.out: $(objpfx)tst-cet-legacy-mod-5a.so \
+				$(objpfx)tst-cet-legacy-mod-5b.so
+$(objpfx)tst-cet-legacy-mod-5a.so: $(objpfx)tst-cet-legacy-mod-5c.so
+$(objpfx)tst-cet-legacy-mod-5b.so: $(objpfx)tst-cet-legacy-mod-5c.so
+$(objpfx)tst-cet-legacy-6a.out: $(objpfx)tst-cet-legacy-mod-6a.so \
+				$(objpfx)tst-cet-legacy-mod-6b.so
+$(objpfx)tst-cet-legacy-mod-6a.so: $(objpfx)tst-cet-legacy-mod-6c.so
+$(objpfx)tst-cet-legacy-mod-6b.so: $(objpfx)tst-cet-legacy-mod-6c.so
+LDFLAGS-tst-cet-legacy-mod-6c.so = -Wl,--enable-new-dtags,-z,nodelete
+$(objpfx)tst-cet-legacy-4a.out: $(objpfx)tst-cet-legacy-mod-4.so
+tst-cet-legacy-4a-ENV = GLIBC_TUNABLES=glibc.cpu.x86_shstk=permissive
+$(objpfx)tst-cet-legacy-4b.out: $(objpfx)tst-cet-legacy-mod-4.so
+tst-cet-legacy-4b-ENV = GLIBC_TUNABLES=glibc.cpu.x86_shstk=on
+$(objpfx)tst-cet-legacy-4c.out: $(objpfx)tst-cet-legacy-mod-4.so
+tst-cet-legacy-4c-ENV = GLIBC_TUNABLES=glibc.cpu.x86_shstk=off
+$(objpfx)tst-cet-legacy-5b.out: $(objpfx)tst-cet-legacy-mod-5a.so \
+				$(objpfx)tst-cet-legacy-mod-5b.so
+tst-cet-legacy-5b-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=-IBT,-SHSTK
+$(objpfx)tst-cet-legacy-6b.out: $(objpfx)tst-cet-legacy-mod-6a.so \
+				$(objpfx)tst-cet-legacy-mod-6b.so
+tst-cet-legacy-6b-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=-IBT,-SHSTK
+tst-cet-legacy-9-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=-IBT,-SHSTK
+tst-cet-legacy-9-static-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=-IBT,-SHSTK
+
+tst-shstk-legacy-1a-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-shstk-legacy-1a-static-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+$(objpfx)tst-shstk-legacy-1a: $(objpfx)tst-shstk-legacy-1-extra.o
+$(objpfx)tst-shstk-legacy-1a-static: $(objpfx)tst-shstk-legacy-1-extra.o
+tst-shstk-legacy-1b-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-shstk-legacy-1b-static-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+$(objpfx)tst-shstk-legacy-1b: $(objpfx)tst-shstk-legacy-1-extra.o
+$(objpfx)tst-shstk-legacy-1b-static: $(objpfx)tst-shstk-legacy-1-extra.o
+tst-shstk-legacy-1c-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=-SHSTK
+tst-shstk-legacy-1c-static-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=-SHSTK
+$(objpfx)tst-shstk-legacy-1c: $(objpfx)tst-shstk-legacy-1-extra.o
+$(objpfx)tst-shstk-legacy-1c-static: $(objpfx)tst-shstk-legacy-1-extra.o
+tst-shstk-legacy-1d-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+tst-shstk-legacy-1d-static-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+$(objpfx)tst-shstk-legacy-1d: $(objpfx)tst-shstk-legacy-1-extra.o
+$(objpfx)tst-shstk-legacy-1d-static: $(objpfx)tst-shstk-legacy-1-extra.o
+$(objpfx)tst-shstk-legacy-1e: $(objpfx)tst-shstk-legacy-1-extra.o
+$(objpfx)tst-shstk-legacy-1e-static: $(objpfx)tst-shstk-legacy-1-extra.o
+$(objpfx)tst-shstk-legacy-1e.out: \
+  $(..)/sysdeps/x86_64/tst-shstk-legacy-1e.sh $(objpfx)tst-shstk-legacy-1e
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' 2> $@; \
+	$(evaluate-test)
+$(objpfx)tst-shstk-legacy-1e-static.out: \
+  $(..)/sysdeps/x86_64/tst-shstk-legacy-1e-static.sh \
+  $(objpfx)tst-shstk-legacy-1e-static
+	$(SHELL) $< $(common-objpfx) 2> $@; \
+	$(evaluate-test)
+tst-shstk-legacy-1f-ENV = GLIBC_TUNABLES=glibc.cpu.hwcaps=SHSTK
+$(objpfx)tst-shstk-legacy-1f: $(objpfx)tst-shstk-legacy-mod-1.so
+$(objpfx)tst-shstk-legacy-mod-1.so: \
+  $(objpfx)tst-shstk-legacy-mod-1.os \
+  $(objpfx)tst-shstk-legacy-1-extra.os
+$(objpfx)tst-shstk-legacy-1g: $(objpfx)tst-shstk-legacy-mod-1.so
+$(objpfx)tst-shstk-legacy-1g.out: \
+  $(..)/sysdeps/x86_64/tst-shstk-legacy-1g.sh $(objpfx)tst-shstk-legacy-1g
+	$(SHELL) $< $(common-objpfx) '$(test-program-prefix)' 2> $@; \
+	$(evaluate-test)
+endif
+
+# Add -fcf-protection to CFLAGS when CET is enabled.
+CFLAGS-.o += -fcf-protection
+CFLAGS-.os += -fcf-protection
+CFLAGS-.op += -fcf-protection
+CFLAGS-.oS += -fcf-protection
+
+# Compile assembly codes with <cet.h> when CET is enabled.
+asm-CPPFLAGS += -fcf-protection -include cet.h
+
+ifeq ($(subdir),elf)
+ifeq (yes,$(build-shared))
+tests-special += $(objpfx)check-cet.out
+endif
+
+# FIXME: Can't use all-built-dso in elf/Makefile since this file is
+# processed before elf/Makefile.  Duplicate it here.
+cet-built-dso := $(common-objpfx)elf/ld.so $(common-objpfx)libc.so \
+		 $(filter-out $(common-objpfx)linkobj/libc.so, \
+			      $(sort $(wildcard $(addprefix $(common-objpfx), \
+							    */lib*.so \
+							    iconvdata/*.so))))
+
+$(cet-built-dso:=.note): %.note: %
+	@rm -f $@T
+	LC_ALL=C $(READELF) -n $< > $@T
+	test -s $@T
+	mv -f $@T $@
+common-generated += $(cet-built-dso:$(common-objpfx)%=%.note)
+
+$(objpfx)check-cet.out: $(..)sysdeps/x86_64/check-cet.awk \
+			$(cet-built-dso:=.note)
+	LC_ALL=C $(AWK) -f $^ > $@; \
+	$(evaluate-test)
+generated += check-cet.out
+endif # $(subdir) == elf
+endif # $(enable) != no
 
 do-tests-clean common-mostlyclean: tst-x86_64-1-clean
 

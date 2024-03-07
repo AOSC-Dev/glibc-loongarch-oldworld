@@ -1,5 +1,5 @@
 /* Test if CLONE_VM does not change pthread pid/tid field (BZ #19957)
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -70,11 +70,7 @@ do_test (void)
   if (pipe2 (pipefd, O_CLOEXEC))
     FAIL_EXIT1 ("pipe failed: %m");
 
-#ifdef __ia64__
-# define STACK_SIZE 256 * 1024
-#else
-# define STACK_SIZE 128 * 1024
-#endif
+#define STACK_SIZE 128 * 1024
   char st[STACK_SIZE] __attribute__ ((aligned));
   struct clone_args clone_args =
     {

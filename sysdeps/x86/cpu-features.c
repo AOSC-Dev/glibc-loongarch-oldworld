@@ -1,6 +1,6 @@
 /* Initialize CPU feature data.
    This file is part of the GNU C Library.
-   Copyright (C) 2008-2023 Free Software Foundation, Inc.
+   Copyright (C) 2008-2024 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,28 @@
 
 extern void TUNABLE_CALLBACK (set_hwcaps) (tunable_val_t *)
   attribute_hidden;
+
+#if defined SHARED && defined __x86_64__
+# include <dl-plt-rewrite.h>
+
+static void
+TUNABLE_CALLBACK (set_plt_rewrite) (tunable_val_t *valp)
+{
+  /* We must be careful about where we put the call to
+     dl_plt_rewrite_supported() since it may generate
+     spurious SELinux log entries.  It should only be
+     attempted if the user requested a PLT rewrite.  */
+  if (valp->numval != 0 && dl_plt_rewrite_supported ())
+    {
+      /* Use JMPABS only on APX processors.  */
+      const struct cpu_features *cpu_features = __get_cpu_features ();
+      GL (dl_x86_feature_control).plt_rewrite
+	  = ((valp->numval > 1 && CPU_FEATURE_PRESENT_P (cpu_features, APX_F))
+		 ? plt_rewrite_jmpabs
+		 : plt_rewrite_jmp);
+    }
+}
+#endif
 
 #ifdef __LP64__
 static void
@@ -110,16 +132,23 @@ update_active (struct cpu_features *cpu_features)
   if (!CPU_FEATURES_CPU_P (cpu_features, RTM_ALWAYS_ABORT))
     CPU_FEATURE_SET_ACTIVE (cpu_features, RTM);
 
-#if CET_ENABLED
+#if CET_ENABLED && 0
   CPU_FEATURE_SET_ACTIVE (cpu_features, IBT);
   CPU_FEATURE_SET_ACTIVE (cpu_features, SHSTK);
 #endif
 
+  enum
+  {
+    os_xmm = 1,
+    os_ymm = 2,
+    os_zmm = 4
+  } os_vector_size = os_xmm;
   /* Can we call xgetbv?  */
   if (CPU_FEATURES_CPU_P (cpu_features, OSXSAVE))
     {
       unsigned int xcrlow;
       unsigned int xcrhigh;
+      CPU_FEATURE_SET_ACTIVE (cpu_features, AVX10);
       asm ("xgetbv" : "=a" (xcrlow), "=d" (xcrhigh) : "c" (0));
       /* Is YMM and XMM state usable?  */
       if ((xcrlow & (bit_YMM_state | bit_XMM_state))
@@ -128,6 +157,7 @@ update_active (struct cpu_features *cpu_features)
 	  /* Determine if AVX is usable.  */
 	  if (CPU_FEATURES_CPU_P (cpu_features, AVX))
 	    {
+	      os_vector_size |= os_ymm;
 	      CPU_FEATURE_SET (cpu_features, AVX);
 	      /* The following features depend on AVX being usable.  */
 	      /* Determine if AVX2 is usable.  */
@@ -166,6 +196,7 @@ update_active (struct cpu_features *cpu_features)
 			 | bit_ZMM16_31_state))
 	      == (bit_Opmask_state | bit_ZMM0_15_state | bit_ZMM16_31_state))
 	    {
+	      os_vector_size |= os_zmm;
 	      /* Determine if AVX512F is usable.  */
 	      if (CPU_FEATURES_CPU_P (cpu_features, AVX512F))
 		{
@@ -208,6 +239,22 @@ update_active (struct cpu_features *cpu_features)
 		  CPU_FEATURE_SET_ACTIVE (cpu_features, AVX512_FP16);
 		}
 	    }
+	}
+
+      if (CPU_FEATURES_CPU_P (cpu_features, AVX10)
+	  && cpu_features->basic.max_cpuid >= 0x24)
+	{
+	  __cpuid_count (
+	      0x24, 0, cpu_features->features[CPUID_INDEX_24_ECX_0].cpuid.eax,
+	      cpu_features->features[CPUID_INDEX_24_ECX_0].cpuid.ebx,
+	      cpu_features->features[CPUID_INDEX_24_ECX_0].cpuid.ecx,
+	      cpu_features->features[CPUID_INDEX_24_ECX_0].cpuid.edx);
+	  if (os_vector_size & os_xmm)
+	    CPU_FEATURE_SET_ACTIVE (cpu_features, AVX10_XMM);
+	  if (os_vector_size & os_ymm)
+	    CPU_FEATURE_SET_ACTIVE (cpu_features, AVX10_YMM);
+	  if (os_vector_size & os_zmm)
+	    CPU_FEATURE_SET_ACTIVE (cpu_features, AVX10_ZMM);
 	}
 
       /* Are XTILECFG and XTILEDATA states usable?  */
@@ -1081,55 +1128,14 @@ no_cpuid:
 	       TUNABLE_CALLBACK (set_x86_ibt));
   TUNABLE_GET (x86_shstk, tunable_val_t *,
 	       TUNABLE_CALLBACK (set_x86_shstk));
-
-  /* Check CET status.  */
-  unsigned int cet_status = get_cet_status ();
-
-  if ((cet_status & GNU_PROPERTY_X86_FEATURE_1_IBT) == 0)
-    CPU_FEATURE_UNSET (cpu_features, IBT)
-  if ((cet_status & GNU_PROPERTY_X86_FEATURE_1_SHSTK) == 0)
-    CPU_FEATURE_UNSET (cpu_features, SHSTK)
-
-  if (cet_status)
-    {
-      GL(dl_x86_feature_1) = cet_status;
-
-# ifndef SHARED
-      /* Check if IBT and SHSTK are enabled by kernel.  */
-      if ((cet_status & GNU_PROPERTY_X86_FEATURE_1_IBT)
-	  || (cet_status & GNU_PROPERTY_X86_FEATURE_1_SHSTK))
-	{
-	  /* Disable IBT and/or SHSTK if they are enabled by kernel, but
-	     disabled by environment variable:
-
-	     GLIBC_TUNABLES=glibc.cpu.hwcaps=-IBT,-SHSTK
-	   */
-	  unsigned int cet_feature = 0;
-	  if (!CPU_FEATURE_USABLE (IBT))
-	    cet_feature |= GNU_PROPERTY_X86_FEATURE_1_IBT;
-	  if (!CPU_FEATURE_USABLE (SHSTK))
-	    cet_feature |= GNU_PROPERTY_X86_FEATURE_1_SHSTK;
-
-	  if (cet_feature)
-	    {
-	      int res = dl_cet_disable_cet (cet_feature);
-
-	      /* Clear the disabled bits in dl_x86_feature_1.  */
-	      if (res == 0)
-		GL(dl_x86_feature_1) &= ~cet_feature;
-	    }
-
-	  /* Lock CET if IBT or SHSTK is enabled in executable.  Don't
-	     lock CET if IBT or SHSTK is enabled permissively.  */
-	  if (GL(dl_x86_feature_control).ibt != cet_permissive
-	      && GL(dl_x86_feature_control).shstk != cet_permissive)
-	    dl_cet_lock_cet ();
-	}
-# endif
-    }
 #endif
 
-#ifndef SHARED
+#ifdef SHARED
+# ifdef __x86_64__
+  TUNABLE_GET (plt_rewrite, tunable_val_t *,
+	       TUNABLE_CALLBACK (set_plt_rewrite));
+# endif
+#else
   /* NB: In libc.a, call init_cacheinfo.  */
   init_cacheinfo ();
 #endif

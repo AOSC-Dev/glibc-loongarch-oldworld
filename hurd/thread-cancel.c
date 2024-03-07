@@ -1,5 +1,5 @@
 /* Thread cancellation support.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,15 +21,6 @@
 #include <assert.h>
 #include <thread_state.h>
 
-
-/* See hurdsig.c.  */
-extern mach_port_t _hurdsig_abort_rpcs (struct hurd_sigstate *ss,
-					int signo, int sigthread,
-					struct machine_thread_all_state *,
-					int *state_change,
-					mach_port_t *reply_port,
-					mach_msg_type_name_t reply_port_type,
-					int untraced);
 
 error_t
 hurd_thread_cancel (thread_t thread)
@@ -64,7 +55,7 @@ hurd_thread_cancel (thread_t thread)
 
       /* Interrupt any interruptible RPC now in progress.  */
       state.set = 0;
-      _hurdsig_abort_rpcs (ss, 0, 0, &state, &state_change, NULL, 0, 0);
+      _hurdsig_abort_rpcs (ss, 0, 0, &state, &state_change, NULL);
       if (state_change)
 	err = __thread_set_state (thread, MACHINE_THREAD_STATE_FLAVOR,
 				  (natural_t *) &state.basic,

@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation inline functions.  i386 version.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -65,9 +65,6 @@ elf_machine_runtime_setup (struct link_map *l, struct r_scope_elem *scope[],
   extern void _dl_runtime_profile (Elf32_Word) attribute_hidden;
   extern void _dl_runtime_resolve_shstk (Elf32_Word) attribute_hidden;
   extern void _dl_runtime_profile_shstk (Elf32_Word) attribute_hidden;
-  /* Check if SHSTK is enabled by kernel.  */
-  bool shstk_enabled
-    = (GL(dl_x86_feature_1) & GNU_PROPERTY_X86_FEATURE_1_SHSTK) != 0;
 
   if (l->l_info[DT_JMPREL] && lazy)
     {
@@ -92,11 +89,10 @@ elf_machine_runtime_setup (struct link_map *l, struct r_scope_elem *scope[],
 	 to intercept the calls to collect information.  In this case we
 	 don't store the address in the GOT so that all future calls also
 	 end in this function.  */
+#ifdef SHARED
       if (__glibc_unlikely (profile))
 	{
-	  got[2] = (shstk_enabled
-		    ? (Elf32_Addr) &_dl_runtime_profile_shstk
-		    : (Elf32_Addr) &_dl_runtime_profile);
+	  got[2] = (Elf32_Addr) &_dl_runtime_profile;
 
 	  if (GLRO(dl_profile) != NULL
 	      && _dl_name_match_p (GLRO(dl_profile), l))
@@ -105,11 +101,10 @@ elf_machine_runtime_setup (struct link_map *l, struct r_scope_elem *scope[],
 	    GL(dl_profile_map) = l;
 	}
       else
+#endif
 	/* This function will get called to fix up the GOT entry indicated by
 	   the offset on the stack, and then jump to the resolved address.  */
-	got[2] = (shstk_enabled
-		  ? (Elf32_Addr) &_dl_runtime_resolve_shstk
-		  : (Elf32_Addr) &_dl_runtime_resolve);
+	got[2] = (Elf32_Addr) &_dl_runtime_resolve;
     }
 
   return lazy;

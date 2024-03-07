@@ -57,6 +57,7 @@ glibc.pthread.stack_cache_size: 0x2800000 (min: 0x0, max: 0xffffffffffffffff)
 glibc.cpu.hwcap_mask: 0x6 (min: 0x0, max: 0xffffffffffffffff)
 glibc.malloc.mmap_max: 0 (min: 0, max: 2147483647)
 glibc.elision.skip_trylock_internal_abort: 3 (min: 0, max: 2147483647)
+glibc.cpu.plt_rewrite: 0 (min: 0, max: 2)
 glibc.malloc.tcache_unsorted_limit: 0x0 (min: 0x0, max: 0xffffffffffffffff)
 glibc.cpu.x86_ibt:
 glibc.cpu.hwcaps:
@@ -136,9 +137,7 @@ termination of the process.
 Like @env{MALLOC_CHECK_}, @code{glibc.malloc.check} has a problem in that it
 diverges from normal program behavior by writing to @code{stderr}, which could
 by exploited in SUID and SGID binaries.  Therefore, @code{glibc.malloc.check}
-is disabled by default for SUID and SGID binaries.  This can be enabled again
-by the system administrator by adding a file @file{/etc/suid-debug}; the
-content of the file could be anything or even empty.
+is disabled by default for SUID and SGID binaries.
 @end deftp
 
 @deftp Tunable glibc.malloc.top_pad
@@ -513,7 +512,10 @@ On s390x, the supported HWCAP and STFLE features can be found in
 @code{sysdeps/s390/cpu-features.c}.  In addition the user can also set
 a CPU arch-level like @code{z13} instead of single HWCAP and STFLE features.
 
-This tunable is specific to i386, x86-64 and s390x.
+On powerpc, the supported HWCAP and HWCAP2 features can be found in
+@code{sysdeps/powerpc/dl-procinfo.c}.
+
+This tunable is specific to i386, x86-64, s390x and powerpc.
 @end deftp
 
 @deftp Tunable glibc.cpu.cached_memopt
@@ -529,7 +531,7 @@ This tunable is specific to powerpc, powerpc64 and powerpc64le.
 @deftp Tunable glibc.cpu.name
 The @code{glibc.cpu.name=xxx} tunable allows the user to tell @theglibc{} to
 assume that the CPU is @code{xxx} where xxx may have one of these values:
-@code{generic}, @code{falkor}, @code{thunderxt88}, @code{thunderx2t99},
+@code{generic}, @code{thunderxt88}, @code{thunderx2t99},
 @code{thunderx2t99p1}, @code{ares}, @code{emag}, @code{kunpeng},
 @code{a64fx}.
 
@@ -613,6 +615,16 @@ this tunable.
 This tunable is specific to 64-bit x86-64.
 @end deftp
 
+@deftp Tunable glibc.cpu.plt_rewrite
+When this tunable is set to @code{1}, the dynamic linker will rewrite
+the PLT section with 32-bit direct jump.  When it is set to @code{2},
+the dynamic linker will rewrite the PLT section with 32-bit direct
+jump and on APX processors with 64-bit absolute jump.
+
+This tunable is specific to x86-64 and effective only when the lazy
+binding is disabled.
+@end deftp
+
 @node Memory Related Tunables
 @section Memory Related Tunables
 @cindex memory related tunables
@@ -648,6 +660,23 @@ Other bits are currently reserved.
 support in the kernel if this tunable has any non-zero value.
 
 The default value is @samp{0}, which disables all memory tagging.
+@end deftp
+
+@deftp Tunable glibc.mem.decorate_maps
+If the kernel supports naming anonymous virtual memory areas (since
+Linux version 5.17, although not always enabled by some kernel
+configurations), this tunable can be used to control whether
+@theglibc{} decorates the underlying memory obtained from operating
+system with a string describing its usage (for instance, on the thread
+stack created by @code{ptthread_create} or memory allocated by
+@code{malloc}).
+
+The process mappings can be obtained by reading the @code{/proc/<pid>maps}
+(with @code{pid} being either the @dfn{process ID} or @code{self} for the
+process own mapping).
+
+This tunable takes a value of 0 and 1, where 1 enables the feature.
+The default value is @samp{0}, which disables the decoration.
 @end deftp
 
 @node gmon Tunables

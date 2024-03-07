@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2023 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software; you can redistribute it and/or modify
@@ -233,7 +233,7 @@ print_version (FILE *stream, struct argp_state *state)
 Copyright (C) %s Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.  There is NO\n\
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\
-"), "2023");
+"), "2024");
   fprintf (stream, gettext ("Written by %s.\n"),
 	   "Andreas Jaeger");
 }
@@ -661,6 +661,42 @@ struct dlib_entry
   struct dlib_entry *next;
 };
 
+/* Return true if the N bytes at NAME end with with the characters in
+   the string SUFFIX.  (NAME[N + 1] does not have to be a null byte.)
+   Expected to be called with a string literal for SUFFIX.  */
+static inline bool
+endswithn (const char *name, size_t n, const char *suffix)
+{
+  return (n >= strlen (suffix)
+	  && memcmp (name + n - strlen (suffix), suffix,
+		     strlen (suffix)) == 0);
+}
+
+/* Skip some temporary DSO files.  These files may be partially written
+   and lead to ldconfig crashes when examined.  */
+static bool
+skip_dso_based_on_name (const char *name, size_t len)
+{
+  /* Skip temporary files created by the prelink program.  Files with
+     names like these are never really DSOs we want to look at.  */
+  if (len >= sizeof (".#prelink#") - 1)
+    {
+      if (endswithn (name, len, ".#prelink#"))
+	return true;
+      if (len >= sizeof (".#prelink#.XXXXXX") - 1
+	  && memcmp (name + len - sizeof (".#prelink#.XXXXXX")
+		     + 1, ".#prelink#.", sizeof (".#prelink#.") - 1) == 0)
+	return true;
+    }
+  /* Skip temporary files created by RPM.  */
+  if (memchr (name, ';', len) != NULL)
+    return true;
+  /* Skip temporary files created by dpkg.  */
+  if (endswithn (name, len, ".dpkg-new")
+      || endswithn (name, len, ".dpkg-tmp"))
+    return true;
+  return false;
+}
 
 static void
 search_dir (const struct dir_entry *entry)
@@ -711,18 +747,8 @@ search_dir (const struct dir_entry *entry)
 	continue;
 
       size_t len = strlen (direntry->d_name);
-      /* Skip temporary files created by the prelink program.  Files with
-	 names like these are never really DSOs we want to look at.  */
-      if (len >= sizeof (".#prelink#") - 1)
-	{
-	  if (strcmp (direntry->d_name + len - sizeof (".#prelink#") + 1,
-		      ".#prelink#") == 0)
-	    continue;
-	  if (len >= sizeof (".#prelink#.XXXXXX") - 1
-	      && memcmp (direntry->d_name + len - sizeof (".#prelink#.XXXXXX")
-			 + 1, ".#prelink#.", sizeof (".#prelink#.") - 1) == 0)
-	    continue;
-	}
+      if (skip_dso_based_on_name (direntry->d_name, len))
+	continue;
       if (asprintf (&file_name, "%s/%s", entry->path, direntry->d_name) < 0)
 	error (EXIT_FAILURE, errno, _("Could not form library path"));
       if (opt_chroot != NULL)

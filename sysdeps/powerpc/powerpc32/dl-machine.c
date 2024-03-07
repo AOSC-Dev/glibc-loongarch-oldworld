@@ -1,5 +1,5 @@
 /* Machine-dependent ELF dynamic relocation functions.  PowerPC version.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -226,7 +226,7 @@ __elf_machine_runtime_setup (struct link_map *map, int lazy, int profile)
 	  Elf32_Word dlrr;
 	  Elf32_Word offset;
 
-#ifndef PROF
+#if !defined PROF && defined SHARED
 	  dlrr = (Elf32_Word) (profile
 			       ? _dl_prof_resolve
 			       : _dl_runtime_resolve);

@@ -1,5 +1,5 @@
 /* PLT trampolines.  Sparc 64-bit version.
-   Copyright (C) 2005-2023 Free Software Foundation, Inc.
+   Copyright (C) 2005-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -92,6 +92,7 @@ _dl_runtime_resolve_1:
 
 	.size	_dl_runtime_resolve_1, .-_dl_runtime_resolve_1
 
+#ifdef SHARED
 	/* For the profiling cases we pass in our stack frame
 	 * as the base of the La_sparc64_regs, so it looks
 	 * like:
@@ -323,3 +324,4 @@ _dl_runtime_profile_1:
 	cfi_endproc
 
 	.size	_dl_runtime_resolve_1, .-_dl_runtime_resolve_1
+#endif

@@ -1,6 +1,6 @@
 /* mc68020 __mpn_lshift -- Shift left a low-level natural-number integer.
 
-Copyright (C) 1996-2023 Free Software Foundation, Inc.
+Copyright (C) 1996-2024 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -57,9 +57,9 @@ ENTRY(__mpn_lshift)
 	bne	L(Lnormal)
 	cmpl	R(s_ptr),R(res_ptr)
 	bls	L(Lspecial)		/* jump if s_ptr >= res_ptr */
-#if (defined (__mc68020__) || defined (__NeXT__) || defined(mc68020))
+#if M68K_SCALE_AVAILABLE
 	lea	MEM_INDX1(s_ptr,s_size,l,4),R(a2)
-#else /* not mc68020 */
+#else
 	movel	R(s_size),R(d0)
 	asll	#2,R(d0)
 	lea	MEM_INDX(s_ptr,d0,l),R(a2)
@@ -71,14 +71,14 @@ L(Lnormal:)
 	moveql	#32,R(d5)
 	subl	R(cnt),R(d5)
 
-#if (defined (__mc68020__) || defined (__NeXT__) || defined(mc68020))
+#if M68K_SCALE_AVAILABLE
 	lea	MEM_INDX1(s_ptr,s_size,l,4),R(s_ptr)
 	lea	MEM_INDX1(res_ptr,s_size,l,4),R(res_ptr)
 #else /* not mc68000 */
 	movel	R(s_size),R(d0)
 	asll	#2,R(d0)
-	addl	R(s_size),R(s_ptr)
-	addl	R(s_size),R(res_ptr)
+	addl	R(d0),R(s_ptr)
+	addl	R(d0),R(res_ptr)
 #endif
 	movel	MEM_PREDEC(s_ptr),R(d2)
 	movel	R(d2),R(d0)

@@ -1,4 +1,4 @@
-# Copyright (C) 1999-2023 Free Software Foundation, Inc.
+# Copyright (C) 1999-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -211,11 +211,6 @@ linknamespace-libs-POSIX2008 = $(linknamespace-libs-posix)
 linknamespace-libs-XOPEN2K8 = $(linknamespace-libs-xsi)
 linknamespace-libs = $(foreach std,$(conformtest-standards),\
 				   $(linknamespace-libs-$(std)))
-
-ifeq ($(build-crypt),yes)
-linknamespace-libs-xsi += $(common-objpfx)crypt/libcrypt.a
-linknamespace-libs-XPG4 += $(common-objpfx)crypt/libcrypt.a
-endif
 
 $(linknamespace-symlist-stdlibs-tests): $(objpfx)symlist-stdlibs-%: \
 					$(linknamespace-libs)

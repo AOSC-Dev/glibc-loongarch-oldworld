@@ -1,5 +1,5 @@
 /* Thread termination.
-   Copyright (C) 2000-2023 Free Software Foundation, Inc.
+   Copyright (C) 2000-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -45,6 +45,9 @@ __pthread_exit (void *status)
        *handlers != NULL;
        *handlers = (*handlers)->__next)
     (*handlers)->__handler ((*handlers)->__arg);
+
+  /* Call destructors for the thread_local TLS variables.  */
+  call_function_static_weak (__call_tls_dtors);
 
   __pthread_setcancelstate (oldstate, &oldstate);
 

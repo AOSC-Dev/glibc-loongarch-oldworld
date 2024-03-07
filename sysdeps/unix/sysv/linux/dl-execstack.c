@@ -1,5 +1,5 @@
 /* Stack executability handling for GNU dynamic linker.  Linux version.
-   Copyright (C) 2003-2023 Free Software Foundation, Inc.
+   Copyright (C) 2003-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -96,13 +96,7 @@ _dl_make_stacks_executable (void **stack_endp)
 int
 __nptl_change_stack_perm (struct pthread *pd)
 {
-#ifdef NEED_SEPARATE_REGISTER_STACK
-  size_t pagemask = __getpagesize () - 1;
-  void *stack = (pd->stackblock
-		 + (((((pd->stackblock_size - pd->guardsize) / 2)
-		      & pagemask) + pd->guardsize) & pagemask));
-  size_t len = pd->stackblock + pd->stackblock_size - stack;
-#elif _STACK_GROWS_DOWN
+#if _STACK_GROWS_DOWN
   void *stack = pd->stackblock + pd->guardsize;
   size_t len = pd->stackblock_size - pd->guardsize;
 #elif _STACK_GROWS_UP

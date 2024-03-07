@@ -1,4 +1,4 @@
-# Copyright (C) 1991-2023 Free Software Foundation, Inc.
+# Copyright (C) 1991-2024 Free Software Foundation, Inc.
 # Copyright The GNU Toolchain Authors.
 # This file is part of the GNU C Library.
 
@@ -857,12 +857,7 @@ host-test-program-cmd = $(host-built-program-cmd)
 endif
 
 # Extra flags to pass to GCC.
-ifeq ($(all-warnings),yes)
-+gccwarn := -Wall -Wwrite-strings -Wcast-qual -Wbad-function-cast -Wmissing-noreturn -Wmissing-prototypes -Wmissing-declarations -Wcomment -Wcomments -Wtrigraphs -Wsign-compare -Wfloat-equal -Wmultichar
-else
-+gccwarn := -Wall -Wwrite-strings
-endif
-+gccwarn += -Wundef
++gccwarn := -Wall -Wwrite-strings -Wundef
 ifeq ($(enable-werror),yes)
 +gccwarn += -Werror
 endif
@@ -1357,15 +1352,10 @@ endif
 # dependencies and generate sorted-subdirs dynamically.
 all-subdirs = csu assert ctype locale intl catgets math setjmp signal	    \
 	      stdlib stdio-common libio malloc string wcsmbs time dirent    \
-	      grp pwd posix io termios resource misc socket sysvipc gmon    \
-	      gnulib iconv iconvdata wctype manual shadow gshadow po argp   \
+	      posix io termios resource misc socket sysvipc gmon            \
+	      gnulib iconv iconvdata wctype manual po argp                  \
 	      localedata timezone rt conform debug mathvec support	    \
 	      dlfcn elf
-
-ifeq ($(build-crypt),yes)
-all-subdirs += crypt
-rpath-dirs += crypt
-endif
 
 ifndef avoid-generated
 # sysd-sorted itself will contain rules making the sysd-sorted target

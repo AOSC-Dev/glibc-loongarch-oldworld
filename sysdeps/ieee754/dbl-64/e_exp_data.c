@@ -1,5 +1,5 @@
 /* Shared data between exp, exp2 and pow.
-   Copyright (C) 2018-2023 Free Software Foundation, Inc.
+   Copyright (C) 2018-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -57,6 +57,17 @@ const struct exp_data __exp_data = {
 0x1.3b2abd24650ccp-7,
 0x1.5d7e09b4e3a84p-10,
 #endif
+},
+.invlog10_2N = 0x1.a934f0979a371p1 * N,
+.neglog10_2hiN = -0x1.3441350ap-2 / N,
+.neglog10_2loN = 0x1.0c0219dc1da99p-39 / N,
+.exp10_poly = {
+/* Coeffs generated using Remez in [-log10(2)/256, log10(2)/256 ].  */
+0x1.26bb1bbb55516p1,
+0x1.53524c73ce9fep1,
+0x1.0470591ce4b26p1,
+0x1.2bd76577fe684p0,
+0x1.1446eeccd0efbp-1
 },
 // 2^(k/N) ~= H[k]*(1 + T[k]) for int k in [0,N)
 // tab[2*k] = asuint64(T[k])

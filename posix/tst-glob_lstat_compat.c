@@ -1,5 +1,5 @@
 /* Test glob compat symbol which avoid call GLOB_ALTDIRFUNC/gl_lstat.
-   Copyright (C) 2017-2023 Free Software Foundation, Inc.
+   Copyright (C) 2017-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -173,7 +173,7 @@ my_readdir (void *gdir)
 
   dir->d.d_type = filesystem[dir->idx].type;
 
-  strcpy (dir->d.d_name, filesystem[dir->idx].name);
+  __strcpy_chk (dir->d.d_name, filesystem[dir->idx].name, NAME_MAX);
 
   ++dir->idx;
 

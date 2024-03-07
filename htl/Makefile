@@ -1,5 +1,5 @@
 #
-#   Copyright (C) 1994-2023 Free Software Foundation, Inc.
+#   Copyright (C) 1994-2024 Free Software Foundation, Inc.
 #
 #   The GNU C Library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public
@@ -24,13 +24,13 @@ SYSDEPS := lockfile
 
 LCLHDRS :=
 
-libpthread-routines := pt-attr pt-attr-destroy pt-attr-getdetachstate	    \
-	pt-attr-getguardsize pt-attr-getinheritsched			    \
-	pt-attr-getschedparam pt-attr-getschedpolicy pt-attr-getscope	    \
+libpthread-routines := pt-attr pt-attr-destroy                   	    \
+	pt-attr-getguardsize                     			    \
+	pt-attr-getscope	                                            \
 	pt-attr-getstack pt-attr-getstackaddr pt-attr-getstacksize	    \
-	pt-attr-init pt-attr-setdetachstate pt-attr-setguardsize	    \
-	pt-attr-setinheritsched pt-attr-setschedparam			    \
-	pt-attr-setschedpolicy pt-attr-setscope pt-attr-setstack	    \
+	pt-attr-init pt-attr-setguardsize                       	    \
+	pt-attr-setschedparam			                            \
+	pt-attr-setscope pt-attr-setstack	                            \
 	pt-attr-setstackaddr pt-attr-setstacksize			    \
 									    \
 	pt-barrier-destroy pt-barrier-init pt-barrier-wait		    \
@@ -46,7 +46,6 @@ libpthread-routines := pt-attr pt-attr-destroy pt-attr-getdetachstate	    \
 	pt-alloc							    \
 	pt-create							    \
 	pt-getattr							    \
-	pt-equal							    \
 	pt-dealloc							    \
 	pt-detach							    \
 	pt-exit								    \
@@ -123,7 +122,7 @@ libpthread-routines := pt-attr pt-attr-destroy pt-attr-getdetachstate	    \
 	pt-kill								    \
 	pt-getcpuclockid						    \
 									    \
-	pt-getschedparam pt-setschedparam pt-setschedprio		    \
+	pt-setschedprio		                                            \
 	pt-yield							    \
 									    \
 	sem_close sem-destroy sem-getvalue sem-init sem_open		    \
@@ -165,7 +164,10 @@ headers :=				\
 
 distribute :=
 
-routines := forward libc_pthread_init alloca_cutoff htlfreeres pt-nthreads pt-pthread_self pt-self
+routines := forward libc_pthread_init alloca_cutoff htlfreeres pt-nthreads pt-pthread_self pt-self pt-equal \
+	pt-getschedparam pt-setschedparam pt-attr-getschedparam pt-attr-getinheritsched                     \
+	pt-attr-setinheritsched pt-attr-getschedpolicy pt-attr-setschedpolicy pt-attr-getdetachstate        \
+	pt-attr-setdetachstate
 shared-only-routines = forward
 
 extra-libs := libpthread

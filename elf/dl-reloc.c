@@ -1,5 +1,5 @@
 /* Relocate a shared object and resolve its references to other loaded objects.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    Copyright The GNU Toolchain Authors.
    This file is part of the GNU C Library.
 
@@ -112,11 +112,11 @@ _dl_try_allocate_static_tls (struct link_map *map, bool optional)
   if (map->l_real->l_relocated)
     {
 #ifdef SHARED
+      /* Update the DTV of the current thread.  Note: GL(dl_load_tls_lock)
+	 is held here so normal load of the generation counter is valid.  */
       if (__builtin_expect (THREAD_DTV()[0].counter != GL(dl_tls_generation),
 			    0))
-	/* Update the slot information data for at least the generation of
-	   the DSO we are allocating data for.  */
-	(void) _dl_update_slotinfo (map->l_tls_modid);
+	(void) _dl_update_slotinfo (map->l_tls_modid, GL(dl_tls_generation));
 #endif
 
       dl_init_static_tls (map);
@@ -205,6 +205,9 @@ void
 _dl_relocate_object (struct link_map *l, struct r_scope_elem *scope[],
 		     int reloc_mode, int consider_profiling)
 {
+  if (l->l_relocated)
+    return;
+
   struct textrels
   {
     caddr_t start;
@@ -241,9 +244,6 @@ _dl_relocate_object (struct link_map *l, struct r_scope_elem *scope[],
 #else
 # define consider_symbind 0
 #endif
-
-  if (l->l_relocated)
-    return;
 
   /* If DT_BIND_NOW is set relocate all references in this object.  We
      do not do this if we are profiling, of course.  */

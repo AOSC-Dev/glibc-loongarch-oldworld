@@ -1,4 +1,4 @@
-/* Copyright (C) 1999-2023 Free Software Foundation, Inc.
+/* Copyright (C) 1999-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -107,6 +107,7 @@ process_elf_file (const char *file_name, const char *lib, int *flag,
 	case PT_INTERP:
 	  program_interpreter = (char *) (file_contents + segment->p_offset);
 	  check_ptr (program_interpreter);
+	  break;
 
 	case PT_GNU_PROPERTY:
 	  /* The NT_GNU_PROPERTY_TYPE_0 note must be aligned to 4 bytes

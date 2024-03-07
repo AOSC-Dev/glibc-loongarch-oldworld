@@ -1,6 +1,6 @@
 /* memset -- set memory area to CH/0
    Optimized version for x86-64.
-   Copyright (C) 2002-2023 Free Software Foundation, Inc.
+   Copyright (C) 2002-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -32,6 +32,7 @@
 #include "isa-default-impl.h"
 
 libc_hidden_builtin_def (memset)
+libc_hidden_builtin_def (__memset_chk)
 
 #if IS_IN (libc)
 libc_hidden_def (__wmemset)

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2023 Free Software Foundation, Inc.
+# Copyright (C) 2002-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -466,7 +466,7 @@ tests-internal += \
   tst-tls5 \
   # tests-internal
 ifeq ($(have-z-execstack),yes)
-tests += tst-execstack
+tests += tst-execstack-threads
 endif
 endif
 
@@ -474,7 +474,7 @@ modules-names = \
   tst-audit-threads-mod1 \
   tst-audit-threads-mod2 \
   tst-compat-forwarder-mod \
-  tst-execstack-mod \
+  tst-execstack-threads-mod \
   tst-stack4mod \
   tst-tls3mod \
   tst-tls5mod \
@@ -669,9 +669,10 @@ endif
 
 tst-exec4-ARGS = $(host-test-program-cmd)
 
-$(objpfx)tst-execstack.out: $(objpfx)tst-execstack-mod.so
-LDFLAGS-tst-execstack = -Wl,-z,noexecstack
-CFLAGS-tst-execstack-mod.c += -Wno-trampolines
+$(objpfx)tst-execstack-threads.out: $(objpfx)tst-execstack-threads-mod.so
+LDFLAGS-tst-execstack-threads = -Wl,-z,noexecstack
+LDFLAGS-tst-execstack-threads-mod.so = -Wl,-z,execstack
+CFLAGS-tst-execstack-threads-mod.c += -Wno-trampolines
 
 tst-stackguard1-ARGS = --command "$(host-test-program-cmd) --child"
 tst-stackguard1-static-ARGS = --command "$(objpfx)tst-stackguard1-static --child"
@@ -698,6 +699,10 @@ tst-audit-threads-ENV = LD_AUDIT=$(objpfx)tst-audit-threads-mod1.so
 # objects.
 tst-setuid1-static-ENV = \
   LD_LIBRARY_PATH=$(ld-library-path):$(common-objpfx)elf:$(common-objpfx)nss
+
+tst-pthread-proc-maps-ENV = \
+  GLIBC_TUNABLES=glibc.malloc.arena_max=8:glibc.malloc.mmap_threshold=1024
+tst-pthread-proc-maps-ARGS = 8
 
 # The tests here better do not run in parallel.
 ifeq ($(run-built-tests),yes)

@@ -1,5 +1,5 @@
 /* Set floating-point environment exception handling.
-   Copyright (C) 1997-2023 Free Software Foundation, Inc.
+   Copyright (C) 1997-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -44,7 +44,14 @@ __fesetexceptflag (const fexcept_t *flagp, int excepts)
      This may cause floating-point exceptions if the restored state
      requests it.  */
   if (n.l != u.l)
-    fesetenv_register (n.fenv);
+    {
+      if (n.l & fenv_exceptions_to_reg (excepts))
+	/* Setting the exception flags may trigger a trap.  ISO C 23 § 7.6.4.4
+	    does not allow it.   */
+	return -1;
+
+      fesetenv_register (n.fenv);
+    }
 
   /* Deal with FE_INVALID_SOFTWARE not being implemented on some chips.  */
   if (flag & FE_INVALID)

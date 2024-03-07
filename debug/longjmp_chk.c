@@ -1,4 +1,4 @@
-/* Copyright (C) 2009-2023 Free Software Foundation, Inc.
+/* Copyright (C) 2009-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,3 +21,4 @@
 #define __libc_siglongjmp __longjmp_chk
 
 #include <setjmp/longjmp.c>
+libc_hidden_def (__longjmp_chk)

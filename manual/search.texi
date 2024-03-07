@@ -199,9 +199,9 @@ Functions}):
 The @code{qsort} function derives its name from the fact that it was
 originally implemented using the ``quick sort'' algorithm.
 
-The implementation of @code{qsort} in this library might not be an
-in-place sort and might thereby use an extra amount of memory to store
-the array.
+The implementation of @code{qsort} attempts to allocate auxiliary storage
+and use the merge sort algorithm, without violating C standard requirement
+that arguments passed to the comparison function point within the array.
 @end deftypefun
 
 @node Search/Sort Example

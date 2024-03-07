@@ -1,5 +1,5 @@
 /* Zero byte detection; indexes.  RISCV version.
-   Copyright (C) 2023 Free Software Foundation, Inc.
+   Copyright (C) 2023-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 #ifndef _STRING_RISCV_FZI_H
 #define _STRING_RISCV_FZI_H 1
 
-#ifdef __riscv_zbb
+#if defined __riscv_zbb || defined __riscv_xtheadbb
 # include <sysdeps/generic/string-fzi.h>
 #else
 /* Without bitmap clz/ctz extensions, it is faster to direct test the bits

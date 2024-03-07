@@ -1,4 +1,4 @@
-/* Copyright (C) 2005-2023 Free Software Foundation, Inc.
+/* Copyright (C) 2005-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -29,5 +29,5 @@ __getwd_chk (char *buf, size_t buflen)
   return res;
 }
 
-link_warning (getwd,
+link_warning (__getwd_chk,
 	      "the `getwd' function is dangerous and should not be used.")

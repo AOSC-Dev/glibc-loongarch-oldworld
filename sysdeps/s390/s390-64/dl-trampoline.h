@@ -1,5 +1,5 @@
 /* PLT trampolines.  s390x version.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -150,7 +150,7 @@ _dl_runtime_resolve:
 #undef F4_OFF
 #undef F6_OFF
 
-#ifndef PROF
+#if !defined PROF && defined SHARED
 # define SIZEOF_STRUCT_LA_S390_64_REGS 200
 # define REGS_OFF -360
 # define R2_OFF -360

@@ -1,5 +1,5 @@
 /* Run time dynamic linker.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -300,7 +300,6 @@ dl_main_state_init (struct dl_main_state *state)
   state->glibc_hwcaps_prepend = NULL;
   state->glibc_hwcaps_mask = NULL;
   state->mode = rtld_mode_normal;
-  state->any_debug = false;
   state->version_info = false;
 }
 
@@ -361,6 +360,7 @@ struct rtld_global_ro _rtld_global_ro attribute_relro =
     ._dl_fpu_control = _FPU_DEFAULT,
     ._dl_pagesize = EXEC_PAGESIZE,
     ._dl_inhibit_cache = 0,
+    ._dl_profile_output = "/var/tmp",
 
     /* Function pointers.  */
     ._dl_debug_printf = _dl_debug_printf,
@@ -477,7 +477,6 @@ _dl_start_final (void *arg, struct dl_start_final_info *info)
   GL(dl_rtld_map).l_real = &GL(dl_rtld_map);
   GL(dl_rtld_map).l_map_start = (ElfW(Addr)) &__ehdr_start;
   GL(dl_rtld_map).l_map_end = (ElfW(Addr)) _end;
-  GL(dl_rtld_map).l_text_end = (ElfW(Addr)) _etext;
   /* Copy the TLS related data if necessary.  */
 #ifndef DONT_USE_BOOTSTRAP_MAP
 # if NO_TLS_OFFSET != 0
@@ -1119,7 +1118,6 @@ rtld_setup_main_map (struct link_map *main_map)
   bool has_interp = false;
 
   main_map->l_map_end = 0;
-  main_map->l_text_end = 0;
   /* Perhaps the executable has no PT_LOAD header entries at all.  */
   main_map->l_map_start = ~0;
   /* And it was opened directly.  */
@@ -1211,8 +1209,6 @@ rtld_setup_main_map (struct link_map *main_map)
 	  allocend = main_map->l_addr + ph->p_vaddr + ph->p_memsz;
 	  if (main_map->l_map_end < allocend)
 	    main_map->l_map_end = allocend;
-	  if ((ph->p_flags & PF_X) && allocend > main_map->l_text_end)
-	    main_map->l_text_end = allocend;
 
 	  /* The next expected address is the page following this load
 	     segment.  */
@@ -1272,8 +1268,6 @@ rtld_setup_main_map (struct link_map *main_map)
       = (char *) main_map->l_tls_initimage + main_map->l_addr;
   if (! main_map->l_map_end)
     main_map->l_map_end = ~0;
-  if (! main_map->l_text_end)
-    main_map->l_text_end = ~0;
   if (! GL(dl_rtld_map).l_libname && GL(dl_rtld_map).l_name)
     {
       /* We were invoked directly, so the program might not have a
@@ -2278,13 +2272,19 @@ dl_main (const ElfW(Phdr) *phdr,
      objects.  We do not re-relocate the dynamic linker itself in this
      loop because that could result in the GOT entries for functions we
      call being changed, and that would break us.  It is safe to relocate
-     the dynamic linker out of order because it has no copy relocs (we
-     know that because it is self-contained).  */
+     the dynamic linker out of order because it has no copy relocations.
+     Likewise for libc, which is relocated early to ensure that IFUNC
+     resolvers in libc work.  */
 
   int consider_profiling = GLRO(dl_profile) != NULL;
 
   /* If we are profiling we also must do lazy reloaction.  */
   GLRO(dl_lazy) |= consider_profiling;
+
+  if (GL(dl_ns)[LM_ID_BASE].libc_map != NULL)
+    _dl_relocate_object (GL(dl_ns)[LM_ID_BASE].libc_map,
+			 GL(dl_ns)[LM_ID_BASE].libc_map->l_scope,
+			 GLRO(dl_lazy) ? RTLD_LAZY : 0, consider_profiling);
 
   RTLD_TIMING_VAR (start);
   rtld_timer_start (&start);
@@ -2486,7 +2486,6 @@ process_dl_debug (struct dl_main_state *state, const char *dl_debug)
 		&& memcmp (dl_debug, debopts[cnt].name, len) == 0)
 	      {
 		GLRO(dl_debug_mask) |= debopts[cnt].mask;
-		state->any_debug = true;
 		break;
 	      }
 
@@ -2534,15 +2533,71 @@ a filename can be specified using the LD_DEBUG_OUTPUT environment variable.\n");
 }
 
 static void
-process_envvars (struct dl_main_state *state)
+process_envvars_secure (struct dl_main_state *state)
+{
+  char **runp = _environ;
+  char *envline;
+
+  while ((envline = _dl_next_ld_env_entry (&runp)) != NULL)
+    {
+      size_t len = 0;
+
+      while (envline[len] != '\0' && envline[len] != '=')
+	++len;
+
+      if (envline[len] != '=')
+	/* This is a "LD_" variable at the end of the string without
+	   a '=' character.  Ignore it since otherwise we will access
+	   invalid memory below.  */
+	continue;
+
+      switch (len)
+	{
+	case 5:
+	  /* For __libc_enable_secure mode, audit pathnames containing slashes
+	     are ignored.  Also, shared audit objects are only loaded only from
+	     the standard search directories and only if they have set-user-ID
+	     mode bit enabled.  */
+	  if (memcmp (envline, "AUDIT", 5) == 0)
+	    audit_list_add_string (&state->audit_list, &envline[6]);
+	  break;
+
+	case 7:
+	  /* For __libc_enable_secure mode, preload pathnames containing slashes
+	     are ignored.  Also, shared objects are only preloaded from the
+	     standard search directories and only if they have set-user-ID mode
+	     bit enabled.  */
+	  if (memcmp (envline, "PRELOAD", 7) == 0)
+	    state->preloadlist = &envline[8];
+	  break;
+	}
+    }
+
+  /* Extra security for SUID binaries.  Remove all dangerous environment
+     variables.  */
+  const char *nextp = UNSECURE_ENVVARS;
+  do
+    {
+      unsetenv (nextp);
+      nextp = strchr (nextp, '\0') + 1;
+    }
+  while (*nextp != '\0');
+
+  if (GLRO(dl_debug_mask) != 0
+      || GLRO(dl_verbose) != 0
+      || GLRO(dl_lazy) != 1
+      || GLRO(dl_bind_not) != 0
+      || state->mode != rtld_mode_normal
+      || state->version_info)
+    _exit (5);
+}
+
+static void
+process_envvars_default (struct dl_main_state *state)
 {
   char **runp = _environ;
   char *envline;
   char *debug_output = NULL;
-
-  /* This is the default place for profiling data file.  */
-  GLRO(dl_profile_output)
-    = &"/var/tmp\0/var/profile"[__libc_enable_secure ? 9 : 0];
 
   while ((envline = _dl_next_ld_env_entry (&runp)) != NULL)
     {
@@ -2572,6 +2627,10 @@ process_envvars (struct dl_main_state *state)
 	      process_dl_debug (state, &envline[6]);
 	      break;
 	    }
+	  /* For __libc_enable_secure mode, audit pathnames containing slashes
+	     are ignored.  Also, shared audit objects are only loaded only from
+	     the standard search directories and only if they have set-user-ID
+	     mode bit enabled.  */
 	  if (memcmp (envline, "AUDIT", 5) == 0)
 	    audit_list_add_string (&state->audit_list, &envline[6]);
 	  break;
@@ -2584,7 +2643,10 @@ process_envvars (struct dl_main_state *state)
 	      break;
 	    }
 
-	  /* List of objects to be preloaded.  */
+	  /* For __libc_enable_secure mode, preload pathnames containing slashes
+	     are ignored.  Also, shared objects are only preloaded from the
+	     standard search directories and only if they have set-user-ID mode
+	     bit enabled.  */
 	  if (memcmp (envline, "PRELOAD", 7) == 0)
 	    {
 	      state->preloadlist = &envline[8];
@@ -2610,22 +2672,19 @@ process_envvars (struct dl_main_state *state)
 	case 9:
 	  /* Test whether we want to see the content of the auxiliary
 	     array passed up from the kernel.  */
-	  if (!__libc_enable_secure
-	      && memcmp (envline, "SHOW_AUXV", 9) == 0)
+	  if (memcmp (envline, "SHOW_AUXV", 9) == 0)
 	    _dl_show_auxv ();
 	  break;
 
 	case 11:
 	  /* Path where the binary is found.  */
-	  if (!__libc_enable_secure
-	      && memcmp (envline, "ORIGIN_PATH", 11) == 0)
+	  if (memcmp (envline, "ORIGIN_PATH", 11) == 0)
 	    GLRO(dl_origin_path) = &envline[12];
 	  break;
 
 	case 12:
 	  /* The library search path.  */
-	  if (!__libc_enable_secure
-	      && memcmp (envline, "LIBRARY_PATH", 12) == 0)
+	  if (memcmp (envline, "LIBRARY_PATH", 12) == 0)
 	    {
 	      state->library_path = &envline[13];
 	      state->library_path_source = "LD_LIBRARY_PATH";
@@ -2639,15 +2698,13 @@ process_envvars (struct dl_main_state *state)
 	      break;
 	    }
 
-	  if (!__libc_enable_secure
-	      && memcmp (envline, "DYNAMIC_WEAK", 12) == 0)
+	  if (memcmp (envline, "DYNAMIC_WEAK", 12) == 0)
 	    GLRO(dl_dynamic_weak) = 1;
 	  break;
 
 	case 14:
 	  /* Where to place the profiling data file.  */
-	  if (!__libc_enable_secure
-	      && memcmp (envline, "PROFILE_OUTPUT", 14) == 0
+	  if (memcmp (envline, "PROFILE_OUTPUT", 14) == 0
 	      && envline[15] != '\0')
 	    GLRO(dl_profile_output) = &envline[15];
 	  break;
@@ -2664,28 +2721,10 @@ process_envvars (struct dl_main_state *state)
 	}
     }
 
-  /* Extra security for SUID binaries.  Remove all dangerous environment
-     variables.  */
-  if (__glibc_unlikely (__libc_enable_secure))
-    {
-      const char *nextp = UNSECURE_ENVVARS;
-      do
-	{
-	  unsetenv (nextp);
-	  nextp = strchr (nextp, '\0') + 1;
-	}
-      while (*nextp != '\0');
-
-      if (__access ("/etc/suid-debug", F_OK) != 0)
-	GLRO(dl_debug_mask) = 0;
-
-      if (state->mode != rtld_mode_normal)
-	_exit (5);
-    }
   /* If we have to run the dynamic linker in debugging mode and the
      LD_DEBUG_OUTPUT environment variable is given, we write the debug
      messages to this file.  */
-  else if (state->any_debug && debug_output != NULL)
+  if (GLRO(dl_debug_mask) != 0 && debug_output != NULL)
     {
       const int flags = O_WRONLY | O_APPEND | O_CREAT | O_NOFOLLOW;
       size_t name_len = strlen (debug_output);
@@ -2702,6 +2741,15 @@ process_envvars (struct dl_main_state *state)
 	/* We use standard output if opening the file failed.  */
 	GLRO(dl_debug_fd) = STDOUT_FILENO;
     }
+}
+
+static void
+process_envvars (struct dl_main_state *state)
+{
+  if (__glibc_unlikely (__libc_enable_secure))
+    process_envvars_secure (state);
+  else
+    process_envvars_default (state);
 }
 
 #if HP_TIMING_INLINE
@@ -2767,10 +2815,9 @@ print_statistics (const hp_timing_t *rtld_total_timep)
 	    num_relative_relocations
 	      += l->l_info[VERSYMIDX (DT_RELCOUNT)]->d_un.d_val;
 #ifndef ELF_MACHINE_REL_RELATIVE
-	  /* Relative relocations are processed on these architectures if
-	     library is loaded to different address than p_vaddr.  */
-	  if ((l->l_addr != 0)
-	      && l->l_info[VERSYMIDX (DT_RELACOUNT)])
+	  /* Relative relocations are always processed on these
+	     architectures.  */
+	  if (l->l_info[VERSYMIDX (DT_RELACOUNT)])
 #else
 	  /* On e.g. IA-64 or Alpha, relative relocations are processed
 	     only if library is loaded to different address than p_vaddr.  */

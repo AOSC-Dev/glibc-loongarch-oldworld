@@ -1,5 +1,5 @@
 /* libio vtable validation.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 #include <libioP.h>
 #include <stdio.h>
 #include <ldsodefs.h>
+#include <array_length.h>
 #include <pointer_guard.h>
 #include <libio-macros.h>
 
@@ -88,7 +89,7 @@
 # pragma weak __wprintf_buffer_as_file_xsputn
 #endif
 
-const struct _IO_jump_t __io_vtables[IO_VTABLES_LEN] attribute_relro =
+const struct _IO_jump_t __io_vtables[] attribute_relro =
 {
   /* _IO_str_jumps  */
   [IO_STR_JUMPS] =
@@ -485,6 +486,8 @@ const struct _IO_jump_t __io_vtables[IO_VTABLES_LEN] attribute_relro =
   },
 #endif
 };
+_Static_assert (array_length (__io_vtables) == IO_VTABLES_NUM,
+                "initializer count");
 
 #ifdef SHARED
 

@@ -1,5 +1,5 @@
 /* Cache handling for host lookup.
-   Copyright (C) 2004-2023 Free Software Foundation, Inc.
+   Copyright (C) 2004-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,7 @@ static const initgr_response_header notfound =
 };
 
 
-#include "../grp/compat-initgroups.c"
+#include "../nss/initgroups-fallback.c"
 
 
 static time_t

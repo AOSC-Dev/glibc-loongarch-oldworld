@@ -1,5 +1,5 @@
 /* Print usage information and help for ld.so.
-   Copyright (C) 1995-2023 Free Software Foundation, Inc.
+   Copyright (C) 1995-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ _dl_version (void)
 {
   _dl_printf ("\
 ld.so " PKGVERSION RELEASE " release version " VERSION ".\n\
-Copyright (C) 2023 Free Software Foundation, Inc.\n\
+Copyright (C) 2024 Free Software Foundation, Inc.\n\
 This is free software; see the source for copying conditions.\n\
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A\n\
 PARTICULAR PURPOSE.\n\
@@ -99,7 +99,8 @@ print_search_path_for_help (struct dl_main_state *state)
   if (map != NULL)
     print_search_path_for_help_1 (map->l_runpath_dirs.dirs);
 
-  _dl_printf ("  (libraries located via %s)\n", LD_SO_CACHE);
+  if (!GLRO(dl_inhibit_cache))
+    _dl_printf ("  (libraries located via %s)\n", LD_SO_CACHE);
 
   print_search_path_for_help_1 (__rtld_search_dirs.dirs);
 }

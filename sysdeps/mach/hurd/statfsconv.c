@@ -1,5 +1,5 @@
 /* Convert between `struct statfs' format, and `struct statfs64' format.
-   Copyright (C) 2001-2023 Free Software Foundation, Inc.
+   Copyright (C) 2001-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@ statfs64_conv (struct statfs *buf, const struct statfs64 *buf64)
   DO (f_bfree);
   DO (f_bavail);
   DO (f_files);
+  DO (f_ffree);
   DO (f_fsid);
   DO (f_namelen);
   DO (f_favail);

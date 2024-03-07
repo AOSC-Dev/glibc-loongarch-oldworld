@@ -1,5 +1,5 @@
 /* Pointer obfuscation implenentation.  LoongArch version.
-   Copyright (C) 2022-2023 Free Software Foundation, Inc.
+   Copyright (C) 2022-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,17 +19,15 @@
 #ifndef POINTER_GUARD_H
 #define POINTER_GUARD_H
 
-/* Load a got-relative EXPR into G, using T.
-   Note G and T are register names.  */
+/* Load a got-relative EXPR into register G.  */
 #define LD_GLOBAL(G, EXPR) \
   la.global G,  EXPR; \
   REG_L     G,  G,  0;
 
-/* Load a pc-relative EXPR into G, using T.
-   Note G and T are register names.  */
+/* Load a pc-relative EXPR into register G.  */
 #define LD_PCREL(G, EXPR) \
-  la.pcrel  G,  EXPR; \
-  REG_L     G,  G,  0;
+  pcalau12i G, %pc_hi20(EXPR); \
+  REG_L     G, G, %pc_lo12(EXPR);
 
 #if (IS_IN (rtld) \
      || (!defined SHARED && (IS_IN (libc) \

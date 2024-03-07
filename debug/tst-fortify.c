@@ -1,4 +1,4 @@
-/* Copyright (C) 2004-2023 Free Software Foundation, Inc.
+/* Copyright (C) 2004-2024 Free Software Foundation, Inc.
    Copyright The GNU Toolchain Authors.
    This file is part of the GNU C Library.
 
@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <locale.h>
 #include <obstack.h>
 #include <setjmp.h>
@@ -36,6 +37,10 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <paths.h>
+
+#include <support/temp_file.h>
+#include <support/support.h>
 
 #ifndef _GNU_SOURCE
 # define MEMPCPY memcpy
@@ -52,15 +57,12 @@
 #define obstack_chunk_alloc malloc
 #define obstack_chunk_free free
 
-char *temp_filename;
-static void do_prepare (void);
-static int do_test (void);
-#define PREPARE(argc, argv) do_prepare ()
-#define TEST_FUNCTION do_test ()
-#include "../test-skeleton.c"
+static char *temp_filename;
+
+static int temp_fd_dprintf;
 
 static void
-do_prepare (void)
+do_prepare (int argc, char *argv[])
 {
   int temp_fd = create_temp_file ("tst-chk1.", &temp_filename);
   if (temp_fd == -1)
@@ -76,11 +78,19 @@ do_prepare (void)
       unlink (temp_filename);
       exit (1);
     }
-}
 
-volatile int chk_fail_ok;
-volatile int ret;
-jmp_buf chk_fail_buf;
+  temp_fd_dprintf = create_temp_file ("tst-chk2.", NULL);
+  if (temp_fd_dprintf == -1)
+    {
+      printf ("cannot create temporary file: %m\n");
+      exit (1);
+    }
+}
+#define PREPARE do_prepare
+
+static volatile int chk_fail_ok;
+static volatile int ret;
+static jmp_buf chk_fail_buf;
 
 static void
 handler (int sig)
@@ -102,22 +112,22 @@ wchar_t wbuf[10];
 #define buf_size sizeof (buf)
 #endif
 
-volatile size_t l0;
-volatile char *p;
-volatile wchar_t *wp;
-const char *str1 = "JIHGFEDCBA";
-const char *str2 = "F";
-const char *str3 = "%s%n%s%n";
-const char *str4 = "Hello, ";
-const char *str5 = "World!\n";
-const wchar_t *wstr1 = L"JIHGFEDCBA";
-const wchar_t *wstr2 = L"F";
-const wchar_t *wstr3 = L"%s%n%s%n";
-const wchar_t *wstr4 = L"Hello, ";
-const wchar_t *wstr5 = L"World!\n";
-char buf2[10] = "%s";
-int num1 = 67;
-int num2 = 987654;
+static volatile size_t l0;
+static volatile char *p;
+static volatile wchar_t *wp;
+static const char *str1 = "JIHGFEDCBA";
+static const char *str2 = "F";
+static const char *str3 = "%s%n%s%n";
+static const char *str4 = "Hello, ";
+static const char *str5 = "World!\n";
+static const wchar_t *wstr1 = L"JIHGFEDCBA";
+static const wchar_t *wstr2 = L"F";
+static const wchar_t *wstr3 = L"%s%n%s%n";
+static const wchar_t *wstr4 = L"Hello, ";
+static const wchar_t *wstr5 = L"World!\n";
+static char buf2[10] = "%s";
+static int num1 = 67;
+static int num2 = 987654;
 
 #define FAIL() \
   do { printf ("Failure on line %d\n", __LINE__); ret = 1; } while (0)
@@ -129,7 +139,7 @@ int num2 = 987654;
       chk_fail_ok = 0;				\
       FAIL ();					\
     }
-#if __USE_FORTIFY_LEVEL >= 2 && (!defined __cplusplus || defined __va_arg_pack)
+#if __USE_FORTIFY_LEVEL >= 2
 # define CHK_FAIL2_START CHK_FAIL_START
 # define CHK_FAIL2_END CHK_FAIL_END
 #else
@@ -418,7 +428,6 @@ do_test (void)
   stpncpy (buf + 6, "cd", l0 + 5);
   CHK_FAIL_END
 
-# if !defined __cplusplus || defined __va_arg_pack
   CHK_FAIL_START
   sprintf (buf + 8, "%d", num1);
   CHK_FAIL_END
@@ -438,7 +447,6 @@ do_test (void)
   CHK_FAIL_START
   swprintf (wbuf + 8, l0 + 3, L"%d", num1);
   CHK_FAIL_END
-# endif
 
   memcpy (buf, str1 + 2, 9);
   CHK_FAIL_START
@@ -549,7 +557,6 @@ do_test (void)
       FAIL ();
   }
 
-# if !defined __cplusplus || defined __va_arg_pack
   CHK_FAIL_START
   sprintf (a.buf1 + (O + 7), "%d", num1);
   CHK_FAIL_END
@@ -561,7 +568,6 @@ do_test (void)
   CHK_FAIL_START
   snprintf (a.buf1 + (O + 7), l0 + 3, "%d", num2);
   CHK_FAIL_END
-# endif
 
   memcpy (a.buf1, str1 + (3 - O), 8 + O);
   CHK_FAIL_START
@@ -904,6 +910,10 @@ do_test (void)
       || n1 != 1 || n2 != 2)
     FAIL ();
 
+  if (dprintf (temp_fd_dprintf, "%s%n%s%n", str2, &n1, str2, &n2) != 2
+      || n1 != 1 || n2 != 2)
+    FAIL ();
+
   strcpy (buf2 + 2, "%n%s%n");
   /* When the format string is writable and contains %n,
      with -D_FORTIFY_SOURCE=2 it causes __chk_fail.  */
@@ -914,6 +924,11 @@ do_test (void)
 
   CHK_FAIL2_START
   if (snprintf (buf, 3, buf2, str2, &n1, str2, &n1) != 2)
+    FAIL ();
+  CHK_FAIL2_END
+
+  CHK_FAIL2_START
+  if (dprintf (temp_fd_dprintf, buf2, str2, &n1, str2, &n1) != 2)
     FAIL ();
   CHK_FAIL2_END
 
@@ -1264,6 +1279,10 @@ do_test (void)
 
   CHK_FAIL2_START
   snprintf (buf, buf_size, "%3$d\n", 1, 2, 3, 4);
+  CHK_FAIL2_END
+
+  CHK_FAIL2_START
+  dprintf (temp_fd_dprintf, "%3$d\n", 1, 2, 3, 4);
   CHK_FAIL2_END
 
   int sp[2];
@@ -1815,3 +1834,5 @@ do_test (void)
 
   return ret;
 }
+
+#include <support/test-driver.c>

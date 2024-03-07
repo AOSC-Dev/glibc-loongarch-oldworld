@@ -1,5 +1,5 @@
 /* Auxiliary functions to issue the clone syscall.
-   Copyright (C) 2021-2023 Free Software Foundation, Inc.
+   Copyright (C) 2021-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -27,18 +27,11 @@ xclone (int (*fn) (void *arg), void *arg, void *stack, size_t stack_size,
 {
   pid_t r = -1;
 
-# ifdef __ia64__
-  extern int __clone2 (int (*fn) (void *arg), void *stack, size_t stack_size,
-		       int flags, void *arg, ...);
-  r = __clone2 (fn, stack, stack_size, flags, arg, /* ptid */ NULL,
-		/* tls */ NULL, /* ctid  */ NULL);
-# else
-#  if _STACK_GROWS_DOWN
+# if _STACK_GROWS_DOWN
   r = clone (fn, stack + stack_size, flags, arg, /* ptid */ NULL,
 	     /* tls */ NULL, /* ctid */  NULL);
-#  elif _STACK_GROWS_UP
+# elif _STACK_GROWS_UP
   r = clone (fn, stack, flags, arg, /* ptid */ NULL, /* tls */ NULL, NULL);
-#  endif
 # endif
 
   if (r < 0)

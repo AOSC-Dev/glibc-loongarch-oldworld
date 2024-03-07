@@ -1,5 +1,5 @@
 /* This file is part of the GNU C Library.
-   Copyright (C) 2013-2023 Free Software Foundation, Inc.
+   Copyright (C) 2013-2024 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <ldsodefs.h>
+#include <cpu-features.h>
 
 /* The code checks if _rtld_global_ro was realocated before trying to access
    the dl_hwcap field. The assembly is to make the compiler not optimize the
@@ -32,11 +33,12 @@
 # define __GLRO(value)  GLRO(value)
 #endif
 
-/* dl_hwcap contains only the latest supported ISA, the macro checks which is
-   and fills the previous ones.  */
+/* Get the hardware information post the tunables set, the macro checks
+   it and fills the previous ones.  */
 #define INIT_ARCH() \
-  unsigned long int hwcap = __GLRO(dl_hwcap); 			\
-  unsigned long int __attribute__((unused)) hwcap2 = __GLRO(dl_hwcap2); \
+  const struct cpu_features *features = &GLRO(dl_powerpc_cpu_features);	\
+  unsigned long int hwcap = features->hwcap;				\
+  unsigned long int __attribute__((unused)) hwcap2 = features->hwcap2; \
   bool __attribute__((unused)) use_cached_memopt =		\
     __GLRO(dl_powerpc_cpu_features.use_cached_memopt);		\
   if (hwcap & PPC_FEATURE_ARCH_2_06)				\

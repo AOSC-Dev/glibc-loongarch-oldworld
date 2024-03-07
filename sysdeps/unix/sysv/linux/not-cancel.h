@@ -1,5 +1,5 @@
 /* Uncancelable versions of cancelable interfaces.  Linux/NPTL version.
-   Copyright (C) 2003-2023 Free Software Foundation, Inc.
+   Copyright (C) 2003-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -85,6 +85,14 @@ __writev_nocancel_nostatus (int fd, const struct iovec *iov, int iovcnt)
 
 static inline ssize_t
 __getrandom_nocancel (void *buf, size_t buflen, unsigned int flags)
+{
+  return INLINE_SYSCALL_CALL (getrandom, buf, buflen, flags);
+}
+
+/* Non cancellable getrandom syscall that does not also set errno in case of
+   failure.  */
+static inline ssize_t
+__getrandom_nocancel_nostatus (void *buf, size_t buflen, unsigned int flags)
 {
   return INTERNAL_SYSCALL_CALL (getrandom, buf, buflen, flags);
 }

@@ -1,5 +1,5 @@
 /* Determine protocol families for which interfaces exist.  Generic version.
-   Copyright (C) 2003-2023 Free Software Foundation, Inc.
+   Copyright (C) 2003-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -60,12 +60,3 @@ __free_in6ai (struct in6addrinfo *in6ai)
 {
   /* Nothing to do.  */
 }
-
-
-#if IS_IN (nscd)
-uint32_t
-__bump_nl_timestamp (void)
-{
-  return 0;
-}
-#endif

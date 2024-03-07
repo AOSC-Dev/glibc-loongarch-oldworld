@@ -1,5 +1,5 @@
 /* Low-level lock implementation.  Mach gsync-based version.
-   Copyright (C) 1994-2023 Free Software Foundation, Inc.
+   Copyright (C) 1994-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
 #ifndef _MACH_LOWLEVELLOCK_H
 #define _MACH_LOWLEVELLOCK_H   1
 
+#include <mach.h>
 #include <mach/gnumach.h>
 #include <atomic.h>
 

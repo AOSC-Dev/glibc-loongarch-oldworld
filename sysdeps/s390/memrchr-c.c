@@ -1,5 +1,5 @@
 /* Default memrchr implementation for S/390.
-   Copyright (C) 2015-2023 Free Software Foundation, Inc.
+   Copyright (C) 2015-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -25,7 +25,9 @@
 
 # include <string/memrchr.c>
 
-# if defined SHARED && IS_IN (libc)
+# if HAVE_MEMRCHR_IFUNC
+#  if defined SHARED && IS_IN (libc)
 __hidden_ver1 (__memrchr_c, __GI___memrchr, __memrchr_c);
+#  endif
 # endif
 #endif

@@ -700,12 +700,8 @@ INSTALL_PROGRAM
 base_machine
 build_pt_chown
 build_nscd
-libc_cv_static_nss_crypt
-libc_cv_nss_crypt
-build_crypt
 memory_tagging
 enable_werror
-all_warnings
 force_install
 bindnow
 hardcoded_path_in_tests
@@ -804,12 +800,9 @@ enable_static_nss
 enable_force_install
 enable_maintainer_mode
 enable_kernel
-enable_all_warnings
 enable_werror
 enable_multi_arch
 enable_memory_tagging
-enable_crypt
-enable_nss_crypt
 enable_systemtap
 enable_build_nscd
 enable_nscd
@@ -1478,15 +1471,11 @@ Optional Features:
                           sometimes confusing) to the casual installer
   --enable-kernel=VERSION compile for compatibility with kernel not older than
                           VERSION
-  --enable-all-warnings   enable all useful warnings gcc can issue
   --disable-werror        do not build with -Werror
   --enable-multi-arch     enable single DSO with optimizations for multiple
                           architectures
   --enable-memory-tagging enable memory tagging if supported by the
                           architecture [default=no]
-  --enable-crypt          build and install the legacy passphrase hashing
-                          library, libcrypt
-  --enable-nss-crypt      enable libcrypt to use nss
   --enable-systemtap      enable systemtap static probe points [default=no]
   --disable-build-nscd    disable building and installing the nscd daemon
   --disable-nscd          library functions will not contact the nscd daemon
@@ -1742,6 +1731,44 @@ fi
 
 } # ac_fn_cxx_try_link
 
+# ac_fn_c_try_cpp LINENO
+# ----------------------
+# Try to preprocess conftest.$ac_ext, and return whether this succeeded.
+ac_fn_c_try_cpp ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  if { { ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+printf "%s\n" "$ac_try_echo"; } >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.err
+  ac_status=$?
+  if test -s conftest.err; then
+    grep -v '^ *+' conftest.err >conftest.er1
+    cat conftest.er1 >&5
+    mv -f conftest.er1 conftest.err
+  fi
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } > conftest.i && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }
+then :
+  ac_retval=0
+else $as_nop
+  printf "%s\n" "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+    ac_retval=1
+fi
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_c_try_cpp
+
 # ac_fn_c_try_link LINENO
 # -----------------------
 # Try to link conftest.$ac_ext, and return whether this succeeded.
@@ -1788,44 +1815,6 @@ fi
   as_fn_set_status $ac_retval
 
 } # ac_fn_c_try_link
-
-# ac_fn_c_try_cpp LINENO
-# ----------------------
-# Try to preprocess conftest.$ac_ext, and return whether this succeeded.
-ac_fn_c_try_cpp ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  if { { ac_try="$ac_cpp conftest.$ac_ext"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-printf "%s\n" "$ac_try_echo"; } >&5
-  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.err
-  ac_status=$?
-  if test -s conftest.err; then
-    grep -v '^ *+' conftest.err >conftest.er1
-    cat conftest.er1 >&5
-    mv -f conftest.er1 conftest.err
-  fi
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } > conftest.i && {
-	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       }
-then :
-  ac_retval=0
-else $as_nop
-  printf "%s\n" "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-    ac_retval=1
-fi
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_c_try_cpp
 ac_configure_args_raw=
 for ac_arg
 do
@@ -4526,14 +4515,6 @@ else
   fi
 fi
 
-# Check whether --enable-all-warnings was given.
-if test ${enable_all_warnings+y}
-then :
-  enableval=$enable_all_warnings; all_warnings=$enableval
-fi
-
-
-
 # Check whether --enable-werror was given.
 if test ${enable_werror+y}
 then :
@@ -4572,124 +4553,6 @@ if test "$memory_tagging" = yes; then
 fi
 
 
-# Check whether --enable-crypt was given.
-if test ${enable_crypt+y}
-then :
-  enableval=$enable_crypt; build_crypt=$enableval
-else $as_nop
-  build_crypt=no
-fi
-
-
-
-# Check whether --enable-nss-crypt was given.
-if test ${enable_nss_crypt+y}
-then :
-  enableval=$enable_nss_crypt; nss_crypt=$enableval
-else $as_nop
-  nss_crypt=no
-fi
-
-if test x$build_libcrypt = xno && test x$nss_crypt = xyes; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: --enable-nss-crypt has no effect when libcrypt is disabled" >&5
-printf "%s\n" "$as_me: WARNING: --enable-nss-crypt has no effect when libcrypt is disabled" >&2;}
-  nss_crypt=no
-fi
-if test x$nss_crypt = xyes; then
-  nss_includes=-I$(nss-config --includedir 2>/dev/null)
-  if test $? -ne 0; then
-    as_fn_error $? "cannot find include directory with nss-config" "$LINENO" 5
-  fi
-  nspr_includes=-I$(nspr-config --includedir 2>/dev/null)
-  if test $? -ne 0; then
-    as_fn_error $? "cannot find include directory with nspr-config" "$LINENO" 5
-  fi
-  old_CFLAGS="$CFLAGS"
-  CFLAGS="$CFLAGS $nss_includes $nspr_includes"
-
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-typedef int PRBool;
-#include <hasht.h>
-#include <nsslowhash.h>
-void f (void) { NSSLOW_Init (); }
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  libc_cv_nss_crypt=yes
-else $as_nop
-  as_fn_error $? "
-cannot find NSS headers with lowlevel hash function interfaces" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-  old_LIBS="$LIBS"
-  old_LDFLAGS="$LDFLAGS"
-  LIBS="$LIBS -lfreebl3"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-typedef int PRBool;
-#include <hasht.h>
-#include <nsslowhash.h>
-int
-main (void)
-{
-NSSLOW_Init();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  libc_cv_nss_crypt=yes
-else $as_nop
-  as_fn_error $? "
-cannot link program using lowlevel NSS hash functions" "$LINENO" 5
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-  # Check to see if there is a static NSS cryptographic library.
-  # If there isn't then we can't link anything with libcrypt.a,
-  # and that might mean disabling some static tests.
-  LDFLAGS="$LDFLAGS -static"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-typedef int PRBool;
-#include <hasht.h>
-#include <nsslowhash.h>
-int
-main (void)
-{
-NSSLOW_Init();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  libc_cv_static_nss_crypt=yes
-else $as_nop
-  libc_cv_static_nss_crypt=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-  LDFLAGS="$old_LDFLAGS"
-  CFLAGS="$old_CFLAGS"
-  LIBS="$old_LIBS"
-else
-  libc_cv_nss_crypt=no
-  libc_cv_static_nss_crypt=no
-fi
-
-
-
-
 # Check whether --enable-systemtap was given.
 if test ${enable_systemtap+y}
 then :
@@ -4699,7 +4562,8 @@ else $as_nop
 fi
 
 if test "x$systemtap" != xno; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for systemtap static probe support" >&5
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for systemtap static probe support" >&5
 printf %s "checking for systemtap static probe support... " >&6; }
 if test ${libc_cv_sdt+y}
 then :

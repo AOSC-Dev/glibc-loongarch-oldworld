@@ -1,5 +1,5 @@
 /* Load a shared object at runtime, relocate it, and run its initializer.
-   Copyright (C) 1996-2023 Free Software Foundation, Inc.
+   Copyright (C) 1996-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -405,7 +405,7 @@ update_tls_slotinfo (struct link_map *new)
     _dl_fatal_printf (N_("\
 TLS generation counter wrapped!  Please report this."));
   /* Can be read concurrently.  */
-  atomic_store_relaxed (&GL(dl_tls_generation), newgen);
+  atomic_store_release (&GL(dl_tls_generation), newgen);
 
   /* We need a second pass for static tls data, because
      _dl_update_slotinfo must not be run while calls to
@@ -422,8 +422,8 @@ TLS generation counter wrapped!  Please report this."));
 	     now, but we can delay updating the DTV.  */
 	  imap->l_need_tls_init = 0;
 #ifdef SHARED
-	  /* Update the slot information data for at least the
-	     generation of the DSO we are allocating data for.  */
+	  /* Update the slot information data for the current
+	     generation.  */
 
 	  /* FIXME: This can terminate the process on memory
 	     allocation failure.  It is not possible to raise
@@ -431,7 +431,7 @@ TLS generation counter wrapped!  Please report this."));
 	     _dl_update_slotinfo would have to be split into two
 	     operations, similar to resize_scopes and update_scopes
 	     above.  This is related to bug 16134.  */
-	  _dl_update_slotinfo (imap->l_tls_modid);
+	  _dl_update_slotinfo (imap->l_tls_modid, newgen);
 #endif
 
 	  dl_init_static_tls (imap);
@@ -467,6 +467,50 @@ activate_nodelete (struct link_map *new)
 	l->l_nodelete_pending = false;
       }
 }
+
+/* Relocate the object L.  *RELOCATION_IN_PROGRESS controls whether
+   the debugger is notified of the start of relocation processing.  */
+static void
+_dl_open_relocate_one_object (struct dl_open_args *args, struct r_debug *r,
+			      struct link_map *l, int reloc_mode,
+			      bool *relocation_in_progress)
+{
+  if (l->l_real->l_relocated)
+    return;
+
+  if (!*relocation_in_progress)
+    {
+      /* Notify the debugger that relocations are about to happen.  */
+      LIBC_PROBE (reloc_start, 2, args->nsid, r);
+      *relocation_in_progress = true;
+    }
+
+#ifdef SHARED
+  if (__glibc_unlikely (GLRO(dl_profile) != NULL))
+    {
+      /* If this here is the shared object which we want to profile
+	 make sure the profile is started.  We can find out whether
+	 this is necessary or not by observing the `_dl_profile_map'
+	 variable.  If it was NULL but is not NULL afterwards we must
+	 start the profiling.  */
+      struct link_map *old_profile_map = GL(dl_profile_map);
+
+      _dl_relocate_object (l, l->l_scope, reloc_mode | RTLD_LAZY, 1);
+
+      if (old_profile_map == NULL && GL(dl_profile_map) != NULL)
+	{
+	  /* We must prepare the profiling.  */
+	  _dl_start_profile ();
+
+	  /* Prevent unloading the object.  */
+	  GL(dl_profile_map)->l_nodelete_active = true;
+	}
+    }
+  else
+#endif
+    _dl_relocate_object (l, l->l_scope, reloc_mode, 0);
+}
+
 
 /* struct dl_init_args and call_dl_init are used to call _dl_init with
    exception handling disabled.  */
@@ -654,7 +698,7 @@ dl_open_worker_begin (void *a)
     }
   while (l != NULL);
 
-  int relocation_in_progress = 0;
+  bool relocation_in_progress = false;
 
   /* Perform relocation.  This can trigger lazy binding in IFUNC
      resolvers.  For NODELETE mappings, these dependencies are not
@@ -664,45 +708,20 @@ dl_open_worker_begin (void *a)
      them.  However, such relocation dependencies in IFUNC resolvers
      are undefined anyway, so this is not a problem.  */
 
-  for (unsigned int i = last; i-- > first; )
-    {
-      l = new->l_initfini[i];
-
-      if (l->l_real->l_relocated)
-	continue;
-
-      if (! relocation_in_progress)
-	{
-	  /* Notify the debugger that relocations are about to happen.  */
-	  LIBC_PROBE (reloc_start, 2, args->nsid, r);
-	  relocation_in_progress = 1;
-	}
-
+  /* Ensure that libc is relocated first.  This helps with the
+     execution of IFUNC resolvers in libc, and matters only to newly
+     created dlmopen namespaces.  Do not do this for static dlopen
+     because libc has relocations against ld.so, which may not have
+     been relocated at this point.  */
 #ifdef SHARED
-      if (__glibc_unlikely (GLRO(dl_profile) != NULL))
-	{
-	  /* If this here is the shared object which we want to profile
-	     make sure the profile is started.  We can find out whether
-	     this is necessary or not by observing the `_dl_profile_map'
-	     variable.  If it was NULL but is not NULL afterwards we must
-	     start the profiling.  */
-	  struct link_map *old_profile_map = GL(dl_profile_map);
-
-	  _dl_relocate_object (l, l->l_scope, reloc_mode | RTLD_LAZY, 1);
-
-	  if (old_profile_map == NULL && GL(dl_profile_map) != NULL)
-	    {
-	      /* We must prepare the profiling.  */
-	      _dl_start_profile ();
-
-	      /* Prevent unloading the object.  */
-	      GL(dl_profile_map)->l_nodelete_active = true;
-	    }
-	}
-      else
+  if (GL(dl_ns)[args->nsid].libc_map != NULL)
+    _dl_open_relocate_one_object (args, r, GL(dl_ns)[args->nsid].libc_map,
+				  reloc_mode, &relocation_in_progress);
 #endif
-	_dl_relocate_object (l, l->l_scope, reloc_mode, 0);
-    }
+
+  for (unsigned int i = last; i-- > first; )
+    _dl_open_relocate_one_object (args, r, new->l_initfini[i], reloc_mode,
+				  &relocation_in_progress);
 
   /* This only performs the memory allocations.  The actual update of
      the scopes happens below, after failure is impossible.  */

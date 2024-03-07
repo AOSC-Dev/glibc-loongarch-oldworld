@@ -1,5 +1,5 @@
 /* Optimized memmove for x86-64.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -46,6 +46,9 @@ weak_alias (__mempcpy, mempcpy)
 
 #ifndef USE_MULTIARCH
 libc_hidden_builtin_def (memmove)
+libc_hidden_builtin_def (__memmove_chk)
+libc_hidden_builtin_def (__memcpy_chk)
+libc_hidden_builtin_def (__mempcpy_chk)
 # if defined SHARED && IS_IN (libc)
 strong_alias (memmove, __memcpy)
 libc_hidden_ver (memmove, memcpy)

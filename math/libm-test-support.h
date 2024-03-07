@@ -1,5 +1,5 @@
 /* Support code for testing libm functions (common declarations).
-   Copyright (C) 1997-2023 Free Software Foundation, Inc.
+   Copyright (C) 1997-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -128,7 +128,7 @@ extern const char doc[];
 /* On some architectures, glibc can be built with compilers that do
    not have suitable built-in functions for setting the payload of a
    _Float128 NaN.  */
-#if ((defined __x86_64__ || defined __i386__ || defined __ia64__)	\
+#if ((defined __x86_64__ || defined __i386__)	\
      && !__GNUC_PREREQ (7, 0))
 # define XFAIL_FLOAT128_PAYLOAD (TEST_COND_binary128 ? XFAIL_TEST : 0)
 #else

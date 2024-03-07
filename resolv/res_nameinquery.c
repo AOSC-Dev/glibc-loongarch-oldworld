@@ -1,5 +1,5 @@
 /* Check if a DNS packet matches a specific DNS query.
-   Copyright (C) 2016-2023 Free Software Foundation, Inc.
+   Copyright (C) 2016-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -84,6 +84,7 @@
 
 #include <arpa/nameser.h>
 #include <resolv.h>
+#include <resolv/resolv-internal.h>
 
 /* Author: paul vixie, 29may94.  */
 int
@@ -91,7 +92,7 @@ __libc_res_nameinquery (const char *name, int type, int class,
                         const unsigned char *buf, const unsigned char *eom)
 {
   const unsigned char *cp = buf + HFIXEDSZ;
-  int qdcount = ntohs (((HEADER *) buf)->qdcount);
+  int qdcount = ntohs (((UHEADER *) buf)->qdcount);
 
   while (qdcount-- > 0)
     {

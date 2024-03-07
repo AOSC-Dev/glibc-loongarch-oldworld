@@ -1,4 +1,4 @@
-# Copyright (C) 1992-2023 Free Software Foundation, Inc.
+# Copyright (C) 1992-2024 Free Software Foundation, Inc.
 # This file is part of the GNU C Library.
 
 # The GNU C Library is free software; you can redistribute it and/or
@@ -192,6 +192,7 @@ tests := \
   tst-fchownat \
   tst-fcntl \
   tst-fcntl-lock \
+  tst-fcntl-lock-lfs \
   tst-fstatat \
   tst-fts \
   tst-fts-lfs \

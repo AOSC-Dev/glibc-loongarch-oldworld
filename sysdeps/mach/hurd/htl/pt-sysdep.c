@@ -1,5 +1,5 @@
 /* System dependent pthreads code.  Hurd version.
-   Copyright (C) 2000-2023 Free Software Foundation, Inc.
+   Copyright (C) 2000-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -26,6 +26,10 @@
 #include <pt-internal.h>
 #include <pthreadP.h>
 
+/* Initial thread structure used temporarily during initialization, so various
+ * functions can already work at least basically.  */
+static struct __pthread init_thread;
+
 static void
 reset_pthread_total (void)
 {
@@ -47,17 +51,45 @@ _init_routine (void *stack)
     /* Already initialized */
     return;
 
+  /* Initialize early thread structure.  */
+  init_thread.thread = 1;
+  ___pthread_self = &init_thread;
+
   /* Initialize the library.  */
   ___pthread_init ();
 
   if (stack != NULL)
     {
-      /* We are getting initialized due to dlopening a library using libpthread
-         while the main program was not linked against libpthread.  */
+      /* We are given a stack, use it.  */
+
+      /* Get the stack area information */
+      vm_address_t addr = (vm_address_t) stack;
+      vm_size_t vm_size;
+      vm_prot_t prot, max_prot;
+      vm_inherit_t inherit;
+      boolean_t is_shared;
+      memory_object_name_t obj;
+      vm_offset_t offset;
+
+      if (__vm_region (__mach_task_self (), &addr,
+		     &vm_size, &prot, &max_prot, &inherit, &is_shared,
+		     &obj, &offset) == KERN_SUCCESS)
+	__mach_port_deallocate (__mach_task_self (), obj);
+      else
+	{
+	  /* Uh.  Assume at least a page.  */
+	  vm_size = __vm_page_size;
+#if _STACK_GROWS_DOWN
+	  addr = (vm_address_t) stack - vm_size;
+#else
+	  addr = (vm_address_t) stack + vm_size;
+#endif
+	}
+
       /* Avoid allocating another stack */
       attrp = &attr;
       __pthread_attr_init (attrp);
-      __pthread_attr_setstack (attrp, stack, __vm_page_size);
+      __pthread_attr_setstack (attrp, (void *) addr, vm_size);
     }
 
   /* Create the pthread structure for the main thread (i.e. us).  */
@@ -73,6 +105,12 @@ _init_routine (void *stack)
 #ifndef PAGESIZE
   __pthread_default_attr.__guardsize = __vm_page_size;
 #endif
+
+  /* Copy over the thread-specific state */
+  assert (!init_thread.thread_specifics);
+  memcpy (&thread->static_thread_specifics,
+          &init_thread.static_thread_specifics,
+          sizeof (thread->static_thread_specifics));
 
   ___pthread_self = thread;
 

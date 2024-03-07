@@ -1,5 +1,5 @@
 /* spawn a new process running an executable.  Hurd version.
-   Copyright (C) 2001-2023 Free Software Foundation, Inc.
+   Copyright (C) 2001-2024 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -787,12 +787,18 @@ retry:
       /* Relative path */
       char *cwd = __getcwd (NULL, 0);
       if (cwd == NULL)
-	goto out;
+	{
+	  err = errno;
+	  goto out;
+	}
 
       res = __asprintf (&concat_name, "%s/%s", cwd, relpath);
       free (cwd);
       if (res == -1)
-	goto out;
+	{
+	  err = errno;
+	  goto out;
+	}
 
       abspath = concat_name;
     }
@@ -806,6 +812,18 @@ retry:
 
     inline error_t exec (file_t file)
       {
+	sigset_t old, new;
+
+	/* Avoid getting interrupted while exec(), notably not after the exec
+	   server has committed to the exec and started thrashing the task.
+
+	   Various issues otherwise show up when building e.g. ghc.
+
+	   TODO Rather add proper interrupt support to the exec server, that
+	   avoids interrupts in that period.  */
+	__sigfillset(&new);
+	__sigprocmask (SIG_SETMASK, &new, &old);
+
 	error_t err = __file_exec_paths
 	  (file, task,
 	   __sigismember (&_hurdsig_traced, SIGKILL) ? EXEC_SIGTRAP : 0,
@@ -818,7 +836,7 @@ retry:
 	/* Fallback for backwards compatibility.  This can just be removed
 	   when __file_exec goes away.  */
 	if (err == MIG_BAD_ID)
-	  return __file_exec (file, task,
+	  err = __file_exec (file, task,
 			      (__sigismember (&_hurdsig_traced, SIGKILL)
 			      ? EXEC_SIGTRAP : 0),
 			      args, argslen, env, envlen,
@@ -826,6 +844,8 @@ retry:
 			      ports, MACH_MSG_TYPE_COPY_SEND, _hurd_nports,
 			      ints, INIT_INT_MAX,
 			      NULL, 0, NULL, 0);
+
+	__sigprocmask (SIG_SETMASK, &old, NULL);
 
 	return err;
       }
