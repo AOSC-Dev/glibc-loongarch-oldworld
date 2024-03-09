@@ -8,7 +8,7 @@ extern int __ow_sigfillset(sigset_t *);
 extern int __ow_sigandset (sigset_t *__set, const sigset_t *__left, const sigset_t *__right);
 extern int __ow_sigorset (sigset_t *__set, const sigset_t *__left, const sigset_t *__right);
 
-#define __OW_NSIG 128
+#include <sysdeps/unix/sysv/linux/loongarch/bits/ow_nsig.h>
 
 static inline void __ow_clear_unused_bits(sigset_t *set)
 {
